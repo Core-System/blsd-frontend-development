@@ -27,7 +27,7 @@ export default function PaginaDeLogin() {
           </div>
 
           <div className="flex justify-center pr-0 pt-8">
-            <div className="w-[420px]">
+            <div className="w-105">
               <CartaoDeLogin />
             </div>
           </div>
