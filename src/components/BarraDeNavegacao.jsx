@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 const linksDaNavegacao = ["Início", "Procedimentos", "Sobre nós", "Contato", "Agende"];
 
 export default function BarraDeNavegacao() {
+  const navigate = useNavigate();
   return (
     <header className="w-full bg-[#FAFAE8] px-12 py-5 flex justify-between shadow-sm">
 
@@ -14,28 +17,26 @@ export default function BarraDeNavegacao() {
         <ul className="flex items-center gap-10">
           {linksDaNavegacao.map((link) => (
             <li key={link}>
-              <a
-                href="#"
-                className={`text-lg font-medium transition-colors duration-200 hover:text-[#B8982A] ${
-                  link === "Início"
+              <button
+                onClick={() => {
+                  if (link === "Início") {
+                    navigate("/");
+                  }
+                }}
+                className={`text-lg font-medium transition-colors duration-200 hover:text-[#B8982A] bg-transparent border-none cursor-pointer ${link === "Início"
                     ? "text-gray-900 font-bold"
                     : "text-gray-700"
-                }`}
+                  }`}
               >
                 {link}
-              </a>
+              </button>
             </li>
           ))}
         </ul>
       </nav>
 
 
-      <a
-        href="#"
-        className="text-lg font-semibold text-gray-900 hover:text-[#B8982A] transition-colors duration-200"
-      >
-        Entrar
-      </a>
+      <button onClick={() => navigate("/login")} className="text-lg font-semibold text-gray-900 hover:text-[#b8982a] transition-colors duration-200 bg-transparent border-none cursor-pointer">Entrar</button>
 
     </header>
   );

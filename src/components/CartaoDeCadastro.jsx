@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CartaoDeCadastro() {
+  const navigate = useNavigate();
   const [nomeCompleto, setNomeCompleto] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
@@ -148,9 +150,12 @@ export default function CartaoDeCadastro() {
 
         <p className="text-center text-sm text-gray-500">
           Já tem conta?{" "}
-          <a href="#" className="text-[#B8982A] font-semibold hover:underline">
-            Fazer login
-          </a>
+          <button
+            onClick={() => navigate("/login")}
+            className="text-lg font-semibold text-gray-900 hover:text-[#B8982A] transition-colors duration-200 bg-transparent border-none cursor-pointer"
+          >
+            Entrar
+          </button>
         </p>
 
       </div>
