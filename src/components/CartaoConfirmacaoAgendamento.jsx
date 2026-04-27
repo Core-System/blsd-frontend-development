@@ -19,7 +19,7 @@ const iconPin = (
   </svg>
 );
 
-export default function CartaoConfirmacaoAgendamento({ procedimento, preco, data, horario, local }) {
+export default function CartaoConfirmacaoAgendamento({ procedimento, preco, data, confirmar, loading, erro, horario, local }) {
   return (
     <div className="bg-[#576b5d] rounded-2xl p-7 flex flex-col gap-5 h-full">
       <div className="flex gap-8 flex-1">
@@ -50,9 +50,18 @@ export default function CartaoConfirmacaoAgendamento({ procedimento, preco, data
 
       {/* CTA */}
       <div className="flex flex-col gap-2">
-        <button className="w-full bg-[#d4b055] hover:bg-[#c9a44a] text-[#2C3E2D] font-bold py-3 rounded-xl text-sm transition-all active:scale-95">
-          Confirmar Agendamento
+        <button
+          onClick={confirmar}
+          disabled={loading}
+          className="w-full bg-[#d4b055] hover:bg-[#c9a44a] text-[#2C3E2D] font-bold py-3 rounded-xl text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Aguardando...' : 'Confirmar Agendamento'}
         </button>
+
+        {/* mostra erro se houver */}
+        {erro && (
+          <p className="text-red-300 text-xs text-center">{erro}</p>
+        )}
         <p className="text-white/40 text-[10px] text-center leading-relaxed">
           Ao confirmar, você concorda com nossos termos de reserva e política de cancelamento.
         </p>

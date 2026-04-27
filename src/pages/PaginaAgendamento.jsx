@@ -10,6 +10,7 @@ import SeletorDeLocal from '../components/SeletorDeLocal';
 import CartaoConfirmacaoAgendamento from '../components/CartaoConfirmacaoAgendamento';
 import CartaoDicasPreProcedimento from '../components/CartaoDicasPreProcedimento';
 import RodapeAgendamento from '../components/RodapeAgendamento';
+import { useAgendamento } from '../hooks/useAgendamento';
 
 const procedimentos = [
   {
@@ -35,17 +36,45 @@ const procedimentos = [
   },
 ];
 
+const USUARIO_MOCK = {
+  nome: 'Maria Silva',
+  email: 'maria@email.com',
+};
+
 export default function PaginaAgendamento() {
   const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(2);
   const [dataSelecionada, setDataSelecionada] = useState(22);
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
+  const {loading, erro, sucesso, confirmar } = useAgendamento();
 
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
 
   const passoAtual =
     !procedimentoSelecionado ? 1 :
     !dataSelecionada || !horarioSelecionado ? 2 : 3;
+
+  function handleConfirmar(){
+    confirmar({
+      nome: USUARIO_MOCK.nome,
+      email: USUARIO_MOCK.email,
+      dia:dataSelecionada,
+      hora:horarioSelecionado,
+    });
+  }
+
+  if (sucesso) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#f8f7f2]">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-[#2C3E2D] mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+          Agendamento Confirmado!
+        </h2>
+        <p className="text-gray-500">Você receberá uma confirmação no e-mail em breve.</p>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -132,6 +161,9 @@ export default function PaginaAgendamento() {
                 ? 'Rua Entre-Folhas, 4a - Jardim Arize'
                 : 'Rua Endereço-do-usuário, 123 - Jardim Usuário'
               }
+              confirmar={handleConfirmar}
+              loading={loading}
+              erro={erro}
             />
             <CartaoDicasPreProcedimento />
           </div>
