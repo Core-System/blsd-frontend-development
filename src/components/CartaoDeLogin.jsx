@@ -1,13 +1,19 @@
 import { useState } from "react";
+import { loginCliente } from "../services/ClienteService";
 
 export default function CartaoDeLogin() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  const aoEnviarFormulario = (e) => {
+  const aoEnviarFormulario = async (e) => {
     e.preventDefault();
-    console.log("Dados de login:", { email, senha });
+    try {
+      const resposta = await loginCliente(email, senha);
+      alert(resposta); 
+    } catch {
+      alert("Credenciais inválidas");
+    }
   };
 
   return (
