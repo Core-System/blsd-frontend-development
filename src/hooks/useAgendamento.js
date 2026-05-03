@@ -5,7 +5,7 @@ import { criarAgendamento } from "../services/agendamentoService";
 export function useAgendamento(){
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState(null);
-    const [sucesso, setSucesso] = useState(false);
+    const [sucesso, setSucesso] = useState(null);
 
     async function confirmar(dados) {
         setErro(null);
@@ -13,7 +13,7 @@ export function useAgendamento(){
 
         try {
             await criarAgendamento(dados);
-            setSucesso(true);
+            setSucesso(dados);
         } catch(e){
             setErro(e.message);
         } finally {

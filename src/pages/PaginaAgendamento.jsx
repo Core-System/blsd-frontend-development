@@ -60,17 +60,47 @@ export default function PaginaAgendamento() {
       email: USUARIO_MOCK.email,
       dia:dataSelecionada,
       hora:horarioSelecionado,
+      procedimento: proc?.titulo,
+      preco: proc?.preco,
+      local: localSelecionado == "clínica" ? "Rua nao sei, 4 - jardim nao sei" :
+      "Rua usuario nao sei, 5 - nao sei"
     });
   }
 
   if (sucesso) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8f7f2]">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-[#2C3E2D] mb-4" style={{ fontFamily: 'Georgia, serif' }}>
-          Agendamento Confirmado!
-        </h2>
-        <p className="text-gray-500">Você receberá uma confirmação no e-mail em breve.</p>
+    <div className="min-h-screen flex flex-col bg-[#f8f7f2]">
+      <BarraDeNavegacaoSuperior />
+      <div className="flex-1 flex items-center justify-center px-6 py-16">
+        <div className="max-w-md w-full bg-[#576b5d] rounded-2xl p-8 flex flex-col gap-5">
+          <div>
+            <p className="text-[#d4b055] text-xs font-bold tracking-widest uppercase mb-1">Confirmado</p>
+            <h2 className="text-white text-3xl font-bold" style={{ fontFamily: 'Georgia, serif' }}>
+              Agendamento Confirmado!
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-3 text-white text-sm">
+            <p>{sucesso.procedimento} — <span className="text-[#d4b055] font-semibold">{sucesso.preco}</span></p>
+            <p>Dia {sucesso.dia} de Abril de 2026, às {sucesso.hora}</p>
+            <p>{sucesso.local}</p>
+            <p>Confirmação enviada para {sucesso.email}</p>
+          </div>
+
+          <div className="bg-[#4a5e50] rounded-xl p-4 text-white/75 text-xs leading-relaxed">
+            <p className="font-bold text-white mb-1">Dicas para seu procedimento:</p>
+            <p>• Chegue com 10 minutos de antecedência</p>
+            <p>• Evite maquiagem no dia</p>
+            <p>• Hidrate-se bem antes da sessão</p>
+          </div>
+
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-[#d4b055] text-[#2C3E2D] font-bold py-3 rounded-xl text-sm"
+          >
+            Fazer novo agendamento
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -158,8 +188,8 @@ export default function PaginaAgendamento() {
               data={`Quinta-feira, ${dataSelecionada} de Abril`}
               horario={horarioSelecionado || '—'}
               local={localSelecionado === 'clinica'
-                ? 'Rua Entre-Folhas, 4a - Jardim Arize'
-                : 'Rua Endereço-do-usuário, 123 - Jardim Usuário'
+                ? 'Rua seila - Jardim clinica'
+                : 'Rua seila, 123 - Jardim Usuário'
               }
               confirmar={handleConfirmar}
               loading={loading}
