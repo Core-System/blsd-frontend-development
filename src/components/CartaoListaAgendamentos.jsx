@@ -86,7 +86,7 @@ const agendamentos = [
 export default function CartaoListaAgendamentos() {
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-      {/* Header */}
+      {/* header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#f0ede0]">
         <div>
           <h2 className="text-base font-bold text-gray-800">Lista de</h2>
@@ -102,7 +102,7 @@ export default function CartaoListaAgendamentos() {
         </div>
       </div>
 
-      {/* Tabela */}
+      {/* tabela */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>

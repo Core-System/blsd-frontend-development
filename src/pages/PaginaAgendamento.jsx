@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import { useAgendamento } from '../hooks/useAgendamento';
+import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoSuperior from '../components/BarraDeNavegacaoSuperior';
 import CabecalhoPagina from '../components/CabecalhoPagina';
 import IndicadorDePassos from '../components/IndicadorDePassos';
@@ -10,7 +11,11 @@ import SeletorDeLocal from '../components/SeletorDeLocal';
 import CartaoConfirmacaoAgendamento from '../components/CartaoConfirmacaoAgendamento';
 import CartaoDicasPreProcedimento from '../components/CartaoDicasPreProcedimento';
 import RodapeAgendamento from '../components/RodapeAgendamento';
-import { useAgendamento } from '../hooks/useAgendamento';
+
+const NOMES_MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
 
 const procedimentos = [
   {
@@ -36,75 +41,73 @@ const procedimentos = [
   },
 ];
 
-const USUARIO_MOCK = {
-  nome: 'Maria Silva',
-  email: 'maria@email.com',
-};
+
 
 export default function PaginaAgendamento() {
   const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(2);
-  const [dataSelecionada, setDataSelecionada] = useState(22);
+  const [dataSelecionada, setDataSelecionada] = useState(null);
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
-  const {loading, erro, sucesso, confirmar } = useAgendamento();
+  const { loading, erro, sucesso, confirmar } = useAgendamento();
+  const { usuario } = useAuth();
+
 
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
 
-  const passoAtual =
-    !procedimentoSelecionado ? 1 :
-    !dataSelecionada || !horarioSelecionado ? 2 : 3;
-
-  function handleConfirmar(){
+  function handleConfirmar() {
     confirmar({
-      nome: USUARIO_MOCK.nome,
-      email: USUARIO_MOCK.email,
-      dia:dataSelecionada,
-      hora:horarioSelecionado,
+      nome: usuario?.nome,
+      email: usuario?.email,
+      dia: dataSelecionada?.dia,
+      mes: dataSelecionada?.mes,
+      ano: dataSelecionada?.ano,
+      hora: horarioSelecionado,
       procedimento: proc?.titulo,
       preco: proc?.preco,
-      local: localSelecionado == "clínica" ? "Rua nao sei, 4 - jardim nao sei" :
-      "Rua usuario nao sei, 5 - nao sei"
+      local: localSelecionado === 'clinica'
+        ? 'Rua fulano - 123 - Jardim clinica'
+        : 'Rua fulano, 123 - Jardim Usuário',
     });
   }
 
   if (sucesso) {
-  return (
-    <div className="min-h-screen flex flex-col bg-[#f8f7f2]">
-      <BarraDeNavegacaoSuperior />
-      <div className="flex-1 flex items-center justify-center px-6 py-16">
-        <div className="max-w-md w-full bg-[#576b5d] rounded-2xl p-8 flex flex-col gap-5">
-          <div>
-            <p className="text-[#d4b055] text-xs font-bold tracking-widest uppercase mb-1">Confirmado</p>
-            <h2 className="text-white text-3xl font-bold" style={{ fontFamily: 'Georgia, serif' }}>
-              Agendamento Confirmado!
-            </h2>
-          </div>
+    return (
+      <div className="min-h-screen flex flex-col bg-[#f8f7f2]">
+        <BarraDeNavegacaoSuperior />
+        <div className="flex-1 flex items-center justify-center px-6 py-16">
+          <div className="max-w-md w-full bg-[#576b5d] rounded-2xl p-8 flex flex-col gap-5">
+            <div>
+              <p className="text-[#d4b055] text-xs font-bold tracking-widest uppercase mb-1">Confirmado</p>
+              <h2 className="text-white text-3xl font-bold" style={{ fontFamily: 'Georgia, serif' }}>
+                Agendamento Confirmado!
+              </h2>
+            </div>
 
-          <div className="flex flex-col gap-3 text-white text-sm">
-            <p>{sucesso.procedimento} — <span className="text-[#d4b055] font-semibold">{sucesso.preco}</span></p>
-            <p>Dia {sucesso.dia} de Abril de 2026, às {sucesso.hora}</p>
-            <p>{sucesso.local}</p>
-            <p>Confirmação enviada para {sucesso.email}</p>
-          </div>
+            <div className="flex flex-col gap-3 text-white text-sm">
+              <p>{sucesso.procedimento} — <span className="text-[#d4b055] font-semibold">{sucesso.preco}</span></p>
+              <p>Dia {sucesso.dia} de {NOMES_MESES[sucesso.mes]} de {sucesso.ano}, às {sucesso.hora}</p>
+              <p>{sucesso.local}</p>
+              <p>Confirmação enviada para {sucesso.email}</p>
+            </div>
 
-          <div className="bg-[#4a5e50] rounded-xl p-4 text-white/75 text-xs leading-relaxed">
-            <p className="font-bold text-white mb-1">Dicas para seu procedimento:</p>
-            <p>• Chegue com 10 minutos de antecedência</p>
-            <p>• Evite maquiagem no dia</p>
-            <p>• Hidrate-se bem antes da sessão</p>
-          </div>
+            <div className="bg-[#4a5e50] rounded-xl p-4 text-white/75 text-xs leading-relaxed">
+              <p className="font-bold text-white mb-1">Dicas para seu procedimento:</p>
+              <p>• Chegue com 10 minutos de antecedência</p>
+              <p>• Evite maquiagem no dia</p>
+              <p>• Hidrate-se bem antes da sessão</p>
+            </div>
 
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-[#d4b055] text-[#2C3E2D] font-bold py-3 rounded-xl text-sm"
-          >
-            Fazer novo agendamento
-          </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-[#d4b055] text-[#2C3E2D] font-bold py-3 rounded-xl text-sm"
+            >
+              Fazer novo agendamento
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -115,7 +118,7 @@ export default function PaginaAgendamento() {
         <CabecalhoPagina />
 
         <div className="max-w-4xl mx-auto">
-          <IndicadorDePassos passoAtual={passoAtual} fundoEscuro={false} />
+          <IndicadorDePassos passoAtual={1} fundoEscuro={false} />
         </div>
 
         <div className="max-w-5xl mx-auto px-6 pb-16">
@@ -143,7 +146,7 @@ export default function PaginaAgendamento() {
       {/* ── FAIXA 2: Verde Escuro ── */}
       <div className="bg-[#576b5d]">
         <div className="max-w-4xl mx-auto">
-          <IndicadorDePassos passoAtual={passoAtual} fundoEscuro={true} />
+          <IndicadorDePassos passoAtual={2} fundoEscuro={true} />
         </div>
 
         <div className="max-w-5xl mx-auto px-6 pb-16">
@@ -172,7 +175,7 @@ export default function PaginaAgendamento() {
       {/* ── FAIXA 3: Claro ── */}
       <div className="bg-[#f8f7f2] flex-1">
         <div className="max-w-4xl mx-auto">
-          <IndicadorDePassos passoAtual={passoAtual} fundoEscuro={false} />
+          <IndicadorDePassos passoAtual={3} fundoEscuro={false} />
         </div>
 
         <div className="max-w-5xl mx-auto px-6 pb-16">
@@ -185,11 +188,16 @@ export default function PaginaAgendamento() {
             <CartaoConfirmacaoAgendamento
               procedimento={proc?.titulo || 'Procedimento'}
               preco={proc?.preco || '—'}
-              data={`Quinta-feira, ${dataSelecionada} de Abril`}
+              data={dataSelecionada ? (() => {
+                const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                const semana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                const d = new Date(dataSelecionada.ano, dataSelecionada.mes, dataSelecionada.dia);
+                return `${semana[d.getDay()]}, ${dataSelecionada.dia} de ${meses[dataSelecionada.mes]}`;
+              })() : '—'}
               horario={horarioSelecionado || '—'}
               local={localSelecionado === 'clinica'
-                ? 'Rua seila - Jardim clinica'
-                : 'Rua seila, 123 - Jardim Usuário'
+                ? 'Rua clinica - Jardim clinica'
+                : 'Rua residencia, 123 - Jardim Usuário'
               }
               confirmar={handleConfirmar}
               loading={loading}
@@ -200,7 +208,7 @@ export default function PaginaAgendamento() {
         </div>
       </div>
 
-      {/* ── FAIXA 4: Rodapé ── */}
+      {/* ── FAIXA 4: rodapé ── */}
       <RodapeAgendamento />
     </div>
   );

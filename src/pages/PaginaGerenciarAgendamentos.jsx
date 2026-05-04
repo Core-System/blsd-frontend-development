@@ -1,7 +1,7 @@
 import React from 'react';
 
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
-import CabecalhoGlobal from '../components/CabecalhoGlobal';
+import BarraDeNavegacao from '../components/BarraDeNavegacao';      // ← header único
 import BarraFiltrosAgendamento from '../components/BarraFiltrosAgendamento';
 import CalendarioAgendamento from '../components/CalendarioAgendamento';
 import CartaoVisaoGeral from '../components/CartaoVisaoGeral';
@@ -19,20 +19,18 @@ const iconCalendar = (
 export default function PaginaGerenciarAgendamentos() {
   return (
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
-      {/* barra lateral */}
       <BarraDeNavegacaoLateral />
-
-      {/* header global */}
-      <CabecalhoGlobal />
-
-      {/* conteudo principal */}
-      <main
-        className="conteudo-principal ml-[152px] mt-14 min-h-[calc(100vh-56px)] overflow-y-auto"
-        style={{ backgroundColor: '#f5f4ec' }}
-      >
+      <BarraDeNavegacao
+        offsetLateral
+        mostrarBusca
+        mostrarNotificacoes
+        mostrarLinks={false}
+      />
+      <main className="ml-[152px] mt-14 min-h-[calc(100vh-56px)] overflow-y-auto bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-7">
 
-          <div className="animate-fade-in flex items-start justify-between mb-5">
+          {/* Cabeçalho da seção */}
+          <div className="flex items-start justify-between mb-5">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
                 Gestão
@@ -51,40 +49,38 @@ export default function PaginaGerenciarAgendamentos() {
             </div>
           </div>
 
-          {/* barra de filtro */}
-          <div className="animate-fade-in-delay-1 mb-5">
+          {/* filtros */}
+          <div className="mb-5">
             <BarraFiltrosAgendamento />
           </div>
 
-          <div className="animate-fade-in-delay-2 grid grid-cols-12 gap-4 mb-4">
-            {/* coluna esquerda calendario + previa */}
+          {/* calendário + lista */}
+          <div className="grid grid-cols-12 gap-4 mb-4">
             <div className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
               <CalendarioAgendamento />
               <CartaoVisaoGeral />
             </div>
-
-            {/* coluna direita: lista de agendamentos */}
             <div className="col-span-12 lg:col-span-8 xl:col-span-9">
               <CartaoListaAgendamentos />
             </div>
           </div>
 
-          {/* KPI */}
-          <div className="animate-fade-in-delay-3 grid grid-cols-12 gap-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
               <CartaoKPI
-                icon="trend"
-                value="+18%"
-                label="Crescimento Mensal"
-                description="novos agendamentos"
+                icone="tendencia"
+                valor="+18%"
+                rotulo="Crescimento Mensal"
+                descricao="novos agendamentos"
               />
             </div>
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
               <CartaoKPI
-                icon="hourglass"
-                value="12"
-                unit="minutos"
-                label="Tempo Médio de Espera"
+                icone="ampulheta"
+                valor="12"
+                unidade="minutos"
+                rotulo="Tempo Médio de Espera"
               />
             </div>
             <div className="col-span-12 lg:col-span-4">

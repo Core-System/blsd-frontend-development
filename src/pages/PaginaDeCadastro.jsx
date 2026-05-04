@@ -1,36 +1,26 @@
-import BarraDeNavegacao from "../components/BarraDeNavegacao";
+import BarraDeNavegacaoSuperior from "../components/BarraDeNavegacaoSuperior";
 import CartaoDeCadastro from "../components/CartaoDeCadastro";
 import Rodape from "../components/Rodape";
-
-import imagemFundo from "../assets/fundoLogin.png"; 
+import imagemFundo from "../assets/fundoLogin.png";
 
 export default function PaginaDeCadastro() {
   return (
     <div className="min-h-screen flex flex-col">
 
-      <div className="relative flex-1">
+      <BarraDeNavegacaoSuperior />
 
+      <div className="relative flex-1 pt-14">
         <img
           src={imagemFundo}
           alt="Interior do salão Blessed 7"
           className="w-full h-full object-cover absolute inset-0"
         />
-
-
-        <div className="relative z-10 flex flex-col h-full">
-
-
-          <BarraDeNavegacao />
-
-          <div className="flex-1 flex items-center justify-center py-10">
-            <CartaoDeCadastro />
-          </div>
-
+        <div className="relative z-10 flex items-center justify-center min-h-full py-16">
+          <CartaoDeCadastro />
         </div>
       </div>
 
       <Rodape />
-
     </div>
   );
 }

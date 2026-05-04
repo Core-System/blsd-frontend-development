@@ -11,7 +11,7 @@ export default function CartaoProcedimento({ imagem, titulo, preco, descricao, s
         }
       `}
     >
-      {/* Imagem */}
+      {/* imagem */}
       <div className="relative h-52 overflow-hidden">
         <img
           src={imagem}
@@ -20,7 +20,7 @@ export default function CartaoProcedimento({ imagem, titulo, preco, descricao, s
         />
       </div>
 
-      {/* Conteudo */}
+      {/* conteudo */}
       <div className={`p-4 flex flex-col gap-2 flex-1 ${selecionado ? 'bg-[#576b5d]' : 'bg-white'}`}>
         <div className="flex justify-between items-start">
           <h3 className={`font-bold text-base leading-tight ${selecionado ? 'text-white' : 'text-[#2C3E2D]'}`}>

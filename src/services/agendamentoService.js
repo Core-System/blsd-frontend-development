@@ -1,19 +1,20 @@
 import axios from "axios";
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8081';
 
-function anotarDataHoraISO(dia, hora){
-    const diaString = String(dia).padStart(2, '0');
-    return `2026-04-${diaString}T${hora}:00`;
+function anotarDataHoraISO(dia, mes, ano, hora) {
+    const diaStr = String(dia).padStart(2, '0');
+    const mesStr = String(mes + 1).padStart(2, '0');
+    return `${ano}-${mesStr}-${diaStr}T${hora}:00`;
 }
 
-export async function criarAgendamento({nome, email, dia, hora}){
-    const dataHoraInicio = anotarDataHoraISO(dia, hora);
+export async function criarAgendamento({ nome, email, dia, mes, ano, hora }) {
+    const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
 
-const resposta = await axios.post(`${BASE_URL}/api/calendario/calcom/agendar`, {
-  nome,
-  email,
-  dataHoraInicio
-});
-return resposta.data;
+    const resposta = await axios.post(`${BASE_URL}/api/calendario/calcom/agendar`, {
+        nome,
+        email,
+        dataHoraInicio
+    });
+    return resposta.data;
 }

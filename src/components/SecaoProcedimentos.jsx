@@ -13,7 +13,7 @@ export default function SecaoProcedimentos() {
   const [procedimentoAtivo, setProcedimentoAtivo] = useState(dadosProcedimentos[0]);
 
   return (
-    <section className="bg-[#FAFAE8] flex flex-col pt-12 pb-16 overflow-hidden">
+    <section id="procedimentos" className="bg-[#FAFAE8] flex flex-col pt-12 pb-16 overflow-hidden">
       <div className="px-12 mb-6">
         <h2 className="font-lora font-bold text-4xl text-[#333333] mb-1">Procedimentos</h2>
         <p className="font-montserrat font-bold text-sm text-[#666666]">Saiba mais sobre os procedimentos realizados em nosso espaço.</p>
