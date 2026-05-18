@@ -11,6 +11,9 @@ import SeletorDeLocal from '../components/SeletorDeLocal';
 import CartaoConfirmacaoAgendamento from '../components/CartaoConfirmacaoAgendamento';
 import CartaoDicasPreProcedimento from '../components/CartaoDicasPreProcedimento';
 import RodapeAgendamento from '../components/RodapeAgendamento';
+import imgLimpeza from '../assets/limpeza-de-pele.jpg';
+import imgMassagem from '../assets/massagem-relaxante.jpg';
+import imgDrenagem from '../assets/drenagem.jpg';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -23,21 +26,21 @@ const procedimentos = [
     titulo: 'Limpeza de Pele',
     preco: 'R$ 280',
     descricao: 'Tratamento profundo para remoção de impurezas e revitalização celular.',
-    imagem: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=250&fit=crop&q=80',
+    imagem: imgLimpeza,
   },
   {
     id: 2,
     titulo: 'Massagem Relaxante',
     preco: 'R$ 350',
     descricao: 'Equilíbrio perfeito entre técnicas ancestrais e óleos essenciais orgânicos.',
-    imagem: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=250&fit=crop&q=80',
+    imagem: imgMassagem,
   },
   {
     id: 3,
     titulo: 'Drenagem',
     preco: 'R$ 220',
     descricao: 'Técnica especializada para redução de medidas e eliminação de toxinas corporais.',
-    imagem: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&q=80',
+    imagem: imgDrenagem,
   },
 ];
 
