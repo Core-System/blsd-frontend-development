@@ -20,12 +20,7 @@ export default function PaginaGerenciarAgendamentos() {
   return (
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
       <BarraDeNavegacaoLateral />
-      <BarraDeNavegacao
-        offsetLateral
-        mostrarBusca
-        mostrarNotificacoes
-        mostrarLinks={false}
-      />
+      
       <main className="ml-[152px] mt-14 min-h-[calc(100vh-56px)] overflow-y-auto bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-7">
 
@@ -67,7 +62,7 @@ export default function PaginaGerenciarAgendamentos() {
 
           {/* KPIs */}
           <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+            <div className="col-span-12 sm:col-span-6 lg:col-span-6">
               <CartaoKPI
                 icone="tendencia"
                 valor="+18%"
@@ -75,7 +70,7 @@ export default function PaginaGerenciarAgendamentos() {
                 descricao="novos agendamentos"
               />
             </div>
-            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+            <div className="col-span-12 sm:col-span-6 lg:col-span-6">
               <CartaoKPI
                 icone="ampulheta"
                 valor="12"
@@ -83,9 +78,7 @@ export default function PaginaGerenciarAgendamentos() {
                 rotulo="Tempo Médio de Espera"
               />
             </div>
-            <div className="col-span-12 lg:col-span-4">
-              <CartaoRelatorioDetalhado />
-            </div>
+            
           </div>
 
         </div>
