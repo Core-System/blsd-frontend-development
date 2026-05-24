@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Montserrat:wght@700&display=swap');
 @import "tailwindcss";
 
+html, body, #root {
+  background-color: #f5f4ec;
+  margin: 0;
+  padding: 0;
+}
+
 @theme {
   --font-lora: "Lora", serif;
   --font-montserrat: "Montserrat", sans-serif;
