@@ -23,6 +23,12 @@ export default function CartaoDeCadastro() {
     setTelefone(formatado);
   };
 
+  function senhaForte(senha) {
+    return senha.length >= 8 &&
+      /[A-Z]/.test(senha) &&
+      /[0-9]/.test(senha);
+  }
+
   async function aoEnviarFormulario(e) {
     e.preventDefault();
     setErro(null);
@@ -31,10 +37,17 @@ export default function CartaoDeCadastro() {
       setErro("Preencha todos os campos.");
       return;
     }
+    
+    if (!senhaForte(senha)) {
+      setErro('A senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número.');
+      return;
+    }
+
     if (senha !== confirmarSenha) {
       setErro("As senhas não coincidem!");
       return;
     }
+
     if (!aceitouTermos) {
       setErro("Aceite os termos para continuar.");
       return;
