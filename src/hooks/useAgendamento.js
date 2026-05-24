@@ -15,7 +15,11 @@ export function useAgendamento(){
             await criarAgendamento(dados);
             setSucesso(dados);
         } catch(e){
-            setErro(e.message);
+            if (e.response?.status === 400) {
+                setErro('Este horário já está reservado. Por favor, escolha outro.');
+            } else {
+                setErro('Ocorreu um erro ao processar seu agendamento. Tente novamente.');
+            }
         } finally {
             setLoading(false);
         }
