@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = 'http://localhost:8081';
+const BASE_URL = 'http://localhost:8080';
 
 function anotarDataHoraISO(dia, mes, ano, hora) {
     const diaStr = String(dia).padStart(2, '0');
@@ -12,12 +12,22 @@ function anotarDataHoraISO(dia, mes, ano, hora) {
 }
 
 export async function criarAgendamento({ nome, email, dia, mes, ano, hora }) {
-    const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
+const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
 
-    const resposta = await axios.post(`${BASE_URL}/api/calendario/calcom/agendar`, {
-        nome,
-        email,
-        dataHoraInicio
-    });
+    const token = localStorage.getItem("token"); 
+
+    const resposta = await axios.post(`${BASE_URL}/api/calendario/calcom/agendar`, 
+        {
+            nome,
+            email,
+            dataHoraInicio
+        }, 
+        {
+            headers: {
+                'Authorization': `Bearer ${token}` 
+            }
+        }
+    );
+    
     return resposta.data;
 }
