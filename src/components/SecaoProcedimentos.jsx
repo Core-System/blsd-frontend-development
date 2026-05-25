@@ -1,16 +1,76 @@
 import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import imgLimpeza from '../assets/limpeza-de-pele.jpg';
+import imgPeeling from '../assets/peeling.jpg';
+import imgSkincare from '../assets/skincare.jpg';
+import imgDrenagem from '../assets/drenagem.jpg';
+import imgMassagem from '../assets/massagem-relaxante.jpg';
+import imgDepilacao from '../assets/depilacao.jpg';
+import imgItensLimpezaPele from '../assets/itensLimpezaPele.jpg'
+import imgItensDepilacao from '../assets/itensDepilacao.jpg'
+import imgItensPeeling from '../assets/itensPeeling.jpg'
+import imgItensMassagem from '../assets/itensMassagem.jpg'
+import imgItensDrenagem from '../assets/itensDrenagem.jpg'
+import imgItensSkinCare from '../assets/itensSkinCare.jpg'
 
 const dadosProcedimentos = [
-  { id: 1, nome: 'DRENAGEM LINFÁTICA', descricao: 'A drenagem linfática é uma técnica de massagem suave e rítmica, projetada para estimular o sistema natural de "limpeza" do organismo.', imagemCarrossel: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=500', imgDestaqueFrente: 'https://images.unsplash.com/photo-1552693673-1bf958298935?w=500', imgDestaqueTras: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=500' },
-  { id: 2, nome: 'LIMPEZA DE PELE', descricao: 'Procedimento estético profundo que remove cravos, impurezas e células mortas.', imagemCarrossel: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500', imgDestaqueFrente: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500', imgDestaqueTras: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500' },
-  { id: 3, nome: 'RADIOFREQUÊNCIA', descricao: 'Tecnologia avançada que estimula a produção de colágeno e elastina.', imagemCarrossel: 'https://images.unsplash.com/photo-1552693673-1bf958298935?w=500', imgDestaqueFrente: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500', imgDestaqueTras: 'https://images.unsplash.com/photo-1552693673-1bf958298935?w=500' },
-  { id: 4, nome: 'SKINCARE PRIME', descricao: 'Um protocolo de hidratação e nutrição intensa e personalizada.', imagemCarrossel: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500', imgDestaqueFrente: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400', imgDestaqueTras: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400' },
-  { id: 5, nome: 'PEELING QUÍMICO', descricao: 'Tratamento que utiliza ácidos para renovar as camadas da pele.', imagemCarrossel: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500', imgDestaqueFrente: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=500', imgDestaqueTras: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500' },
-  { id: 6, nome: 'MASSAGEM RELAXANTE', descricao: 'Técnica que combina movimentos suaves e contínuos pelo corpo todo.', imagemCarrossel: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=500', imgDestaqueFrente: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500', imgDestaqueTras: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=500' }
+  { 
+    id: 1, 
+    nome: 'LIMPEZA DE PELE', 
+    descricao: 'Procedimento estético profundo que remove impurezas, cravos e células mortas, devolvendo a vitalidade e o brilho natural ao seu rosto.', 
+    imagemCarrossel: imgLimpeza, 
+    imgDestaqueFrente: imgLimpeza, 
+    imgDestaqueTras: imgItensLimpezaPele 
+  },
+  { 
+    id: 2, 
+    nome: 'PEELING DE DIAMANTE', 
+    descricao: 'Esfoliação mecânica controlada que promove a renovação celular, ideal para atenuar manchas, linhas finas e uniformizar a textura da pele.', 
+    imagemCarrossel: imgPeeling, 
+    imgDestaqueFrente: imgPeeling, 
+    imgDestaqueTras: imgItensPeeling 
+  },
+  { 
+    id: 3, 
+    nome: 'SKINBOOSTER', 
+    descricao: 'Tratamento de hidratação injetável que age nas camadas mais profundas da pele, restaurando a firmeza, a elasticidade e o viço.', 
+    imagemCarrossel: imgSkincare, 
+    imgDestaqueFrente: imgSkincare, 
+    imgDestaqueTras: imgItensLimpezaPele 
+  },
+  { 
+    id: 4, 
+    nome: 'DRENAGEM LINFÁTICA', 
+    descricao: 'Técnica de massagem suave e rítmica que otimiza o sistema linfático, perfeita para reduzir o inchaço e desintoxicar o organismo.', 
+    imagemCarrossel: imgDrenagem, 
+    imgDestaqueFrente: imgDrenagem, 
+    imgDestaqueTras: imgItensDrenagem 
+  },
+  { 
+    id: 5, 
+    nome: 'MASSAGEM RELAXANTE', 
+    descricao: 'Terapia manual com movimentos precisos e contínuos que dissolvem tensões musculares, proporcionando um estado de profundo relaxamento.', 
+    imagemCarrossel: imgMassagem, 
+    imgDestaqueFrente: imgMassagem, 
+    imgDestaqueTras: imgItensMassagem 
+  },
+  { 
+    id: 6, 
+    nome: 'DEPILAÇÃO (CERA E LASER)', 
+    descricao: 'Protocolos de depilação personalizados com cera ou tecnologia a laser, focados no seu conforto e na durabilidade da pele lisa.', 
+    imagemCarrossel: imgDepilacao, 
+    imgDestaqueFrente: imgDepilacao, 
+    imgDestaqueTras: imgItensDepilacao 
+  }
 ];
 
 export default function SecaoProcedimentos() {
   const [procedimentoAtivo, setProcedimentoAtivo] = useState(dadosProcedimentos[0]);
+  const navigate = useNavigate()
+
+  const handleAgendar = () => {
+    navigate('/agendar', { state: { procedimentoId: procedimentoAtivo.id } });
+  };
 
   return (
     <section id="procedimentos" className="bg-[#FAFAE8] flex flex-col pt-12 pb-16 overflow-hidden">
@@ -44,7 +104,9 @@ export default function SecaoProcedimentos() {
             <p className="font-montserrat font-bold text-white/90 text-base leading-relaxed mb-8">
               {procedimentoAtivo.descricao}
             </p>
-            <button className="bg-[#C5A859] hover:bg-[#b5994f] text-[#333333] text-[10px] font-bold uppercase tracking-[0.15em] px-10 py-3.5 rounded transition-colors cursor-pointer shadow-md font-montserrat">
+            <button 
+              onClick={handleAgendar} 
+              className="bg-[#C5A859] hover:bg-[#b5994f] text-[#333333] text-[10px] font-bold uppercase tracking-[0.15em] px-10 py-3.5 rounded transition-colors cursor-pointer shadow-md font-montserrat">
               AGENDE O PROCEDIMENTO
             </button>
           </div>

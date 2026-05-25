@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAgendamento } from '../hooks/useAgendamento';
 import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoSuperior from '../components/BarraDeNavegacaoSuperior';
@@ -12,8 +12,12 @@ import CartaoConfirmacaoAgendamento from '../components/CartaoConfirmacaoAgendam
 import CartaoDicasPreProcedimento from '../components/CartaoDicasPreProcedimento';
 import RodapeAgendamento from '../components/RodapeAgendamento';
 import imgLimpeza from '../assets/limpeza-de-pele.jpg';
-import imgMassagem from '../assets/massagem-relaxante.jpg';
+import imgPeeling from '../assets/peeling.jpg';
+import imgSkincare from '../assets/skincare.jpg';
 import imgDrenagem from '../assets/drenagem.jpg';
+import imgMassagem from '../assets/massagem-relaxante.jpg';
+import imgDepilacao from '../assets/depilacao.jpg';
+import { useLocation } from 'react-router-dom';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -21,39 +25,71 @@ const NOMES_MESES = [
 ];
 
 const procedimentos = [
-  {
-    id: 1,
-    titulo: 'Limpeza de Pele',
-    preco: 'R$ 280',
-    descricao: 'Tratamento profundo para remoção de impurezas e revitalização celular.',
-    imagem: imgLimpeza,
+  { 
+    id: 1, 
+    titulo: 'Limpeza de Pele', 
+    preco: 'R$ 280', 
+    descricao: 'Procedimento estético profundo que remove impurezas e renova as células do rosto.', 
+    imagem: imgLimpeza 
   },
-  {
-    id: 2,
-    titulo: 'Massagem Relaxante',
-    preco: 'R$ 350',
-    descricao: 'Equilíbrio perfeito entre técnicas ancestrais e óleos essenciais orgânicos.',
-    imagem: imgMassagem,
+  { 
+    id: 2, 
+    titulo: 'Peeling de Diamante', 
+    preco: 'R$ 250', 
+    descricao: 'Esfoliação mecânica suave que reduz manchas, linhas de expressão e devolve o viço.', 
+    imagem: imgPeeling 
   },
-  {
-    id: 3,
-    titulo: 'Drenagem',
-    preco: 'R$ 220',
-    descricao: 'Técnica especializada para redução de medidas e eliminação de toxinas corporais.',
-    imagem: imgDrenagem,
+  { 
+    id: 3, 
+    titulo: 'Skinbooster', 
+    preco: 'R$ 350', 
+    descricao: 'Hidratação injetável profunda que melhora a elasticidade, firmeza e o brilho natural.', 
+    imagem: imgSkincare 
   },
+  { 
+    id: 4, 
+    titulo: 'Drenagem Linfática', 
+    preco: 'R$ 220', 
+    descricao: 'Técnica de massagem que estimula o organismo a eliminar líquidos retidos e toxinas.', 
+    imagem: imgDrenagem 
+  },
+  { 
+    id: 5, 
+    titulo: 'Massagem Relaxante', 
+    preco: 'R$ 200', 
+    descricao: 'Movimentos suaves e contínuos que aliviam tensões musculares e promovem bem-estar.', 
+    imagem: imgMassagem 
+  },
+  { 
+    id: 6, 
+    titulo: 'Depilação (Cera e Laser)', 
+    preco: 'A partir de R$ 80', 
+    descricao: 'Remoção de pelos com métodos eficazes e confortáveis, garantindo pele lisa por mais tempo.', 
+    imagem: imgDepilacao 
+  }
 ];
 
 
 
 export default function PaginaAgendamento() {
-  const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(2);
+  const location = useLocation();
+  
+  const procedimentoInicial = location.state?.procedimentoId || 2;
+  
+  const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(procedimentoInicial);
   const [dataSelecionada, setDataSelecionada] = useState(null);
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
-
 
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
 
@@ -68,8 +104,8 @@ export default function PaginaAgendamento() {
       procedimento: proc?.titulo,
       preco: proc?.preco,
       local: localSelecionado === 'clinica'
-        ? 'Rua fulano - 123 - Jardim clinica'
-        : 'Rua fulano, 123 - Jardim Usuário',
+        ? 'Rua Entre-Folhas, 4a - Jardim Arize'
+        : 'Rua usuário, 123 - Jardim Usuário',
     });
   }
 
@@ -199,8 +235,8 @@ export default function PaginaAgendamento() {
               })() : '—'}
               horario={horarioSelecionado || '—'}
               local={localSelecionado === 'clinica'
-                ? 'Rua clinica - Jardim clinica'
-                : 'Rua residencia, 123 - Jardim Usuário'
+                ? 'Rua Entre-Folhas, 4a - Jardim Arize'
+                : 'Rua Endereço-do-usuário, 123 - Jardim Usuário'
               }
               confirmar={handleConfirmar}
               loading={loading}
