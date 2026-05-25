@@ -29,8 +29,9 @@ const iconeEstoque = (
   </svg>
 );
 
+
 const itensNavegacao = [
-  { icone: iconePainel,        rotulo: 'Dashboard',     rota: '/'              },
+  { icone: iconePainel,        rotulo: 'Dashboard',     rota: '/dashboard'    },
   { icone: iconeClientes,      rotulo: 'Clientes',      rota: '/clientes'      },
   { icone: iconeAgendamentos,  rotulo: 'Agendamentos',  rota: '/agendamentos'  },
   { icone: iconeEstoque,       rotulo: 'Estoque',       rota: '/estoque'       }
