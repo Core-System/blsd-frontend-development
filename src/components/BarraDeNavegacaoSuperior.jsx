@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import BalaoAgendamentos from './BalaoAgendamentos';
 
 
 const links = ['Início', 'Procedimentos', 'Sobre nós', 'Contato'];
@@ -31,7 +32,7 @@ export default function BarraDeNavegacaoSuperior() {
 
   return (
     <nav className="sticky top-0 left-0 right-0 z-50 w-full bg-[#f8f7f2] border-b border-[#e8e6d9] px-6 py-4 flex items-center justify-between">
-
+      {/* Header da pagina inicial */}
       {/* Logo */}
       <button
         onClick={() => navigate('/')}
@@ -40,7 +41,7 @@ export default function BarraDeNavegacaoSuperior() {
         Blessed 7
       </button>
 
-      {/* Links centrais */}
+      {/* Links/botoes centrais */}
       <div className="flex items-center gap-10">
         {links.map(link => (
           <button
@@ -81,6 +82,7 @@ export default function BarraDeNavegacaoSuperior() {
       <div className="flex items-center gap-3">
         {usuario ? (
           <>
+          <BalaoAgendamentos />
             <span className="text-sm text-gray-600">
               Olá, <strong>{primeiroNome}</strong>
             </span>
