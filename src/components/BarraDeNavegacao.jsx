@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import BalaoAgendamentos from './BalaoAgendamentos';
 
 const iconeBusca = (
   <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -129,6 +130,7 @@ export default function BarraDeNavegacao({
         {/* ── Usuário logado */}
         {usuario ? (
           <div className="flex items-center gap-2.5 ml-3 pl-3 border-l border-[#e0ddd0]">
+            <BalaoAgendamentos />
             <div className="text-right">
               <p className="text-xs font-semibold text-gray-800 leading-tight">
                 {usuario.nome || 'Usuário'}

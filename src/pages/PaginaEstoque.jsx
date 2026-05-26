@@ -94,14 +94,14 @@ async function handleEditar(id, dados) {
   async function handleSalvarProduto(e) {
     e.preventDefault();
     try {
-      // 1. Cria o produto com estoque ZERO para evitar duplicidade na soma
+      // 1- Cria o produto com estoque ZERO para evitar duplicidade na soma
       const produtoSalvo = await criarProduto({
         nome: novoProduto.nome,
         preco: parseFloat(novoProduto.preco),
         quantidade: 0 
       });
       
-      // 2. Dispara a movimentação de entrada inicial para registrar no historico
+      // 2- Dispara a movimentação de entrada inicial para registrar no historico
       if (produtoSalvo && produtoSalvo.id) {
         await registrarMovimentacao({
           produtoId: produtoSalvo.id,
@@ -114,7 +114,7 @@ async function handleEditar(id, dados) {
       setModalAberto(false);
       setNovoProduto({ nome: '', preco: '', quantidade: '' });
       
-      // 3. Atualiza as duas listas na tela ao mesmo tempo
+      // 3- Atualiza as duas listas na tela ao mesmo tempo
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
