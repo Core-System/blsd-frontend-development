@@ -6,6 +6,7 @@ import PaginaAgendamento from "./pages/PaginaAgendamento";
 import PaginaEstoque from "./pages/PaginaEstoque";
 import PaginaDashboard from "./pages/PaginaDashboard";
 import PaginaClientes from "./pages/PaginaClientes";
+import PaginaFuncionarios from "./pages/PaginaFuncionarios";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<PaginaDeLogin />} />
         <Route path="/dashboard" element={<PaginaDashboard />} />
         <Route path="/clientes" element={<PaginaClientes />} />
+        <Route path="/funcionarios" element={<PaginaFuncionarios />} />
         <Route path="/agendamentos" element={<PaginaGerenciarAgendamentos />} />
         <Route path="/agendar" element={<PaginaAgendamento />} />
         <Route path="/estoque" element={<PaginaEstoque />} />

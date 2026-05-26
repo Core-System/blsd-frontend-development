@@ -28,13 +28,34 @@ const iconeEstoque = (
     <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" strokeLinecap="round"/>
   </svg>
 );
-
+const iconeFuncionarios = (
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <circle cx="9" cy="7" r="3"/>
+    <circle cx="17" cy="8" r="2.5"/>
+    <path d="M2 21v-1a6 6 0 0 1 6-6h3a6 6 0 0 1 6 6v1"/>
+    <path d="M20 14a4 4 0 0 1 2 3.5V21" strokeLinecap="round"/>
+  </svg>
+);
+const iconeSuporte = (
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <circle cx="12" cy="12" r="9"/>
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M3.5 5 8.5 9.5M15.5 14.5l5 4.5M20.5 5l-5 4.5M8.5 14.5l-5 4.5" strokeLinecap="round"/>
+  </svg>
+);
+const iconeConfiguracoes = (
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+);
 
 const itensNavegacao = [
-  { icone: iconePainel,        rotulo: 'Dashboard',     rota: '/dashboard'    },
+  { icone: iconePainel,        rotulo: 'Dashboard',     rota: '/dashboard'     },
   { icone: iconeClientes,      rotulo: 'Clientes',      rota: '/clientes'      },
   { icone: iconeAgendamentos,  rotulo: 'Agendamentos',  rota: '/agendamentos'  },
-  { icone: iconeEstoque,       rotulo: 'Estoque',       rota: '/estoque'       }
+  { icone: iconeEstoque,       rotulo: 'Estoque',       rota: '/estoque'       },
+  { icone: iconeFuncionarios,  rotulo: 'Funcionários',  rota: '/funcionarios'  }
 ];
 
 export default function BarraDeNavegacaoLateral() {
