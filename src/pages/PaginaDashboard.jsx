@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import GraficoTendenciaFaturamento from '../components/GraficoTendenciaFaturamento';
 import CartaoProcedimentosRealizados from '../components/CartaoProcedimentosRealizados';
 import TabelaProximosAgendamentos from '../components/TabelaProximosAgendamentos';
+import {
+  getFaturamentoMensal,
+  getProcedimentosMensal,
+  getReceitaAnualTotal,
+  getTicketMedio,
+} from '../services/dashboardService';
 
-/* ── ícones inline ── */
+/* ── ícones ── */
 const iconeExportar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -31,73 +37,95 @@ const iconeConfig = (
   </svg>
 );
 
-/* ── KPI helper ── */
-function KPI({ rotulo, valor, badge, meta }) {
+/* ── formata moeda BR ── */
+function formatarReais(valor) {
+  if (valor == null) return '—';
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/* ── KPI card ── */
+function KPI({ rotulo, valor, badge, meta, carregando }) {
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl px-5 py-4 flex flex-col gap-1 min-w-0">
       <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">{rotulo}</p>
       <div className="flex items-end justify-between gap-2 mt-1">
-        <p className="text-2xl font-black text-gray-900 leading-none truncate">{valor}</p>
-        {badge && (
+        {carregando
+          ? <div className="h-7 w-24 bg-gray-100 animate-pulse rounded"/>
+          : <p className="text-2xl font-black text-gray-900 leading-none truncate">{valor}</p>
+        }
+        {badge && !carregando && (
           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#e8f5e9] text-[#2C3E2D] flex-shrink-0">
             {badge}
           </span>
         )}
       </div>
-      {meta && <p className="text-[10px] text-gray-400">Meta {meta}</p>}
+      {meta && !carregando && <p className="text-[10px] text-gray-400">Meta {meta}</p>}
     </div>
   );
 }
 
-/* ── Header superior interno ── */
+/* ── Header ── */
 function HeaderDashboard({ nome }) {
   return (
-    <header className="fixed top-0 left-[152px] right-0 z-30 bg-[#f5f4ec] border-b border-[#e8e6d9] px-6 h-12 flex items-center justify-between">
-      {/* busca */}
-      <div className="flex items-center gap-2 bg-white border border-[#e8e6d9] rounded-lg px-3 py-1.5 w-64">
-        <span className="text-gray-400">{iconeBusca}</span>
-        <input
-          placeholder="Buscar..."
-          className="text-sm text-gray-600 bg-transparent outline-none w-full placeholder:text-gray-400"
-        />
-      </div>
-      {/* direita */}
-      <div className="flex items-center gap-4">
-        <button className="text-gray-500 hover:text-gray-800 transition-colors">{iconeNotificacao}</button>
-        <button className="text-gray-500 hover:text-gray-800 transition-colors">{iconeConfig}</button>
-        <div className="flex items-center gap-2 pl-4 border-l border-[#e8e6d9]">
-          <div className="text-right">
-            <p className="text-xs font-bold text-gray-800 leading-none">Dr. {nome?.split(' ')[0] || 'Silva'}</p>
-            <p className="text-[9px] text-gray-400 leading-none mt-0.5">Diretor Clínico</p>
-          </div>
-          <div className="w-7 h-7 rounded-full bg-[#2C3E2D] flex items-center justify-center">
-            <span className="text-[10px] font-bold text-white">
-              {nome?.charAt(0) || 'D'}
-            </span>
-          </div>
-        </div>
-      </div>
-    </header>
+    <>
+    </>
   );
 }
 
-/* ── Página ── */
+/* ══════════════════════════════════════════ */
 export default function PaginaDashboard() {
   const { usuario } = useAuth();
-  const nomeCompleto = usuario?.nome || 'Dr. Silva';
-  const primeiroNome = nomeCompleto.split(' ')[0].replace('Dr.', '').trim() || 'Silva';
+  const nomeCompleto = usuario?.nome || 'Usuário';
+  const primeiroNome = nomeCompleto.split(' ')[0];
+
+  const [kpis, setKpis] = useState({
+    faturamentoMensal: null,
+    procedimentosMensal: null,
+    receitaAnual: null,
+    ticketMedio: null,
+  });
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+
+  useEffect(() => {
+    async function carregarKPIs() {
+      try {
+        setCarregando(true);
+        const [faturamento, procedimentos, receita, ticket] = await Promise.all([
+          getFaturamentoMensal(),
+          getProcedimentosMensal(),
+          getReceitaAnualTotal(),
+          getTicketMedio(),
+        ]);
+        setKpis({
+          faturamentoMensal: faturamento,
+          procedimentosMensal: procedimentos,
+          receitaAnual: receita,
+          ticketMedio: ticket,
+        });
+      } catch (e) {
+        console.error('Erro ao carregar KPIs do dashboard:', e);
+        setErro('Não foi possível carregar os dados.');
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarKPIs();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
       <BarraDeNavegacaoLateral />
+      <HeaderDashboard nome={nomeCompleto} />
+
       <main className="ml-[152px] pt-12 min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-6">
 
           {/* ── Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
-            <div>   
+            <div>
               <h1 className="text-3xl font-black text-gray-900 leading-tight">
-                Bem-vinda, Fernada<br />
+                Bem-vindo, {primeiroNome}
               </h1>
               <p className="text-sm text-gray-400 mt-1">Aqui está o resumo da performance clínica de hoje.</p>
             </div>
@@ -106,15 +134,38 @@ export default function PaginaDashboard() {
             </button>
           </div>
 
-          {/* ── KPIs */}
+          {/* ── erro global ── */}
+          {erro && (
+            <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
+              {erro}
+            </div>
+          )}
+
+          {/* ── KPIs ── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-            <KPI rotulo="Faturamento Mensal"          valor="R$ 52.480"  badge="+17%"/>
-            <KPI rotulo="Procedimentos Mensais"       valor="146"         badge="+12%"/>
-            <KPI rotulo="Receita Anual"               valor="R$ 380.640" meta="82%"/>
-            <KPI rotulo="Ticket Médio / Procedimento" valor="R$ 850,00"  badge="+5%"/>
+            <KPI
+              rotulo="Faturamento Mensal"
+              valor={formatarReais(kpis.faturamentoMensal)}
+              carregando={carregando}
+            />
+            <KPI
+              rotulo="Procedimentos Mensais"
+              valor={kpis.procedimentosMensal ?? '—'}
+              carregando={carregando}
+            />
+            <KPI
+              rotulo="Receita Anual"
+              valor={formatarReais(kpis.receitaAnual)}
+              carregando={carregando}
+            />
+            <KPI
+              rotulo="Ticket Médio / Procedimento"
+              valor={formatarReais(kpis.ticketMedio)}
+              carregando={carregando}
+            />
           </div>
 
-          {/* ── Gráficos */}
+          {/* ── Gráficos ── */}
           <div className="grid grid-cols-12 gap-4 mb-4 items-stretch">
             <div className="col-span-12 lg:col-span-8 flex flex-col">
               <GraficoTendenciaFaturamento />
@@ -124,7 +175,7 @@ export default function PaginaDashboard() {
             </div>
           </div>
 
-          {/* ── Tabela agendamentos */}
+          {/* ── Próximos Agendamentos ── */}
           <TabelaProximosAgendamentos />
 
         </div>

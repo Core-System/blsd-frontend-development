@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import CartaoKPIClientes from '../components/CartaoKPIClientes';
 import TabelaClientes from '../components/TabelaClientes';
+import { listarClientes } from '../services/clienteService';
 
+/* ── ícones ── */
 const iconePlus = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -37,15 +39,52 @@ const iconeAlvo = (
   </svg>
 );
 
-const statusOpcoes = ['Todos', 'Ativo', 'Inativo'];
-const categoriaOpcoes = ['Todas', 'Botox', 'Peeling', 'Harmonização', 'Bioestimulador'];
+const statusOpcoes = ['Todos'];
 
 export default function PaginaClientes() {
-  const [busca, setBusca] = useState('');
-  const [status, setStatus] = useState('Status');
-  const [categoria, setCategoria] = useState('Categoria de Procedimento');
-  const [dropStatus, setDropStatus] = useState(false);
-  const [dropCategoria, setDropCategoria] = useState(false);
+  const [clientes, setClientes]         = useState([]);
+  const [carregando, setCarregando]     = useState(true);
+  const [erro, setErro]                 = useState(null);
+  const [busca, setBusca]               = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('Todos');
+  const [dropStatus, setDropStatus]     = useState(false);
+
+  useEffect(() => {
+    async function carregar() {
+      try {
+        const data = await listarClientes();
+        setClientes(data);
+      } catch (e) {
+        console.error('Erro ao carregar clientes:', e);
+        setErro('Não foi possível carregar os clientes.');
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregar();
+  }, []);
+
+  // ── KPIs derivados dos dados reais ──
+  const total    = clientes.length;
+  // "Ativo" = tem dataCriacao (todos os cadastrados são ativos por padrão)
+  const ativos   = clientes.length;
+  // Taxa de retenção = % que tem mais de 1 consulta — sem endpoint específico,
+  // usamos 100% dos cadastrados como proxy até termos o endpoint
+  const retencao = total > 0 ? Math.round((ativos / total) * 100) : 0;
+
+  // ── Filtragem local ──
+  const clientesFiltrados = useMemo(() => {
+    return clientes.filter((c) => {
+      const termoBusca = busca.toLowerCase();
+      const bateNome   = c.nome?.toLowerCase().includes(termoBusca);
+      const bateEmail  = c.email?.toLowerCase().includes(termoBusca);
+      return bateNome || bateEmail;
+    });
+  }, [clientes, busca]);
+
+  function handleRemover(id) {
+    setClientes((prev) => prev.filter((c) => c.id !== id));
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
@@ -69,20 +108,20 @@ export default function PaginaClientes() {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <CartaoKPIClientes
               rotulo="Total de Clientes"
-              valor="1.240"
-              sub="+12% este mês"
+              valor={carregando ? '—' : total.toLocaleString('pt-BR')}
+              sub={carregando ? '' : `${total} cadastrados`}
               subIcone={iconeTendencia}
             />
             <CartaoKPIClientes
               rotulo="Clientes Ativos"
-              valor="850"
+              valor={carregando ? '—' : ativos.toLocaleString('pt-BR')}
               sub="Engajamento alto"
               subIcone={iconeEnvolvimento}
             />
             <CartaoKPIClientes
               rotulo="Taxa de Retenção"
-              valor="68%"
-              sub="Acima da meta (60%)"
+              valor={carregando ? '—' : `${retencao}%`}
+              sub="Baseado nos cadastros"
               subIcone={iconeAlvo}
               destaque
             />
@@ -90,47 +129,27 @@ export default function PaginaClientes() {
 
           {/* ── Filtros */}
           <div className="flex items-center gap-3 mb-4">
-            {/* busca */}
             <div className="flex items-center gap-2 bg-white border border-[#e8e6d9] rounded-lg px-3 py-2 flex-1 max-w-xs">
               <span className="text-gray-400 flex-shrink-0">{iconeBusca}</span>
               <input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Buscar cliente por nome ou CPF..."
+                placeholder="Buscar por nome ou e-mail..."
                 className="text-sm text-gray-700 bg-transparent outline-none w-full placeholder:text-gray-400"
               />
             </div>
 
-            {/* dropdown status */}
             <div className="relative">
               <button
-                onClick={() => { setDropStatus(!dropStatus); setDropCategoria(false); }}
+                onClick={() => setDropStatus(!dropStatus)}
                 className="flex items-center gap-2 bg-white border border-[#e8e6d9] rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:border-[#2C3E2D] transition-colors"
               >
-                {status} {iconeChevronBaixo}
+                {filtroStatus} {iconeChevronBaixo}
               </button>
               {dropStatus && (
                 <div className="absolute left-0 top-10 bg-white border border-[#e8e6d9] rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
                   {statusOpcoes.map((o) => (
-                    <button key={o} onClick={() => { setStatus(o); setDropStatus(false); }}
-                      className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">{o}</button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* dropdown categoria */}
-            <div className="relative">
-              <button
-                onClick={() => { setDropCategoria(!dropCategoria); setDropStatus(false); }}
-                className="flex items-center gap-2 bg-white border border-[#e8e6d9] rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:border-[#2C3E2D] transition-colors"
-              >
-                {categoria} {iconeChevronBaixo}
-              </button>
-              {dropCategoria && (
-                <div className="absolute left-0 top-10 bg-white border border-[#e8e6d9] rounded-lg shadow-lg z-10 py-1 min-w-[190px]">
-                  {categoriaOpcoes.map((o) => (
-                    <button key={o} onClick={() => { setCategoria(o); setDropCategoria(false); }}
+                    <button key={o} onClick={() => { setFiltroStatus(o); setDropStatus(false); }}
                       className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">{o}</button>
                   ))}
                 </div>
@@ -138,8 +157,19 @@ export default function PaginaClientes() {
             </div>
           </div>
 
-          {/* ── Tabela */}
-          <TabelaClientes />
+          {/* ── erro ── */}
+          {erro && (
+            <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
+              {erro}
+            </div>
+          )}
+
+          {/* ── Tabela ── */}
+          <TabelaClientes
+            clientes={clientesFiltrados}
+            carregando={carregando}
+            onRemover={handleRemover}
+          />
 
         </div>
       </main>
