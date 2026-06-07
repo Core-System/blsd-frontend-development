@@ -252,7 +252,7 @@ export default function PaginaAgendamento() {
             <h3 className="text-2xl font-bold text-[#2C3E2D] mb-1" style={{ fontFamily: 'Georgia, serif' }}>
               Dicas de Preparo
             </h3>
-            <p className="text-[#d4b055] font-semibold mb-6 uppercase text-xs tracking-widest">
+            <p className="text-[hsl(43,60%,58%)] font-semibold mb-6 uppercase text-xs tracking-widest">
               {proc?.titulo}
             </p>
             
