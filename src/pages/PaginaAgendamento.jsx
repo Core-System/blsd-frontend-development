@@ -17,7 +17,8 @@ import imgSkincare from '../assets/skincare.jpg';
 import imgDrenagem from '../assets/drenagem.jpg';
 import imgMassagem from '../assets/massagem-relaxante.jpg';
 import imgDepilacao from '../assets/depilacao.jpg';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import api from '../services/api';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -69,6 +70,8 @@ export default function PaginaAgendamento() {
   const [dataSelecionada, setDataSelecionada] = useState(null);
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
+  const { salvarUsuario } = useAuth();
+  const [searchParams, setSearchParams ] = useSearchParams();
 
   useEffect(() => {
     window.scrollTo({
@@ -76,6 +79,28 @@ export default function PaginaAgendamento() {
       behavior: 'smooth'
     });
   }, []);
+
+  useEffect(()=>{
+      const codeAgendamento = searchParams.get('code');
+  
+      if(codeAgendamento){
+  
+        localStorage.removeItem('token');
+  
+      async function validarLinkAgendamento(){
+        const response = await api.post('/usuarios/link-agendamento', null,{
+          params: {code: codeAgendamento}
+        });
+  
+        salvarUsuario(response.data)
+        
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+  
+      validarLinkAgendamento();
+      }
+    }, [searchParams, salvarUsuario]);
+
 
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
