@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAgendamento } from '../hooks/useAgendamento';
 import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoSuperior from '../components/BarraDeNavegacaoSuperior';
@@ -12,8 +12,12 @@ import CartaoConfirmacaoAgendamento from '../components/CartaoConfirmacaoAgendam
 import CartaoDicasPreProcedimento from '../components/CartaoDicasPreProcedimento';
 import RodapeAgendamento from '../components/RodapeAgendamento';
 import imgLimpeza from '../assets/limpeza-de-pele.jpg';
-import imgMassagem from '../assets/massagem-relaxante.jpg';
+import imgPeeling from '../assets/peeling.jpg';
+import imgSkincare from '../assets/skincare.jpg';
 import imgDrenagem from '../assets/drenagem.jpg';
+import imgMassagem from '../assets/massagem-relaxante.jpg';
+import imgDepilacao from '../assets/depilacao.jpg';
+import { useLocation } from 'react-router-dom';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -21,39 +25,60 @@ const NOMES_MESES = [
 ];
 
 const procedimentos = [
-  {
-    id: 1,
-    titulo: 'Limpeza de Pele',
-    preco: 'R$ 280',
-    descricao: 'Tratamento profundo para remoção de impurezas e revitalização celular.',
-    imagem: imgLimpeza,
+  { 
+    id: 1, titulo: 'Limpeza de Pele', preco: 'R$ 280', 
+    descricao: 'Procedimento estético profundo...', imagem: imgLimpeza,
+    dicas: ['Evite exposição solar direta 48h antes.', 'Não utilize ácidos ou esfoliantes na véspera.', 'Venha sem maquiagem, se possível.']
   },
-  {
-    id: 2,
-    titulo: 'Massagem Relaxante',
-    preco: 'R$ 350',
-    descricao: 'Equilíbrio perfeito entre técnicas ancestrais e óleos essenciais orgânicos.',
-    imagem: imgMassagem,
+  { 
+    id: 2, titulo: 'Peeling de Diamante', preco: 'R$ 250', 
+    descricao: 'Esfoliação mecânica suave...', imagem: imgPeeling,
+    dicas: ['Suspenda cremes com ácido retinóico 3 dias antes.', 'Hidrate bem a pele nos dias anteriores.', 'Evite depilação facial no dia anterior.']
   },
-  {
-    id: 3,
-    titulo: 'Drenagem',
-    preco: 'R$ 220',
-    descricao: 'Técnica especializada para redução de medidas e eliminação de toxinas corporais.',
-    imagem: imgDrenagem,
+  { 
+    id: 3, titulo: 'Skinbooster', preco: 'R$ 350', 
+    descricao: 'Hidratação injetável profunda...', imagem: imgSkincare,
+    dicas: ['Beba bastante água no dia anterior.', 'Evite bebidas alcoólicas 24h antes.', 'Informe sobre qualquer alergia a anestésicos locais.']
   },
+  { 
+    id: 4, titulo: 'Drenagem Linfática', preco: 'R$ 220', 
+    descricao: 'Técnica de massagem que estimula...', imagem: imgDrenagem,
+    dicas: ['Beba muita água antes e depois da sessão.', 'Faça refeições leves no dia.', 'Venha com roupas confortáveis e fáceis de tirar.']
+  },
+  { 
+    id: 5, titulo: 'Massagem Relaxante', preco: 'R$ 200', 
+    descricao: 'Movimentos suaves e contínuos...', imagem: imgMassagem,
+    dicas: ['Evite comer refeições pesadas 1h antes.', 'Tome um banho morno antes de vir, se possível.', 'Chegue com 10 minutos de antecedência para "desacelerar".']
+  },
+  { 
+    id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'A partir de R$ 80', 
+    descricao: 'Remoção de pelos com métodos...', imagem: imgDepilacao,
+    dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.']
+  }
 ];
 
 
 
 export default function PaginaAgendamento() {
-  const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(2);
+  const location = useLocation();
+  const [modalDicasAberto, setModalDicasAberto] = useState(false);
+  
+  const procedimentoInicial = location.state?.procedimentoId || 2;
+  
+  const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(procedimentoInicial);
   const [dataSelecionada, setDataSelecionada] = useState(null);
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
-
 
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
 
@@ -68,8 +93,8 @@ export default function PaginaAgendamento() {
       procedimento: proc?.titulo,
       preco: proc?.preco,
       local: localSelecionado === 'clinica'
-        ? 'Rua fulano - 123 - Jardim clinica'
-        : 'Rua fulano, 123 - Jardim Usuário',
+        ? 'Rua Entre-Folhas, 4a - Jardim Arize'
+        : 'Rua usuário, 123 - Jardim Usuário',
     });
   }
 
@@ -199,17 +224,60 @@ export default function PaginaAgendamento() {
               })() : '—'}
               horario={horarioSelecionado || '—'}
               local={localSelecionado === 'clinica'
-                ? 'Rua clinica - Jardim clinica'
-                : 'Rua residencia, 123 - Jardim Usuário'
+                ? 'Rua Entre-Folhas, 4a - Jardim Arize'
+                : 'Rua Endereço-do-usuário, 123 - Jardim Usuário'
               }
               confirmar={handleConfirmar}
               loading={loading}
               erro={erro}
             />
-            <CartaoDicasPreProcedimento />
+            <CartaoDicasPreProcedimento aoClicar={() => setModalDicasAberto(true)} />
           </div>
         </div>
       </div>
+      {/* ── MODAL DE DICAS PRE-PROCEDIMENTO ── */}
+      {modalDicasAberto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
+          <div className="bg-[#f8f7f2] w-full max-w-md rounded-2xl p-8 shadow-2xl relative transform transition-all">
+            {/* Botão Fechar */}
+            <button
+              onClick={() => setModalDicasAberto(false)}
+              className="absolute top-5 right-5 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <h3 className="text-2xl font-bold text-[#2C3E2D] mb-1" style={{ fontFamily: 'Georgia, serif' }}>
+              Dicas de Preparo
+            </h3>
+            <p className="text-[#d4b055] font-semibold mb-6 uppercase text-xs tracking-widest">
+              {proc?.titulo}
+            </p>
+            
+            <ul className="space-y-4">
+              {proc?.dicas?.map((dica, index) => (
+                <li key={index} className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed">
+                  <span className="text-[#576b5d] mt-0.5 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                  <span>{dica}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <button
+              onClick={() => setModalDicasAberto(false)}
+              className="mt-8 w-full bg-[#576b5d] hover:bg-[#4a5e50] text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer"
+            >
+              Entendi, obrigado!
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── FAIXA 4: rodapé ── */}
       <RodapeAgendamento />
