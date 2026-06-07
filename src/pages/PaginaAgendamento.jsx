@@ -82,9 +82,10 @@ export default function PaginaAgendamento() {
 
   useEffect(()=>{
       const codeAgendamento = searchParams.get('code');
+      let requisicaoEmAndamento = false;
   
-      if(codeAgendamento){
-  
+      if(codeAgendamento && !requisicaoEmAndamento){
+        requisicaoEmAndamento = true;
         localStorage.removeItem('token');
   
       async function validarLinkAgendamento(){
@@ -93,13 +94,15 @@ export default function PaginaAgendamento() {
         });
   
         salvarUsuario(response.data)
+
+        localStorage.setItem('token', response.data.token);
         
         window.history.replaceState({}, document.title, window.location.pathname);
       }
   
       validarLinkAgendamento();
       }
-    }, [searchParams, salvarUsuario]);
+    }, []);
 
 
   const { loading, erro, sucesso, confirmar } = useAgendamento();
