@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   Chart,
   BarElement,
@@ -7,27 +7,51 @@ import {
   LinearScale,
   Tooltip,
 } from 'chart.js';
+import { getReceitaPorAno } from '../services/dashboardService';
 
 Chart.register(BarElement, BarController, CategoryScale, LinearScale, Tooltip);
-
-const dados = [210000, 245000, 198000, 310000, 280000, 380640];
-const rotulos = ['2020', '2021', '2022', '2023', '2024', '2025'];
 
 export default function GraficoReceitaAnual() {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const [dados, setDados] = useState(null); // null = carregando, [] = vazio, [...] = ok
 
+  // 1. Busca os dados
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext('2d');
+    let mounted = true;
+    getReceitaPorAno()
+      .then((res) => {
+        if (!mounted) return;
+        const ordenado = [...res].sort((a, b) => a.ano - b.ano);
+        setDados({
+          rotulos: ordenado.map((r) => String(r.ano)),
+          valores: ordenado.map((r) => Number(r.total)),
+        });
+      })
+      .catch((e) => {
+        console.error('Erro ao carregar receita anual:', e);
+        if (mounted) setDados({ rotulos: [], valores: [] });
+      });
+    return () => { mounted = false; };
+  }, []);
 
+  // 2. Só cria o chart depois que o canvas está no DOM E os dados chegaram
+  useEffect(() => {
+    if (!dados || !canvasRef.current) return;
+    if (dados.valores.length === 0) return;
+
+    chartRef.current?.destroy();
+
+    const ctx = canvasRef.current.getContext('2d');
     chartRef.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: rotulos,
+        labels: dados.rotulos,
         datasets: [{
-          data: dados,
-          backgroundColor: dados.map((_, i) => i === dados.length - 1 ? '#2C3E2D' : '#ddd9cc'),
+          data: dados.valores,
+          backgroundColor: dados.valores.map((_, i) =>
+            i === dados.valores.length - 1 ? '#2C3E2D' : '#ddd9cc'
+          ),
           borderRadius: 4,
           borderSkipped: false,
         }],
@@ -43,7 +67,8 @@ export default function GraficoReceitaAnual() {
             bodyColor: '#fff',
             padding: 8,
             callbacks: {
-              label: (ctx) => ` R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`,
+              label: (ctx) =>
+                ` R$ ${ctx.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
             },
           },
         },
@@ -59,13 +84,25 @@ export default function GraficoReceitaAnual() {
     });
 
     return () => { chartRef.current?.destroy(); };
-  }, []);
+  }, [dados]); // dispara quando dados muda
 
   return (
     <div>
       <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Receita Anual</p>
       <div style={{ height: 90 }}>
-        <canvas ref={canvasRef}/>
+        {dados === null ? (
+          // skeleton
+          <div className="h-full flex items-end gap-1 px-1">
+            {[60, 75, 55, 85, 70, 90].map((h, i) => (
+              <div key={i} className="flex-1 bg-gray-100 animate-pulse rounded-sm" style={{ height: `${h}%` }}/>
+            ))}
+          </div>
+        ) : dados.valores.length === 0 ? (
+          <p className="text-[10px] text-gray-400 pt-2">Sem dados disponíveis.</p>
+        ) : (
+          // canvas sempre montado quando dados existem
+          <canvas ref={canvasRef}/>
+        )}
       </div>
     </div>
   );
