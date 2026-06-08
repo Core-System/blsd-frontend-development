@@ -14,7 +14,7 @@ const iconeSetaDireita = (
 const DIAS_DA_SEMANA = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-export default function CalendarioAgendamento({ agendamentos = [] }) {
+export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecionado }) {
   const hoje = new Date();
 
   const [ano, setAno]   = useState(hoje.getFullYear());
@@ -39,11 +39,13 @@ export default function CalendarioAgendamento({ agendamentos = [] }) {
     if (mes === 0) { setMes(11); setAno(a => a - 1); }
     else setMes(m => m - 1);
     setDiaSelecionado(null);
+    onDiaSelecionado?.({ dia: null, mes: null });
   }
   function proximoMes() {
     if (mes === 11) { setMes(0); setAno(a => a + 1); }
     else setMes(m => m + 1);
     setDiaSelecionado(null);
+    onDiaSelecionado?.({ dia: null, mes: null });
   }
 
   // Montar células do calendário
@@ -114,7 +116,12 @@ export default function CalendarioAgendamento({ agendamentos = [] }) {
           return (
             <div key={i} className="flex flex-col items-center py-0.5">
               <button
-                onClick={() => celula.atual && setDiaSelecionado(celula.dia)}
+                onClick={() => {
+                  if (!celula.atual) return;
+                  const novodia = celula.dia === diaSelecionado ? null : celula.dia;
+                  setDiaSelecionado(novodia);
+                  onDiaSelecionado?.({ dia: novodia, mes: ano * 100 + mes });
+                }}
                 className={`w-7 h-7 rounded-full text-[11px] font-medium transition-all flex items-center justify-center
                   ${!celula.atual ? 'text-gray-300 cursor-default' : 'cursor-pointer'}
                   ${selecionado  ? 'bg-[#2C3E2D] text-white shadow-md' : ''}

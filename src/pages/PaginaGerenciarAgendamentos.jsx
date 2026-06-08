@@ -29,6 +29,7 @@ export default function PaginaGerenciarAgendamentos() {
   const [filtroPeriodo,     setFiltroPeriodo]     = useState('Todos os dias');
   const [filtroProcedimento,setFiltroProcedimento]= useState('Todos');
   const [filtroStatus,      setFiltroStatus]      = useState('Ver todos');
+  const [filtroDia, setFiltroDia] = useState({ dia: null, mes: null }); // {dia, mes=ano*100+mes}
 
   useEffect(() => {
     async function carregar() {
@@ -79,7 +80,14 @@ export default function PaginaGerenciarAgendamentos() {
       }
       return true;
     });
-  }, [agendamentos, filtroPaciente, filtroPeriodo, filtroProcedimento, filtroStatus]);
+      // filtro por dia do calendário (tem prioridade sobre filtroPeriodo)
+      if (filtroDia.dia !== null && filtroDia.mes !== null) {
+        const d = new Date(a.dataHoraInicio);
+        const anoMes = d.getFullYear() * 100 + d.getMonth();
+        if (d.getDate() !== filtroDia.dia || anoMes !== filtroDia.mes) return false;
+      }
+
+  }, [agendamentos, filtroPaciente, filtroPeriodo, filtroProcedimento, filtroStatus, filtroDia]);
 
   // ── KPIs derivados ──
   const procedimentoTop = useMemo(() => {
@@ -139,7 +147,10 @@ export default function PaginaGerenciarAgendamentos() {
           {/* calendário + lista */}
           <div className="grid grid-cols-12 gap-4 mb-4">
             <div className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
-              <CalendarioAgendamento agendamentos={agendamentos} />
+              <CalendarioAgendamento
+                agendamentos={agendamentos}
+                onDiaSelecionado={setFiltroDia}
+              />
               <CartaoVisaoGeral
                 total={filtrados.length}
                 procedimentoTop={procedimentoTop}
