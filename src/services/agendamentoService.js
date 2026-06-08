@@ -11,23 +11,23 @@ function anotarDataHoraISO(dia, mes, ano, hora) {
     return `${ano}-${mesStr}-${diaStr}T${horasStr}:${String(minutos).padStart(2, '0')}:00Z`;
 }
 
-export async function criarAgendamento({ nome, email, dia, mes, ano, hora }) {
-const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
+export async function criarAgendamento({ nome, email, dia, mes, ano, hora, procedimento }) {
+    const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
+    const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token"); 
-
-    const resposta = await axios.post(`${BASE_URL}/api/calendario/calcom/agendar`, 
+    const resposta = await axios.post(`${BASE_URL}/api/calendario/calcom/agendar`,
         {
             nome,
             email,
-            dataHoraInicio
-        }, 
+            dataHoraInicio,
+            procedimento
+        },
         {
             headers: {
-                'Authorization': `Bearer ${token}` 
+                'Authorization': `Bearer ${token}`
             }
         }
     );
-    
+
     return resposta.data;
 }
