@@ -99,7 +99,7 @@ export default function PaginaClientes() {
               <h1 className="text-3xl font-black text-gray-900 leading-tight">Gestão de Clientes</h1>
               <p className="text-sm text-gray-400 mt-1">Central de registros e histórico de pacientes premium.</p>
             </div>
-
+ 
           </div>
 
           {/* ── KPIs */}
