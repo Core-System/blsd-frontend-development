@@ -314,6 +314,7 @@ export default function PaginaFuncionarios() {
   // modal de remoção
   const [funcRemovendo, setFuncRemovendo]   = useState(null);
   const [removendo, setRemovendo]           = useState(false);
+  const [mensagemSucessoEdicao, setMensagemSucessoEdicao] = useState(false);
 
   /* ── carregar ── */
   const carregar = useCallback(async () => {
@@ -387,6 +388,8 @@ export default function PaginaFuncionarios() {
       await atualizarFuncionario(id, payload);
       await carregar();
       setFuncEditando(null);
+      setMensagemSucessoEdicao(true);
+      setTimeout(() => setMensagemSucessoEdicao(false), 4000);
     } catch (e) {
       console.error('Erro ao atualizar:', e);
       alert('Erro ao atualizar funcionário. Tente novamente.');
@@ -581,6 +584,16 @@ export default function PaginaFuncionarios() {
                 <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{col}</span>
               ))}
             </div>
+            
+            {mensagemSucessoEdicao && (
+  <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
+    {/* Ícone de Check/Sucesso */}
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a8c5a0" strokeWidth={2.5}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+    <span>Funcionário atualizado com sucesso!</span>
+  </div>
+)}
 
             {/* estado de carregamento */}
             {carregando && (
