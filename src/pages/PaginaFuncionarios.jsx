@@ -286,7 +286,7 @@ function ModalConfirmacao({ nome, onConfirmar, onCancelar, removendo }) {
 
 /* ════════════════════════════════════════════ */
 const ITENS_POR_PAGINA = 10;
-const colunas = ['Funcionário', 'E-mail', 'CPF', 'Cadastro', 'Nível de Acesso', 'Ações'];
+const colunas = ['Funcionário', 'E-mail', 'CPF', 'Nível de Acesso', 'Ações'];
 
 export default function PaginaFuncionarios() {
   const [funcionarios, setFuncionarios]     = useState([]);
@@ -621,9 +621,6 @@ export default function PaginaFuncionarios() {
 
                   {/* cpf */}
                   <p className="text-xs text-gray-600">{f.cpf || '—'}</p>
-
-                  {/* cadastro */}
-                  <p className="text-xs text-gray-500">{formatarData(f.dataCriacao)}</p>
 
                   {/* nível acesso */}
                   <div className="flex items-center gap-1.5">
