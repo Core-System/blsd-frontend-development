@@ -64,10 +64,10 @@ useEffect(() => {
     if (!nota) return;
     setEnviando(true);
     try {
-      await avaliarConsulta(modalAvaliacao.id, { nota, descricacao: descricao });
+      await avaliarConsulta(modalAvaliacao.id, { nota, descricao: descricao });
       setConsultas(cs => cs.map(c =>
         c.id === modalAvaliacao.id
-          ? { ...c, avaliacao: { nota, descricacao: descricao } }
+          ? { ...c, avaliacao: { nota, descricao: descricao } }
           : c
       ));
       setModalAvaliacao(null);

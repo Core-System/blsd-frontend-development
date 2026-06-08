@@ -89,7 +89,7 @@ useEffect(() => {
               <div className="relative z-10">
                 <Estrelas quantidade={dep.nota} />
                 <p className="font-montserrat font-bold text-[#555] text-sm leading-relaxed mb-4 min-h-20">
-                  "{dep.descricacao}"
+                  "{dep.descricao}"
                 </p>
                 {dep.servicos?.length > 0 && (
                   <span className="inline-block text-[0.65rem] font-bold text-[#C5A859] border border-[#e8d49a] rounded-full px-3 py-1 uppercase tracking-widest mb-4">
