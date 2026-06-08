@@ -99,9 +99,7 @@ export default function PaginaClientes() {
               <h1 className="text-3xl font-black text-gray-900 leading-tight">Gestão de Clientes</h1>
               <p className="text-sm text-gray-400 mt-1">Central de registros e histórico de pacientes premium.</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-[#B8982A] hover:bg-[#a07f22] text-white text-sm font-bold rounded-lg transition-colors shadow-sm mt-1">
-              {iconePlus} Novo Cliente
-            </button>
+
           </div>
 
           {/* ── KPIs */}

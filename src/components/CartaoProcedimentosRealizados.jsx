@@ -3,28 +3,25 @@ import GraficoReceitaAnual from './GraficoReceitaAnual';
 import { getRankingServicos } from '../services/dashboardService';
 
 export default function CartaoProcedimentosRealizados() {
-  const [ranking, setRanking] = useState([]);
-  const [carregando, setCarregando] = useState(true);
+  const [ranking, setRanking] = useState(null); // null=carregando
 
   useEffect(() => {
-    async function carregar() {
-      try {
-        const data = await getRankingServicos();
-        // Calcula percentual relativo ao maior
-        const max = Math.max(...data.map((r) => Number(r.quantidade)), 1);
-        const comPct = data.map((r) => ({
-          nome: r.servico.toUpperCase(),
-          quantidade: Number(r.quantidade),
-          pct: Math.round((Number(r.quantidade) / max) * 100),
-        }));
-        setRanking(comPct);
-      } catch (e) {
-        console.error('Erro ao carregar ranking de serviços:', e);
-      } finally {
-        setCarregando(false);
-      }
-    }
-    carregar();
+    getRankingServicos()
+      .then((res) => {
+        const lista = Array.isArray(res) ? res : [];
+        if (lista.length === 0) { setRanking([]); return; }
+        // Garante que r.servico existe antes de chamar .toUpperCase()
+        const max = Math.max(...lista.map((r) => Number(r.quantidade) || 0), 1);
+        setRanking(lista.map((r) => ({
+          nome: (r.servico || r.nome || 'Serviço').toUpperCase(),
+          quantidade: Number(r.quantidade) || 0,
+          pct: Math.round(((Number(r.quantidade) || 0) / max) * 100),
+        })));
+      })
+      .catch((e) => {
+        console.error('Erro ranking serviços:', e);
+        setRanking([]); // estado seguro em caso de erro
+      });
   }, []);
 
   return (
@@ -32,7 +29,7 @@ export default function CartaoProcedimentosRealizados() {
       <div>
         <h2 className="text-sm font-bold text-[#2C3E2D] mb-4">Procedimentos mais Realizados</h2>
 
-        {carregando ? (
+        {ranking === null ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i}>
@@ -45,8 +42,8 @@ export default function CartaoProcedimentosRealizados() {
           <p className="text-xs text-[#2C3E2D]/50">Sem dados de procedimentos.</p>
         ) : (
           <div className="space-y-3">
-            {ranking.map((p) => (
-              <div key={p.nome}>
+            {ranking.map((p, i) => (
+              <div key={p.nome + i}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-bold text-[#2C3E2D] tracking-widest">{p.nome}</span>
                   <span className="text-[10px] font-bold text-[#2C3E2D]">{p.quantidade}x</span>
