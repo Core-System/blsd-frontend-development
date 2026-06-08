@@ -17,7 +17,8 @@ import imgSkincare from '../assets/skincare.jpg';
 import imgDrenagem from '../assets/drenagem.jpg';
 import imgMassagem from '../assets/massagem-relaxante.jpg';
 import imgDepilacao from '../assets/depilacao.jpg';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import api from '../services/api';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -69,6 +70,8 @@ export default function PaginaAgendamento() {
   const [dataSelecionada, setDataSelecionada] = useState(null);
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
+  const { salvarUsuario } = useAuth();
+  const [searchParams, setSearchParams ] = useSearchParams();
 
   useEffect(() => {
     window.scrollTo({
@@ -76,6 +79,31 @@ export default function PaginaAgendamento() {
       behavior: 'smooth'
     });
   }, []);
+
+  useEffect(()=>{
+      const codeAgendamento = searchParams.get('code');
+      let requisicaoEmAndamento = false;
+  
+      if(codeAgendamento && !requisicaoEmAndamento){
+        requisicaoEmAndamento = true;
+        localStorage.removeItem('token');
+  
+      async function validarLinkAgendamento(){
+        const response = await api.post('/usuarios/link-agendamento', null,{
+          params: {code: codeAgendamento}
+        });
+  
+        salvarUsuario(response.data)
+
+        localStorage.setItem('token', response.data.token);
+        
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+  
+      validarLinkAgendamento();
+      }
+    }, []);
+
 
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
@@ -252,7 +280,7 @@ export default function PaginaAgendamento() {
             <h3 className="text-2xl font-bold text-[#2C3E2D] mb-1" style={{ fontFamily: 'Georgia, serif' }}>
               Dicas de Preparo
             </h3>
-            <p className="text-[#d4b055] font-semibold mb-6 uppercase text-xs tracking-widest">
+            <p className="text-[hsl(43,60%,58%)] font-semibold mb-6 uppercase text-xs tracking-widest">
               {proc?.titulo}
             </p>
             

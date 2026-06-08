@@ -76,7 +76,7 @@ function HeaderDashboard({ nome }) {
 export default function PaginaDashboard() {
   const { usuario } = useAuth();
   const nomeCompleto = usuario?.nome || 'Usuário';
-  const primeiroNome = nomeCompleto.split(' ')[0];
+  const primeiroNome = (nomeCompleto || 'Usuário').split(' ')[0] || 'Usuário';
 
   const [kpis, setKpis] = useState({
     faturamentoMensal: null,
@@ -91,17 +91,18 @@ export default function PaginaDashboard() {
     async function carregarKPIs() {
       try {
         setCarregando(true);
-        const [faturamento, procedimentos, receita, ticket] = await Promise.all([
+        // allSettled garante que uma falha isolada não derruba os outros KPIs
+        const [faturamento, procedimentos, receita, ticket] = await Promise.allSettled([
           getFaturamentoMensal(),
           getProcedimentosMensal(),
           getReceitaAnualTotal(),
           getTicketMedio(),
         ]);
         setKpis({
-          faturamentoMensal: faturamento,
-          procedimentosMensal: procedimentos,
-          receitaAnual: receita,
-          ticketMedio: ticket,
+          faturamentoMensal:  faturamento.status  === 'fulfilled' ? faturamento.value  : null,
+          procedimentosMensal:procedimentos.status === 'fulfilled' ? procedimentos.value: null,
+          receitaAnual:       receita.status       === 'fulfilled' ? receita.value       : null,
+          ticketMedio:        ticket.status        === 'fulfilled' ? ticket.value        : null,
         });
       } catch (e) {
         console.error('Erro ao carregar KPIs do dashboard:', e);
@@ -118,7 +119,7 @@ export default function PaginaDashboard() {
       <BarraDeNavegacaoLateral />
       <HeaderDashboard nome={nomeCompleto} />
 
-      <main className="ml-[152px] pt-12 min-h-screen bg-[#f5f4ec]">
+      <main className="ml-[152px] pt-6 min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-6">
 
           {/* ── Cabeçalho */}
