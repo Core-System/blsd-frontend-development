@@ -8,6 +8,7 @@ const iconeOpcoes = (
 );
 
 /* ── Avatar neutro ── */
+/* ── Avatar neutro ── */
 function AvatarNeutro({ tamanho = 28 }) {
   return (
     <div
@@ -18,12 +19,6 @@ function AvatarNeutro({ tamanho = 28 }) {
         <circle cx="12" cy="8" r="4"/>
         <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
       </svg>
-    {agendamentoDetalhes && (
-      <ModalDetalhesAgendamento
-        agendamento={agendamentoDetalhes}
-        onFechar={() => setAgendamentoDetalhes(null)}
-      />
-    )}
     </div>
   );
 }
