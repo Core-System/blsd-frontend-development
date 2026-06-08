@@ -73,6 +73,8 @@ useEffect(() => {
       setModalAvaliacao(null);
       setNota(0);
       setDescricao('');
+
+      window.dispatchEvent(new Event('novaAvaliacaoFeita'));
     } catch {
       alert('Erro ao enviar avaliação.');
     } finally {

@@ -12,7 +12,7 @@ export async function cadastrar({ nome, email, senha, telefone, dataNasc }) {
         nome,
         email,
         senha,
-        urlFoto: 'https://i.pravatar.cc/150',
+        urlFoto: 'https://i.sstatic.net/Hq8za.jpgnpm',
         dataNasc,
         telefone,
         acesso: { id: 3 }
