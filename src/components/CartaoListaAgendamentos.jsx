@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalDetalhesAgendamento from './ModalDetalhesAgendamento';
 
 const iconeOpcoes = (
   <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
@@ -17,6 +18,12 @@ function AvatarNeutro({ tamanho = 28 }) {
         <circle cx="12" cy="8" r="4"/>
         <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
       </svg>
+    {agendamentoDetalhes && (
+      <ModalDetalhesAgendamento
+        agendamento={agendamentoDetalhes}
+        onFechar={() => setAgendamentoDetalhes(null)}
+      />
+    )}
     </div>
   );
 }
@@ -47,6 +54,7 @@ function formatarDataHora(iso) {
 
 export default function CartaoListaAgendamentos({ agendamentos = [], carregando = false, filtros = {} }) {
   const [menuAberto, setMenuAberto] = useState(null);
+  const [agendamentoDetalhes, setAgendamentoDetalhes] = useState(null);
 
   const filtrados = agendamentos.filter((a) => {
     const nome = a.cliente?.nome?.toLowerCase() || '';
@@ -167,7 +175,7 @@ export default function CartaoListaAgendamentos({ agendamentos = [], carregando 
                       </button>
                       {menuAberto === a.id && (
                         <div className="absolute right-0 top-7 bg-white border border-[#e8e6d9] rounded-lg shadow-lg z-10 py-1 min-w-[130px]">
-                          <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Ver detalhes</button>
+                          <button onClick={() => { setAgendamentoDetalhes(a); setMenuAberto(null); }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Ver detalhes</button>
                           <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Remarcar</button>
                           <button className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50">Cancelar</button>
                         </div>
@@ -189,6 +197,12 @@ export default function CartaoListaAgendamentos({ agendamentos = [], carregando 
           </p>
         </div>
       )}
+    {agendamentoDetalhes && (
+      <ModalDetalhesAgendamento
+        agendamento={agendamentoDetalhes}
+        onFechar={() => setAgendamentoDetalhes(null)}
+      />
+    )}
     </div>
   );
 }
