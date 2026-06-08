@@ -69,6 +69,5 @@ return (
     </div>
   </div>
   </section>
-  
 );
 }
