@@ -173,6 +173,7 @@ export default function BarraDeNavegacaoSuperior() {
   const primeiroNome = usuario?.nome?.split(' ')[0] || 'Visitante';
 
   const [mensagemLogin, setMensagemLogin] = useState(null);
+  const [mensagemDashboard, setMensagemDashboard] = useState(null);
 
   const [cliente, setCliente] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -190,6 +191,15 @@ export default function BarraDeNavegacaoSuperior() {
       return;
     }
     navigate('/agendar');
+  }
+
+  function aoClicarDashboard(){
+    if(!usuario){
+      setMensagemDashboard(true)
+      setTimeout(() => setMensagemDashboard(false), 4000);
+      return;
+    }
+    navigate("/dashboard")
   }
 
   function aoSair() {
@@ -290,6 +300,8 @@ export default function BarraDeNavegacaoSuperior() {
         >
           Agende
         </button>
+        <button onClick={aoClicarDashboard}
+          className="text-sm font-bold text-[#2C3E2D] bg-transparent border-none cursor-pointer hover:text-[#1a2a1b] transition-colors">Dashboard</button>
       </div>
 
       {/* Área direita: usuário */}
@@ -332,6 +344,21 @@ export default function BarraDeNavegacaoSuperior() {
           <span>Você precisa estar logado para agendar.</span>
           <button
             onClick={() => navigate('/login')}
+            className="ml-2 text-[#d4b055] font-bold hover:underline bg-transparent border-none cursor-pointer"
+          >
+            Entrar
+          </button>
+        </div>
+      )}
+      {mensagemDashboard && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
+          </svg>
+          <span>Você precisa estar logado para ir para a dashboard.</span>
+          <button
+            onClick={() => navigate('/dashboard')}
             className="ml-2 text-[#d4b055] font-bold hover:underline bg-transparent border-none cursor-pointer"
           >
             Entrar
