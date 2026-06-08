@@ -19,7 +19,7 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
 
   const [ano, setAno]   = useState(hoje.getFullYear());
   const [mes, setMes]   = useState(hoje.getMonth()); // 0-based
-  const [diaSelecionado, setDiaSelecionado] = useState(hoje.getDate());
+  const [diaSelecionado, setDiaSelecionado] = useState(null);
 
   // Conjunto de dias que têm agendamentos no mês/ano visível
   const diasComAgendamento = useMemo(() => {
