@@ -78,15 +78,15 @@ export default function PaginaGerenciarAgendamentos() {
           if (data.getMonth() !== agora.getMonth() || data.getFullYear() !== agora.getFullYear()) return false;
         }
       }
-      return true;
-    });
-      // filtro por dia do calendário (tem prioridade sobre filtroPeriodo)
+      // filtro por dia do calendário
       if (filtroDia.dia !== null && filtroDia.mes !== null) {
         const d = new Date(a.dataHoraInicio);
         const anoMes = d.getFullYear() * 100 + d.getMonth();
         if (d.getDate() !== filtroDia.dia || anoMes !== filtroDia.mes) return false;
       }
 
+      return true;
+    });
   }, [agendamentos, filtroPaciente, filtroPeriodo, filtroProcedimento, filtroStatus, filtroDia]);
 
   // ── KPIs derivados ──
