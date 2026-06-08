@@ -50,14 +50,12 @@ export default function BarraFiltrosAgendamento({
         <div className="relative">
           <select value={procedimento} onChange={(e) => onProcedimento?.(e.target.value)} className={selectCls}>
             <option>Todos</option>
-            <option>Botox Facial</option>
-            <option>Peeling Químico</option>
-            <option>Preenchimento Labial</option>
-            <option>Bioestimulador</option>
-            <option>Rinomodelação</option>
             <option>Limpeza de Pele</option>
+            <option>Peeling de Diamante</option>
+            <option>Skinbooster</option>
+            <option>Drenagem Linfática</option>
             <option>Massagem Relaxante</option>
-            <option>Drenagem</option>
+            <option>Depilação (Cera e Laser)</option>
           </select>
           <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">{iconeSeta}</span>
         </div>
