@@ -1,6 +1,6 @@
 export default function SecaoSobreNos() {
   return (
-    <section className="bg-[#FAFAE8] py-12 px-8">
+    <section id="sobre-nos" className="bg-[#FAFAE8] py-12 px-8">
       <div className="grid grid-cols-[1fr_3fr] gap-0 min-h-[480px] rounded-2xl overflow-hidden shadow-sm">
 
         {/* Coluna esquerda — verde decorativa */}

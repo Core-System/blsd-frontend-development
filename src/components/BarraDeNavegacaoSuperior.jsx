@@ -28,6 +28,16 @@ export default function BarraDeNavegacaoSuperior() {
     navigate('/login');
   }
 
+  const rolarParaSecao = (id) => {
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
 
   return (
@@ -47,25 +57,12 @@ export default function BarraDeNavegacaoSuperior() {
           <button
             key={link}
             onClick={() => {
-              if (link === 'Início') navigate('/');
-              if (link === 'Procedimentos') {
-                if (window.location.pathname !== '/') {
-                  navigate('/');
-                  setTimeout(() => {
-                    document.getElementById('procedimentos')?.scrollIntoView({ behavior: 'smooth' });
-                  }, 100);
-                } else {
-                  document.getElementById('procedimentos')?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }
+              if (link === 'Início') rolarParaSecao('inicio');
+              if (link === 'Procedimentos') rolarParaSecao('procedimentos');
+              if (link === 'Sobre nós') rolarParaSecao('sobre-nos');
+              if (link === 'Contato') rolarParaSecao('footer');
             }}
-            className={`
-              text-sm bg-transparent border-none transition-colors
-              ${link === 'Sobre nós' || link === 'Contato'
-                ? 'text-gray-400 cursor-default'
-                : 'text-gray-600 hover:text-[#2C3E2D] cursor-pointer font-semibold'
-              }
-            `}
+            className="text-sm bg-transparent border-none transition-colors text-gray-600 hover:text-[#2C3E2D] cursor-pointer font-semibold"
           >
             {link}
           </button>
@@ -82,7 +79,7 @@ export default function BarraDeNavegacaoSuperior() {
       <div className="flex items-center gap-3">
         {usuario ? (
           <>
-          <BalaoAgendamentos />
+            <BalaoAgendamentos />
             <span className="text-sm text-gray-600">
               Olá, <strong>{primeiroNome}</strong>
             </span>

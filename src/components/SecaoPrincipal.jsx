@@ -1,6 +1,6 @@
 export default function SecaoPrincipal() {
   return (
-    <section className="relative w-full bg-[#FAFAE8] pt-20 pb-24 flex justify-center overflow-hidden">
+    <section id="inicio" className="relative w-full bg-[#FAFAE8] pt-20 pb-24 flex justify-center overflow-hidden">
       {/*Circulo*/}
       <div className="absolute -top-48 -right-24 w-250 h-250 bg-[#4a6741] rounded-full z-0" />
       
