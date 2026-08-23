@@ -2,20 +2,19 @@ import React from 'react';
 
 export default function CartaoDicasPreProcedimento({ aoClicar }) {
   return (
-    <div className="bg-[#4a5e50] rounded-2xl p-7 flex flex-col justify-between h-full">
-      <div>
-        <h2 className="text-white text-3xl font-bold leading-tight mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+    <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#4a5e50] px-5 py-4">
+      <div className="min-w-0">
+        <h2 className="text-lg font-bold leading-tight text-white" style={{ fontFamily: 'Georgia, serif' }}>
           Acesse dicas!
         </h2>
-        <p className="text-white/75 text-sm leading-relaxed">
-          Acesse o link para encontrar dicas e indicações para o pré-procedimento,
-          sem pensando na sua melhor experiência.
+        <p className="mt-1 text-xs leading-relaxed text-white/75">
+          Recomendações para uma melhor experiência.
         </p>
       </div>
-      <div className="flex justify-end mt-6">
+      <div className="flex flex-shrink-0 justify-end">
         <button 
           onClick={aoClicar}
-          className="w-max bg-[#d4b055] hover:bg-[#c9a44a] text-[#2C3E2D] font-bold py-2 px-6 rounded-lg text-sm transition-colors mt-auto"
+          className="w-max rounded-lg bg-[#d4b055] px-4 py-2 text-xs font-bold text-[#2C3E2D] transition-colors hover:bg-[#c9a44a]"
         >
           Acessar dicas
         </button>

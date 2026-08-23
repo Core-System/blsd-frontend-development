@@ -1,14 +1,10 @@
-import BarraDeNavegacaoSuperior from "../components/BarraDeNavegacaoSuperior";
+import ShellPublico from "../components/ShellPublico";
 import CartaoDeCadastro from "../components/CartaoDeCadastro";
-import Rodape from "../components/Rodape";
 import imagemFundo from "../assets/fundoLogin.png";
 
 export default function PaginaDeCadastro() {
   return (
-    <div className="min-h-screen flex flex-col">
-
-      <BarraDeNavegacaoSuperior />
-
+    <ShellPublico>
       <div className="relative flex-1 pt-14">
         <img
           src={imagemFundo}
@@ -19,8 +15,6 @@ export default function PaginaDeCadastro() {
           <CartaoDeCadastro />
         </div>
       </div>
-
-      <Rodape />
-    </div>
+    </ShellPublico>
   );
 }

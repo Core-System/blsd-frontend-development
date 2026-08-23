@@ -5,8 +5,7 @@ import CalendarioAgendamento from '../components/CalendarioAgendamento';
 import CartaoVisaoGeral from '../components/CartaoVisaoGeral';
 import CartaoListaAgendamentos from '../components/CartaoListaAgendamentos';
 import CartaoKPI from '../components/CartaoKPI';
-import { listarClientes } from '../services/clienteService';
-import { listarTodasConsultas } from '../services/gerencAgendamentoService';
+import { listarConsultas } from '../services/gerencAgendamentoService';
 
 const iconCalendar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -23,23 +22,34 @@ export default function PaginaGerenciarAgendamentos() {
   const [agendamentos, setAgendamentos] = useState([]);
   const [carregando, setCarregando]     = useState(true);
   const [erro, setErro]                 = useState(null);
+  const [paginaAtual, setPaginaAtual]   = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalElementos, setTotalElementos] = useState(0);
+  const [tamanhoPagina] = useState(15);
 
-  // filtros controlados
   const [filtroPaciente,    setFiltroPaciente]    = useState('');
   const [filtroPeriodo,     setFiltroPeriodo]     = useState('Todos os dias');
   const [filtroProcedimento,setFiltroProcedimento]= useState('Todos');
   const [filtroStatus,      setFiltroStatus]      = useState('Ver todos');
-  const [filtroDia, setFiltroDia] = useState({ dia: null, mes: null }); // {dia, mes=ano*100+mes}
+  const [filtroDia, setFiltroDia] = useState({ dia: null, mes: null });
 
   useEffect(() => {
     async function carregar() {
       try {
         setCarregando(true);
-        const clientes = await listarClientes();
-        const todas    = await listarTodasConsultas(clientes);
-        // Ordena por data decrescente
-        todas.sort((a, b) => new Date(b.dataHoraInicio) - new Date(a.dataHoraInicio));
-        setAgendamentos(todas);
+        const statusParam = filtroStatus === 'Ver todos' ? '' : filtroStatus.toUpperCase();
+        const pagina = Math.max(0, paginaAtual);
+        const resposta = await listarConsultas({
+          page: pagina,
+          size: tamanhoPagina,
+          status: statusParam,
+          busca: filtroPaciente,
+        });
+
+        const registros = Array.isArray(resposta?.content) ? resposta.content : [];
+        setAgendamentos(registros);
+        setTotalPaginas(Number(resposta?.totalPages ?? 1));
+        setTotalElementos(Number(resposta?.totalElements ?? registros.length));
       } catch (e) {
         console.error('Erro ao carregar agendamentos:', e);
         setErro('Não foi possível carregar os agendamentos.');
@@ -48,7 +58,7 @@ export default function PaginaGerenciarAgendamentos() {
       }
     }
     carregar();
-  }, []);
+  }, [paginaAtual, tamanhoPagina, filtroPaciente, filtroStatus]);
 
   // ── Filtragem local ──
   const filtrados = useMemo(() => {
@@ -161,6 +171,11 @@ export default function PaginaGerenciarAgendamentos() {
               <CartaoListaAgendamentos
                 agendamentos={filtrados}
                 carregando={carregando}
+                paginaAtual={paginaAtual}
+                totalPaginas={totalPaginas}
+                totalElementos={totalElementos}
+                tamanhoPagina={tamanhoPagina}
+                aoMudarPagina={setPaginaAtual}
               />
             </div>
           </div>

@@ -46,14 +46,22 @@ export default function PaginaClientes() {
   const [carregando, setCarregando]     = useState(true);
   const [erro, setErro]                 = useState(null);
   const [busca, setBusca]               = useState('');
+  const [paginaAtual, setPaginaAtual]   = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalElementos, setTotalElementos] = useState(0);
+  const [tamanhoPagina] = useState(8);
   const [filtroStatus, setFiltroStatus] = useState('Todos');
   const [dropStatus, setDropStatus]     = useState(false);
 
   useEffect(() => {
     async function carregar() {
       try {
-        const data = await listarClientes();
-        setClientes(data);
+        setCarregando(true);
+        const resposta = await listarClientes({ page: paginaAtual, size: tamanhoPagina, busca });
+        const lista = Array.isArray(resposta?.content) ? resposta.content : [];
+        setClientes(lista);
+        setTotalPaginas(Number(resposta?.totalPages ?? 1));
+        setTotalElementos(Number(resposta?.totalElements ?? lista.length));
       } catch (e) {
         console.error('Erro ao carregar clientes:', e);
         setErro('Não foi possível carregar os clientes.');
@@ -62,7 +70,7 @@ export default function PaginaClientes() {
       }
     }
     carregar();
-  }, []);
+  }, [paginaAtual, tamanhoPagina, busca]);
 
   // ── KPIs derivados dos dados reais ──
   const total    = clientes.length;
@@ -167,6 +175,11 @@ export default function PaginaClientes() {
             clientes={clientesFiltrados}
             carregando={carregando}
             onRemover={handleRemover}
+            paginaAtual={paginaAtual}
+            totalPaginas={totalPaginas}
+            totalElementos={totalElementos}
+            tamanhoPagina={tamanhoPagina}
+            aoMudarPagina={setPaginaAtual}
           />
 
         </div>

@@ -7,12 +7,38 @@ function getAuthHeader() {
   return { Authorization: `Bearer ${token}` };
 }
 
+function normalizarPagina(data, fallbackSize = 10) {
+  if (Array.isArray(data)) {
+    return {
+      content: data,
+      totalElements: data.length,
+      totalPages: Math.max(1, Math.ceil(data.length / fallbackSize)),
+      number: 0,
+      size: fallbackSize,
+    };
+  }
 
-export async function listarClientes() {
+  return {
+    content: Array.isArray(data?.content) ? data.content : [],
+    totalElements: Number(data?.totalElements ?? 0),
+    totalPages: Number(data?.totalPages ?? 1),
+    number: Number(data?.number ?? 0),
+    size: Number(data?.size ?? fallbackSize),
+  };
+}
+
+export async function listarClientes({ page = 0, size = 10, busca = '' } = {}) {
+  const params = {};
+  if (page !== undefined && page !== null) params.page = page;
+  if (size !== undefined && size !== null) params.size = size;
+  if (busca) params.busca = busca;
+
   const { data } = await axios.get(`${BASE_URL}/cliente`, {
     headers: getAuthHeader(),
+    params,
   });
-  return data; // [{ id, nome, email, telefone, urlFoto, dataCriacao, dataNasc, acesso, senha }]
+
+  return normalizarPagina(data, size);
 }
 
 export async function deletarCliente(id) {

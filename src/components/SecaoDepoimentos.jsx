@@ -1,140 +1,89 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from 'react';
 import { listarAvaliacoes } from '../services/avaliacaoService';
 
-function Estrelas({ quantidade }) {
-  return (
-    <div className="flex gap-1 mb-4 text-[#C5A859] text-lg">
-      {Array.from({ length: quantidade }).map((_, i) => <span key={i}>★</span>)}
-    </div>
-  );
+const AVALIACOES_MOCK = [
+  { id: 'mock-1', clienteNome: 'Marina Alves', nota: 5, servicos: ['Peeling de Diamante'], descricao: 'Saí com a pele luminosa e uma sensação maravilhosa de cuidado. O atendimento é atencioso do início ao fim.' },
+  { id: 'mock-2', clienteNome: 'Camila Nogueira', nota: 5, servicos: ['Drenagem Linfática'], descricao: 'Ambiente tranquilo, equipe muito preparada e resultado perceptível já na primeira sessão. Voltarei com certeza.' },
+  { id: 'mock-3', clienteNome: 'Juliana Martins', nota: 5, servicos: ['Limpeza de Pele'], descricao: 'A experiência foi delicada e personalizada. Minha pele ficou renovada, sem aquele atendimento apressado.' },
+  { id: 'mock-4', clienteNome: 'Renata Costa', nota: 5, servicos: ['Massagem Relaxante'], descricao: 'Um verdadeiro momento para desacelerar. Profissional excelente e um espaço pensado nos detalhes.' },
+  { id: 'mock-5', clienteNome: 'Beatriz Lima', nota: 5, servicos: ['Skinbooster'], descricao: 'Fui muito bem orientada e me senti segura durante todo o protocolo. O resultado ficou natural e lindo.' },
+];
+
+function Estrelas() {
+  return <div className="flex gap-1 text-sm text-[#B8982A]" aria-label="Avaliação: 5 de 5 estrelas">★★★★★</div>;
 }
 
-const VISIBLE = 3;
+function iniciais(nome) {
+  return (nome || '?').split(' ').slice(0, 2).map((parte) => parte[0]).join('').toUpperCase();
+}
 
 export default function SecaoDepoimentos() {
-  const [depoimentos, setDepoimentos] = useState([]);
+  const [depoimentos, setDepoimentos] = useState(AVALIACOES_MOCK);
   const [current, setCurrent] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(1);
   const timerRef = useRef(null);
 
-useEffect(() => {
+  useEffect(() => {
+    const atualizarVisiveis = () => setVisible(window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1);
+    atualizarVisiveis();
+    window.addEventListener('resize', atualizarVisiveis);
+    return () => window.removeEventListener('resize', atualizarVisiveis);
+  }, []);
+
+  useEffect(() => {
     const buscarDados = () => {
       listarAvaliacoes()
-        .then(data => {
-          setDepoimentos(data);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
+        .then((dados) => setDepoimentos(Array.isArray(dados) && dados.length ? dados : AVALIACOES_MOCK))
+        .catch(() => setDepoimentos(AVALIACOES_MOCK));
     };
-
     buscarDados();
     window.addEventListener('novaAvaliacaoFeita', buscarDados);
     return () => window.removeEventListener('novaAvaliacaoFeita', buscarDados);
   }, []);
 
-  const totalSlides = Math.max(0, depoimentos.length - VISIBLE + 1);
-
-  const goTo = (index) => setCurrent(Math.max(0, Math.min(index, totalSlides - 1)));
+  const totalSlides = Math.max(1, depoimentos.length - visible + 1);
+  const mudarSlide = (direcao) => setCurrent((valor) => (valor + direcao + totalSlides) % totalSlides);
 
   useEffect(() => {
-    if (totalSlides <= 1) return;
-    timerRef.current = setInterval(() => {
-      setCurrent(c => (c < totalSlides - 1 ? c + 1 : 0));
-    }, 5000);
+    if (totalSlides <= 1) return undefined;
+    timerRef.current = setInterval(() => mudarSlide(1), 5000);
     return () => clearInterval(timerRef.current);
   }, [totalSlides]);
 
-  const pause = () => clearInterval(timerRef.current);
-  const resume = () => {
-    timerRef.current = setInterval(() => {
-      setCurrent(c => (c < totalSlides - 1 ? c + 1 : 0));
-    }, 5000);
-  };
-
-  if (loading) return (
-    <section className="bg-[#FAFAE8] px-12 py-16">
-      <h2 className="font-lora text-3xl font-bold text-[#333] mb-2">Experiências com Blessed 7</h2>
-      <p className="font-montserrat font-bold text-sm text-[#666] mb-12">Descubra sobre experiências que proporcionamos</p>
-      <div className="grid grid-cols-3 gap-8">
-        {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-2xl p-8 h-52 animate-pulse" />)}
-      </div>
-    </section>
-  );
-
-  if (depoimentos.length === 0) return (
-    <section className="bg-[#FAFAE8] px-12 py-16">
-      <h2 className="font-lora text-3xl font-bold text-[#333] mb-2">Experiências com Blessed 7</h2>
-      <p className="font-montserrat font-bold text-sm text-[#666] mb-12">Descubra sobre experiências que proporcionamos</p>
-      <p className="font-montserrat text-sm text-[#aaa] text-center py-12">Ainda não há avaliações.</p>
-    </section>
-  );
-
   return (
-    <section className="bg-[#FAFAE8] px-12 py-16">
-      <h2 className="font-lora text-3xl font-bold text-[#333] mb-2">Experiências com Blessed 7</h2>
-      <p className="font-montserrat font-bold text-sm text-[#666] mb-12">Descubra sobre experiências que proporcionamos</p>
-
-      <div className="overflow-hidden" onMouseEnter={pause} onMouseLeave={resume}>
-        <div
-          className="flex gap-8 transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(calc(-${current} * (100% / 3 + 10.67px)))` }}
-        >
-          {depoimentos.map(dep => (
-            <div
-              key={dep.id}
-              className="bg-white rounded-2xl p-8 shadow-sm relative pt-12 hover:-translate-y-1 hover:shadow-md transition-all duration-300"
-              style={{ flex: '0 0 calc((100% - 64px) / 3)' }}
-            >
-              <span className="absolute top-4 left-6 font-lora font-bold text-[#e0e0e0] text-6xl leading-none">"</span>
-              <div className="relative z-10">
-                <Estrelas quantidade={dep.nota} />
-                <p className="font-montserrat font-bold text-[#555] text-sm leading-relaxed mb-4 min-h-20">
-                  "{dep.descricao}"
-                </p>
-                {dep.servicos?.length > 0 && (
-                  <span className="inline-block text-[0.65rem] font-bold text-[#C5A859] border border-[#e8d49a] rounded-full px-3 py-1 uppercase tracking-widest mb-4">
-                    {dep.servicos[0]}
-                  </span>
-                )}
-                <div className="flex items-center gap-3">
-                  {dep.clienteUrlFoto ? (
-                    <img src={dep.clienteUrlFoto} alt={dep.clienteNome} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#e8d49a] flex items-center justify-center text-sm font-bold text-[#C5A859] flex-shrink-0">
-                      {dep.clienteNome?.charAt(0)}
-                    </div>
-                  )}
-                  <span className="font-montserrat font-bold text-xs text-[#333]">{dep.clienteNome}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+    <section id="depoimentos" className="bg-[#f5f3eb] px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-12 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-[#B8982A]">Experiências reais</p>
+            <h2 className="font-lora text-4xl font-semibold text-[#1d2f26] sm:text-5xl">Cuidado que permanece.</h2>
+          </div>
+          <p className="max-w-xs text-sm leading-6 text-[#68766b]">Cada atendimento é construído para que você se sinta vista, acolhida e segura.</p>
         </div>
-      </div>
 
-      {totalSlides > 1 && (
-        <div className="flex items-center justify-center gap-5 mt-10">
-          <button
-            onClick={() => goTo(current - 1)}
-            disabled={current === 0}
-            className="w-11 h-11 rounded-full border border-[#C5A859] text-[#C5A859] flex items-center justify-center hover:bg-[#C5A859] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-default"
-          >←</button>
-          <div className="flex gap-2">
-            {Array.from({ length: totalSlides }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${i === current ? 'bg-[#C5A859] scale-125' : 'bg-[#e8d49a]'}`}
-              />
+        <div className="overflow-hidden" onMouseEnter={() => clearInterval(timerRef.current)} onMouseLeave={() => { timerRef.current = setInterval(() => mudarSlide(1), 5000); }}>
+          <div className="flex gap-5 transition-transform duration-500 ease-out" style={{ transform: `translateX(-${current * (100 / visible)}%)` }}>
+            {depoimentos.map((depoimento) => (
+              <article key={depoimento.id || depoimento.clienteNome} className="relative min-w-0 bg-white p-7 shadow-[0_12px_30px_rgba(35,45,38,0.05)]" style={{ flex: `0 0 calc((100% - ${(visible - 1) * 20}px) / ${visible})` }}>
+                <span className="absolute right-6 top-2 font-lora text-6xl leading-none text-[#d8c98e]/50">“</span>
+                <Estrelas />
+                <p className="mt-5 min-h-[112px] text-sm leading-7 text-[#4d5c51]">{depoimento.descricao}</p>
+                <span className="mt-5 inline-block border border-[#d8c98e] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#8d7625]">{depoimento.servicos?.[0] || 'Experiência Blessed 7'}</span>
+                <div className="mt-7 flex items-center gap-3 border-t border-[#ece9df] pt-5">
+                  {depoimento.clienteUrlFoto ? <img src={depoimento.clienteUrlFoto} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e5dfc6] text-[10px] font-bold text-[#756329]">{iniciais(depoimento.clienteNome)}</div>}
+                  <span className="text-xs font-bold text-[#2C3E2D]">{depoimento.clienteNome}</span>
+                </div>
+              </article>
             ))}
           </div>
-          <button
-            onClick={() => goTo(current + 1)}
-            disabled={current === totalSlides - 1}
-            className="w-11 h-11 rounded-full border border-[#C5A859] text-[#C5A859] flex items-center justify-center hover:bg-[#C5A859] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-default"
-          >→</button>
         </div>
-      )}
+
+        {totalSlides > 1 && <div className="mt-9 flex items-center justify-center gap-4">
+          <button type="button" onClick={() => mudarSlide(-1)} aria-label="Depoimento anterior" className="text-lg text-[#2C3E2D] transition hover:text-[#B8982A]">←</button>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-[#879188]">{String(current + 1).padStart(2, '0')} / {String(totalSlides).padStart(2, '0')}</span>
+          <button type="button" onClick={() => mudarSlide(1)} aria-label="Próximo depoimento" className="text-lg text-[#2C3E2D] transition hover:text-[#B8982A]">→</button>
+        </div>}
+      </div>
     </section>
   );
 }

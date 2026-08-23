@@ -36,7 +36,7 @@ const dadosProcedimentos = [
     descricao: 'Tratamento de hidratação injetável que age nas camadas mais profundas da pele, restaurando a firmeza, a elasticidade e o viço.', 
     imagemCarrossel: imgSkincare, 
     imgDestaqueFrente: imgSkincare, 
-    imgDestaqueTras: imgItensLimpezaPele 
+    imgDestaqueTras: imgItensSkinCare 
   },
   { 
     id: 4, 
@@ -66,7 +66,18 @@ const dadosProcedimentos = [
 
 export default function SecaoProcedimentos() {
   const [procedimentoAtivo, setProcedimentoAtivo] = useState(dadosProcedimentos[0]);
+  const [indiceAtivo, setIndiceAtivo] = useState(0);
   const navigate = useNavigate()
+
+  const selecionarProcedimento = (procedimento, indice) => {
+    setProcedimentoAtivo(procedimento);
+    setIndiceAtivo(indice);
+  };
+
+  const navegarProcedimentos = (direcao) => {
+    const proximoIndice = (indiceAtivo + direcao + dadosProcedimentos.length) % dadosProcedimentos.length;
+    selecionarProcedimento(dadosProcedimentos[proximoIndice], proximoIndice);
+  };
 
   const handleAgendar = () => {
     navigate('/agendar', { state: { procedimentoId: procedimentoAtivo.id } });
@@ -74,9 +85,15 @@ export default function SecaoProcedimentos() {
 
   return (
     <section id="procedimentos" className="bg-[#FAFAE8] flex flex-col pt-12 pb-16 overflow-hidden">
-      <div className="px-12 mb-6">
-        <h2 className="font-lora font-bold text-4xl text-[#333333] mb-1">Procedimentos</h2>
-        <p className="font-montserrat font-bold text-sm text-[#666666]">Saiba mais sobre os procedimentos realizados em nosso espaço.</p>
+      <div className="mb-6 flex items-end justify-between gap-4 px-6 sm:px-12">
+        <div>
+          <h2 className="font-lora text-4xl font-bold text-[#333333] mb-1">Procedimentos</h2>
+          <p className="font-montserrat text-sm font-bold text-[#666666]">Saiba mais sobre os procedimentos realizados em nosso espaço.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => navegarProcedimentos(-1)} aria-label="Procedimento anterior" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2C3E2D]/30 text-[#2C3E2D] transition hover:bg-[#2C3E2D] hover:text-white">←</button>
+          <button type="button" onClick={() => navegarProcedimentos(1)} aria-label="Próximo procedimento" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2C3E2D]/30 text-[#2C3E2D] transition hover:bg-[#2C3E2D] hover:text-white">→</button>
+        </div>
       </div>
 
       <div className="w-full mb-10">
@@ -84,36 +101,53 @@ export default function SecaoProcedimentos() {
           {dadosProcedimentos.map((proc) => (
             <div 
               key={proc.id} 
-              onClick={() => setProcedimentoAtivo(proc)}
-              className={`snap-start shrink-0 w-85 h-55 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${
-                procedimentoAtivo.id === proc.id ? 'ring-4 ring-[#C5A859] shadow-xl scale-[1.02]' : 'opacity-70 shadow-md'
+              onClick={() => selecionarProcedimento(proc, dadosProcedimentos.indexOf(proc))}
+              className={`group relative snap-start shrink-0 w-85 h-55 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${
+                procedimentoAtivo.id === proc.id ? 'ring-4 ring-[#C5A859] shadow-xl scale-[1.02]' : 'opacity-80 shadow-md'
               }`}
             >
               <img src={proc.imagemCarrossel} alt={proc.nome} className="w-full h-full object-cover" />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent px-5 pb-4 pt-10">
+                <p className="text-sm font-bold uppercase tracking-[0.12em] text-white">{proc.nome}</p>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="px-10">
-        <div className="bg-[#4a6741] rounded-4xl px-14 py-10 flex items-center justify-between gap-10 shadow-xl transition-all duration-500">
-          <div className="max-w-lg flex flex-col items-start">
-            <h2 className="font-lora font-bold text-white text-4xl uppercase tracking-wide mb-4">
-              {procedimentoAtivo.nome}
-            </h2>
-            <p className="font-montserrat font-bold text-white/90 text-base leading-relaxed mb-8">
-              {procedimentoAtivo.descricao}
-            </p>
-            <button 
-              onClick={handleAgendar} 
-              className="bg-[#C5A859] hover:bg-[#b5994f] text-[#333333] text-[10px] font-bold uppercase tracking-[0.15em] px-10 py-3.5 rounded transition-colors cursor-pointer shadow-md font-montserrat">
-              AGENDE O PROCEDIMENTO
-            </button>
+      <div className="px-6 sm:px-10">
+        <div className="grid overflow-hidden rounded-2xl border border-[#e5e1d5] bg-white shadow-[0_18px_42px_rgba(31,45,38,0.08)] lg:grid-cols-2">
+          <div>
+            <img
+              src={procedimentoAtivo.imgDestaqueFrente}
+              alt={procedimentoAtivo.nome}
+              className="w-full h-[320px] md:h-[380px] object-cover rounded-2xl lg:rounded-r-none"
+            />
           </div>
 
-          <div className="flex relative w-145 h-80">
-            <img src={procedimentoAtivo.imgDestaqueTras} alt="Traseiro" className="absolute top-0 left-0 w-90 h-60 object-cover rounded-2xl shadow-lg transition-all duration-500" />
-            <img src={procedimentoAtivo.imgDestaqueFrente} alt="Frontal" className="absolute bottom-0 right-0 w-90 h-60 object-cover rounded-2xl shadow-2xl z-10 transition-all duration-500" />
+          <div className="flex flex-col justify-center p-7 sm:p-10">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B8982A]">Detalhes do procedimento</p>
+            <h2 className="mt-3 font-lora text-3xl font-semibold leading-tight text-[#2C3E2D] sm:text-4xl">
+              {procedimentoAtivo.nome}
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-[#5e6f63]">
+              {procedimentoAtivo.descricao}
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3 border-y border-[#ece9df] py-4">
+              <span className="bg-[#f5f3eb] px-3 py-2 text-xs font-semibold text-[#526356]">45 a 60 min</span>
+              <span className="bg-[#f5f3eb] px-3 py-2 text-xs font-semibold text-[#526356]">
+                {procedimentoAtivo.id === 6 ? 'A partir de R$ 80' : `A partir de R$ ${[280, 250, 350, 220, 200][procedimentoAtivo.id - 1]}`}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAgendar}
+              className="mt-7 w-full rounded-lg bg-[#2C3E2D] px-6 py-3.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-sm transition hover:bg-[#405843] hover:shadow-md"
+            >
+              Agendar procedimento
+            </button>
           </div>
         </div>
       </div>

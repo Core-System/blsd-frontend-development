@@ -1,73 +1,52 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const FAQ = [
-  { p: "Qual é a missão do Blessed 7 na estética?", r: "Proporcionar bem-estar, autoestima e resultados visíveis com atendimento humanizado e personalizado." },
-  { p: "Quais tipos de procedimentos são oferecidos?", r: "Limpeza de pele, hidratação facial, tratamentos corporais, massagens relaxantes e protocolos exclusivos." },
-  { p: "Como funciona o agendamento dinâmico?", r: "Você, cliente, escolhe o melhor horário disponível, de acordo com a agenda do profissional, em tempo real, sem burocracia, diretamente pela plataforma." },
-  { p: "Quanto tempo dura cada sessão? ", r: "Em média de 45 a 90 minutos, dependendo do tipo de tratamento escolhido." },
-  { p: "Quais benefícios posso esperar?", r: "Melhora da pele, relaxamento, aumento da autoestima e sensação de bem-estar." },
-  { p: "Posso cancelar ou remarcar meu horário?", r: "Sim, basta acessar a plataforma e ajustar seu agendamento com antecedência." }
+  { p: 'Qual é a missão da Blessed 7 na estética?', r: 'Proporcionar bem-estar, autoestima e resultados visíveis com atendimento humanizado e personalizado.' },
+  { p: 'Quais tipos de procedimentos são oferecidos?', r: 'Limpeza de pele, hidratação facial, tratamentos corporais, massagens relaxantes e protocolos exclusivos.' },
+  { p: 'Como funciona o agendamento?', r: 'Você escolhe o melhor horário disponível em tempo real, diretamente pela plataforma e sem burocracia.' },
+  { p: 'Quanto tempo dura cada sessão?', r: 'Em média, de 45 a 90 minutos, dependendo do tipo de tratamento escolhido.' },
+  { p: 'Posso cancelar ou remarcar meu horário?', r: 'Sim. Basta acessar a plataforma e ajustar seu agendamento com antecedência.' },
 ];
+
+function IconeChevron({ aberto }) {
+  return (
+    <svg className={`h-5 w-5 text-[#B8982A] transition-transform duration-300 ${aberto ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function SecaoFAQ() {
   const [aberto, setAberto] = useState(null);
 
-return (
-  <section class = "bg-[#FAFAE8] px-12 py-16">
-    <div className="rounded-2xl bg-[#4a6741] flex items-center justify-center px-6 py-8 max-w-4xl flex items-center justify-center container mx-auto w-1/2">
-    <div className="bg-[#4A6741] rounded-2xl px-6 py-8 max-w-2xl mx-auto text-center ">
-      <h2 className="font-lora text-white mb-2 text-4xl">
-        Perguntas Frequentes
-      </h2>
-      <p className="font-montserrat text-sm text-[#d4e8cf] mb-6">
-        Tire suas dúvidas sobre nossos serviços e experiências.
-      </p>
+  return (
+    <section id="faq" className="bg-[#f5f3eb] px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
+        <div>
+          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.28em] text-[#B8982A]">Dúvidas frequentes</p>
+          <h2 className="font-lora text-4xl font-semibold leading-tight text-[#1d2f26] sm:text-5xl">Tudo o que você precisa saber.</h2>
+          <p className="mt-6 max-w-sm text-sm leading-7 text-[#68766b]">Informação clara para que sua experiência na Blessed 7 comece antes mesmo da chegada.</p>
+        </div>
 
-      <div>
-        {FAQ.map((item, i) => (
-          <div key={i} className="border-b border-[#5a7a50]">
-            <button
-              onClick={() => setAberto(aberto === i ? null : i)}
-              className="w-full flex items-center justify-between py-2 text-left"
-            >
-              <span className="font-montserrat font-semibold text-base text-white pr-8">
-                {item.p}
-              </span>
-              <svg
-                className="flex-shrink-0 text-[#C5A859] transition-transform duration-300 cursor-pointer"
-                style={{
-                  transform: aberto === i ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-                width="20"
-                height="20"
-                viewBox="0 0 18 18"
-                fill="none"
-              >
-                <path
-                  d="M4.5 6.75L9 11.25L13.5 6.75"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <div
-              className="overflow-hidden transition-all duration-300"
-              style={{
-                maxHeight: aberto === i ? "300px" : "0",
-                opacity: aberto === i ? 1 : 0,
-              }}
-            >
-              <p className="font-montserrat text-base text-[#d4e8cf] leading-relaxed pb-5 pr-10">
-                {item.r}
-              </p>
-            </div>
-          </div>
-        ))}
+        <div className="border-t border-gray-200">
+          {FAQ.map((item, indice) => {
+            const estaAberto = aberto === indice;
+            return (
+              <div key={item.p} className="border-b border-gray-200">
+                <button type="button" onClick={() => setAberto(estaAberto ? null : indice)} aria-expanded={estaAberto} className="flex w-full items-center justify-between gap-6 py-5 text-left">
+                  <span className="text-sm font-semibold text-[#2C3E2D] sm:text-base">{item.p}</span>
+                  <IconeChevron aberto={estaAberto} />
+                </button>
+                <div className={`grid transition-[grid-template-rows,opacity] duration-300 ${estaAberto ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                  <div className="overflow-hidden">
+                    <p className="max-w-2xl pb-5 pr-10 text-sm leading-7 text-[#68766b]">{item.r}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  </div>
-  </section>
-);
+    </section>
+  );
 }

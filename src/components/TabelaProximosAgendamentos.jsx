@@ -35,7 +35,7 @@ function formatarDataHora(iso) {
 
 const badgeProcedimento = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#e8f5e9] text-[#2C3E2D]';
 
-export default function TabelaProximosAgendamentos() {
+export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
   const navigate = useNavigate();
   const [agendamentos, setAgendamentos] = useState([]);
   const [carregando, setCarregando]     = useState(true);
@@ -44,11 +44,14 @@ export default function TabelaProximosAgendamentos() {
   useEffect(() => {
     getProximosAgendamentos()
       .then((res) => {
-        setAgendamentos(Array.isArray(res) ? res : []);
+        const lista = Array.isArray(res) ? res : [];
+        setAgendamentos(lista);
+        onDadosCarregados?.(lista);
       })
       .catch((e) => {
         console.error('Erro próximos agendamentos:', e);
         setErro(true);
+        onDadosCarregados?.([]);
       })
       .finally(() => setCarregando(false));
   }, []);
@@ -66,14 +69,14 @@ export default function TabelaProximosAgendamentos() {
       </div>
 
       <div className="grid grid-cols-[1.4fr_1.6fr_1.2fr_0.5fr] gap-2 pb-2 border-b border-[#f0eeea] mb-1">
-        {['Data e Hora', 'Cliente', 'Status', 'Ação'].map((col) => (
+        {['Data e Hora', 'Cliente', 'Local', 'Status', 'Ação'].map((col) => (
           <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">{col}</span>
         ))}
       </div>
 
       {/* skeleton */}
       {carregando && Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_0.5fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0">
+        <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0">
           <div className="px-2 space-y-1.5">
             <div className="h-3 w-24 bg-gray-100 animate-pulse rounded"/>
             <div className="h-2.5 w-16 bg-gray-100 animate-pulse rounded"/>
@@ -81,6 +84,7 @@ export default function TabelaProximosAgendamentos() {
           <div className="flex items-center gap-2 px-2">
             <div className="w-7 h-7 rounded-full bg-gray-100 animate-pulse flex-shrink-0"/>
             <div className="h-3 w-28 bg-gray-100 animate-pulse rounded"/>
+                    <div className="px-2 h-3 w-16 bg-gray-100 animate-pulse rounded"/>
           </div>
           <div className="px-2 h-3 w-16 bg-gray-100 animate-pulse rounded"/>
           <div className="px-2 h-3 w-4 bg-gray-100 animate-pulse rounded"/>
@@ -105,11 +109,15 @@ export default function TabelaProximosAgendamentos() {
         const ini            = iniciais(nomeCliente);
         const cor            = CORES_AVATAR[i % CORES_AVATAR.length];
         const local          = a?.localConsulta === 'CLINICA' ? 'Clínica' : 'Domicílio';
+  const status         = a?.statusConsulta || 'AGUARDANDO';
+  const statusExibir   = status === 'CONFIRMADA' ? 'Confirmado' : status === 'CONCLUIDA' ? 'Concluído' : 'Aguardando';
+  const statusCor      = status === 'CONFIRMADA' ? 'bg-green-100 text-green-700' : status === 'CONCLUIDA' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700';
+  const localCor       = a?.localConsulta === 'CLINICA' ? 'bg-slate-100 text-slate-700' : 'bg-purple-100 text-purple-700';
 
         return (
           <div
             key={a?.consultaId ?? i}
-            className="grid grid-cols-[1.4fr_1.6fr_1.2fr_0.5fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0 hover:bg-[#fafaf7] rounded-lg px-1 transition-colors"
+            className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0 hover:bg-[#fafaf7] rounded-lg px-1 transition-colors"
           >
             <div className="px-2">
               <p className="text-xs font-semibold text-gray-800">{data}</p>
@@ -130,13 +138,28 @@ export default function TabelaProximosAgendamentos() {
               <span className="text-xs font-semibold text-gray-800">{nomeCliente}</span>
             </div>
 
-            <div className="px-2 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"/>
-              <span className="text-xs font-semibold text-green-600">{local}</span>
+
+            <div className="px-2">
+              <span className={`inline-block px-2.5 py-1 rounded-full text-[9px] font-bold ${localCor}`}>
+                {local}
+              </span>
             </div>
 
-            <div className="px-2 text-gray-400 hover:text-gray-700 cursor-pointer">
-              {iconePonto}
+            <div className="px-2">
+              <span className={`inline-block px-2.5 py-1 rounded-full text-[9px] font-bold ${statusCor}`}>
+                {statusExibir}
+              </span>
+            </div>
+
+            <div className="px-2 flex gap-1">
+              <button title="Editar" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" aria-label="Editar">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button title="Mais opções" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" aria-label="Mais opções">
+                {iconePonto}
+              </button>
             </div>
           </div>
         );

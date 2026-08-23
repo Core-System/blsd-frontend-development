@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Paginacao from './Paginacao';
 
 const iconeFiltrar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -30,7 +31,18 @@ const statusCfg = {
   CRÍTICO: { bg: 'bg-red-100',   cor: 'text-red-700',   dot: 'bg-red-500'   },
 };
 
-export default function TabelaInventario({ produtos = [], carregando = false, onBaixa, onRepor, onEditar }) {
+export default function TabelaInventario({
+  produtos = [],
+  carregando = false,
+  onBaixa,
+  onRepor,
+  onEditar,
+  paginaAtual = 0,
+  totalPaginas = 1,
+  totalElementos = 0,
+  tamanhoPagina = 10,
+  aoMudarPagina,
+}) {
   const [menuAberto, setMenuAberto] = useState(null);
 
   // ── Modal Repor
@@ -110,9 +122,27 @@ function abrirBaixa(produto) {
             ))}
           </div>
 
-          {carregando && <p className="text-sm text-gray-400 py-6 text-center">Carregando...</p>}
+          {carregando && (
+            <div className="space-y-3 py-6">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 items-center">
+                  <div className="flex items-center gap-3 px-1">
+                    <div className="h-8 w-8 rounded-lg bg-gray-100 animate-pulse" />
+                    <div className="h-3 w-28 rounded bg-gray-100 animate-pulse" />
+                  </div>
+                  <div className="h-3 w-12 rounded bg-gray-100 animate-pulse" />
+                  <div className="h-6 w-20 rounded-full bg-gray-100 animate-pulse" />
+                  <div className="h-3 w-3 rounded-full bg-gray-100 animate-pulse justify-self-center" />
+                </div>
+              ))}
+            </div>
+          )}
           {!carregando && produtos.length === 0 && (
-            <p className="text-sm text-gray-400 py-6 text-center">Nenhum produto cadastrado.</p>
+            <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f4ec] text-lg">📦</div>
+              <p className="text-sm font-medium text-[#536558]">Nenhum produto cadastrado.</p>
+              <p className="text-xs text-[#7d8d83]">Cadastre novos itens para começar a gestão de estoque.</p>
+            </div>
           )}
 
           {!carregando && produtos.map((p) => {
@@ -156,10 +186,15 @@ function abrirBaixa(produto) {
           })}
         </div>
 
-        {!carregando && (
-          <p className="text-[11px] text-gray-400 mt-3">
-            Exibindo {produtos.length} produto{produtos.length !== 1 ? 's' : ''}
-          </p>
+        {!carregando && produtos.length > 0 && (
+          <Paginacao
+            paginaAtual={Number(paginaAtual) + 1}
+            totalPaginas={Math.max(1, Number(totalPaginas) || 1)}
+            totalElementos={Number(totalElementos) || produtos.length}
+            tamanhoPagina={Number(tamanhoPagina) || 10}
+            aoMudarPagina={(pagina) => aoMudarPagina?.(pagina - 1)}
+            carregando={carregando}
+          />
         )}
       </div>
 

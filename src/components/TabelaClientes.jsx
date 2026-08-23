@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { deletarCliente } from '../services/clienteService';
+import Paginacao from './Paginacao';
 
 const iconeChevron = (dir) => (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -36,15 +37,22 @@ function formatarData(iso) {
 const PAGE_SIZE = 8;
 const colunas = ['Paciente', 'Contato', 'Cadastro', 'Status', 'Ações'];
 
-export default function TabelaClientes({ clientes = [], carregando = false, onRemover }) {
+export default function TabelaClientes({
+  clientes = [],
+  carregando = false,
+  onRemover,
+  paginaAtual = 0,
+  totalPaginas = 1,
+  totalElementos = 0,
+  tamanhoPagina = 8,
+  aoMudarPagina,
+}) {
   const [menuAberto, setMenuAberto] = useState(null);
-  const [pagina, setPagina]         = useState(1);
   const [removendo, setRemovendoId] = useState(null);
 
-  const totalPaginas = Math.max(1, Math.ceil(clientes.length / PAGE_SIZE));
-  const paginaAtual  = Math.min(pagina, totalPaginas);
-  const inicio       = (paginaAtual - 1) * PAGE_SIZE;
-  const visiveis     = clientes.slice(inicio, inicio + PAGE_SIZE);
+  const totalPaginasLocal = Math.max(1, Number(totalPaginas) || 1);
+  const paginaAtualLocal = Math.min(Math.max(0, Number(paginaAtual) || 0), totalPaginasLocal - 1);
+  const visiveis = clientes;
 
   async function handleRemover(id) {
     if (!window.confirm('Deseja remover este cliente?')) return;
@@ -92,7 +100,11 @@ export default function TabelaClientes({ clientes = [], carregando = false, onRe
 
       {/* vazio */}
       {!carregando && clientes.length === 0 && (
-        <div className="py-12 text-center text-gray-400 text-sm">Nenhum cliente encontrado.</div>
+        <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f4ec] text-lg">👤</div>
+          <p className="text-sm font-medium text-[#536558]">Nenhum cliente encontrado.</p>
+          <p className="text-xs text-[#7d8d83]">A busca atual não retornou registros.</p>
+        </div>
       )}
 
       {/* linhas */}
@@ -152,41 +164,16 @@ export default function TabelaClientes({ clientes = [], carregando = false, onRe
         );
       })}
 
-      {/* rodapé paginação */}
-      <div className="flex items-center justify-between px-6 py-3 border-t border-[#f0eeea]">
-        <p className="text-[11px] text-gray-400 uppercase tracking-widest">
-          Mostrando {Math.min(visiveis.length, PAGE_SIZE)} de {clientes.length} {clientes.length === 1 ? 'paciente' : 'pacientes'}
-        </p>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setPagina((p) => Math.max(1, p - 1))}
-            disabled={paginaAtual === 1}
-            className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#e8e6d9] text-gray-400 hover:border-[#2C3E2D] hover:text-[#2C3E2D] disabled:opacity-30 transition-colors"
-          >
-            {iconeChevron('left')}
-          </button>
-          {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
-            <button
-              key={n}
-              onClick={() => setPagina(n)}
-              className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
-                n === paginaAtual
-                  ? 'bg-[#2C3E2D] text-white'
-                  : 'border border-[#e8e6d9] text-gray-400 hover:border-[#2C3E2D] hover:text-[#2C3E2D]'
-              }`}
-            >
-              {n}
-            </button>
-          ))}
-          <button
-            onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
-            disabled={paginaAtual === totalPaginas}
-            className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#e8e6d9] text-gray-400 hover:border-[#2C3E2D] hover:text-[#2C3E2D] disabled:opacity-30 transition-colors"
-          >
-            {iconeChevron('right')}
-          </button>
-        </div>
-      </div>
+      {!carregando && clientes.length > 0 && (
+        <Paginacao
+          paginaAtual={paginaAtualLocal + 1}
+          totalPaginas={totalPaginasLocal}
+          totalElementos={Number(totalElementos) || clientes.length}
+          tamanhoPagina={Number(tamanhoPagina) || 8}
+          aoMudarPagina={(pagina) => aoMudarPagina?.(pagina - 1)}
+          carregando={carregando}
+        />
+      )}
     </div>
   );
 }
