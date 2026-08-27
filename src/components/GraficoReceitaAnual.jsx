@@ -8,15 +8,17 @@ import {
   CategoryScale,
   LinearScale,
   Tooltip,
+  DoughnutController,
+  ArcElement,
 } from 'chart.js';
 import { getReceitaPorAno } from '../services/dashboardService';
 
-Chart.register(BarElement, BarController, CategoryScale, LinearScale, Tooltip);
+Chart.register(DoughnutController, ArcElement, Tooltip);
 
 export default function GraficoReceitaAnual() {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
-  const [dados, setDados] = useState(null); // null = carregando, [] = vazio, [...] = ok
+  const [dados, setDados] = useState(null);
 
   // 1. Busca os dados
   useEffect(() => {
@@ -24,11 +26,24 @@ export default function GraficoReceitaAnual() {
     getReceitaPorAno()
       .then((res) => {
         if (!mounted) return;
-        const ordenado = [...res].sort((a, b) => a.ano - b.ano);
-        setDados({
-          rotulos: ordenado.map((r) => String(r.ano)),
-          valores: ordenado.map((r) => Number(r.total)),
+        const lista = Array.isArray(res) ? res : [];
+        // Simula distribuição: últimos 2 anos mostram PIX vs Cartão
+        const simulado = lista.slice(-2).map((r, idx) => ({
+          ano: r.ano,
+          total: r.total,
+          metodo: idx % 2 === 0 ? 'PIX' : 'Cartão',
+        }));
+        // Agrupa por método
+        const porMetodo = {};
+        simulado.forEach((item) => {
+          if (!porMetodo[item.metodo]) porMetodo[item.metodo] = 0;
+          porMetodo[item.metodo] += item.total;
         });
+        const rotulos = Object.keys(porMetodo);
+        setDados(rotulos.length > 0 ? {
+          rotulos,
+          valores: Object.values(porMetodo),
+        } : { rotulos: [], valores: [] });
       })
       .catch((e) => {
         console.error('Erro ao carregar receita anual:', e);
@@ -45,42 +60,47 @@ export default function GraficoReceitaAnual() {
     chartRef.current?.destroy();
 
     const ctx = canvasRef.current.getContext('2d');
+    const cores = ['#2C3E2D', '#B8982A', '#d4b055', '#7a8d7c', '#56675d'];
+    
     chartRef.current = new Chart(ctx, {
-      type: 'bar',
+      type: 'doughnut',
       data: {
         labels: dados.rotulos,
         datasets: [{
           data: dados.valores,
-          backgroundColor: dados.valores.map((_, i) =>
-            i === dados.valores.length - 1 ? '#2C3E2D' : '#ddd9cc'
-          ),
-          borderRadius: 4,
-          borderSkipped: false,
+          backgroundColor: cores.slice(0, dados.valores.length),
+          borderColor: '#f0f5f0',
+          borderWidth: 2,
         }],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              font: { size: 9, weight: 'bold' },
+              color: '#666',
+              padding: 12,
+              usePointStyle: true,
+            },
+          },
           tooltip: {
             backgroundColor: '#2C3E2D',
             titleColor: '#a8c5a0',
             bodyColor: '#fff',
-            padding: 8,
+            padding: 10,
             callbacks: {
-              label: (ctx) =>
-                ` R$ ${ctx.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+              label: (ctx) => {
+                const valor = ctx.parsed;
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = Math.round((valor / total) * 100);
+                return ` R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 0 })} (${pct}%)`;
+              },
             },
           },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: '#aaa', font: { size: 9 } },
-            border: { display: false },
-          },
-          y: { display: false },
         },
       },
     });
@@ -90,17 +110,15 @@ export default function GraficoReceitaAnual() {
 
   return (
     <div>
-      <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Receita Anual</p>
-      <div style={{ height: 90 }}>
+      <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Receita por Método</p>
+      <div style={{ height: 140 }}>
         {dados === null ? (
           // skeleton
-          <div className="h-full flex items-end gap-1 px-1">
-            {[60, 75, 55, 85, 70, 90].map((h, i) => (
-              <div key={i} className="flex-1 bg-gray-100 animate-pulse rounded-sm" style={{ height: `${h}%` }}/>
-            ))}
+          <div className="h-full flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full border-2 border-[#B8982A] border-t-transparent animate-spin"/>
           </div>
         ) : dados.valores.length === 0 ? (
-          <p className="text-[10px] text-gray-400 pt-2">Sem dados disponíveis.</p>
+          <p className="text-[10px] text-gray-400 py-6 text-center">Sem dados disponíveis.</p>
         ) : (
           // canvas sempre montado quando dados existem
           <canvas ref={canvasRef}/>

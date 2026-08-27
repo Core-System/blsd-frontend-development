@@ -1,4 +1,10 @@
-const linksDaRodape = ["Privacidade", "Termos de Uso", "Trabalhe Conosco"];
+import { Link } from 'react-router-dom';
+
+const linksDaRodape = [
+  { label: 'Privacidade', rota: '/privacidade' },
+  { label: 'Termos de Uso', rota: '/termos' },
+  { label: 'Trabalhe Conosco', rota: '/trabalhe-conosco' },
+];
 
 export default function Rodape() {
   return (
@@ -6,17 +12,17 @@ export default function Rodape() {
       <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-start gap-1">
           <span className="text-base font-bold tracking-tight">Blessed7</span>
-          
-          <a 
-            href="https://www.instagram.com/fernandaancila/" 
-            target="_blank" 
+
+          <a
+            href="https://www.instagram.com/fernandaancila/"
+            target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 group" 
+            className="flex items-center gap-1.5 group"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="16" 
-              height="16" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
               fill="white"
               className="group-hover:opacity-80 transition-opacity"
               viewBox="0 0 256 256"
@@ -30,19 +36,18 @@ export default function Rodape() {
         </div>
         <div className="flex items-center gap-8">
           {linksDaRodape.map((link) => (
-            <a
-              key={link}
-              href="#"
+            <Link
+              key={link.label}
+              to={link.rota}
               className="text-sm text-gray-300 hover:text-white transition-colors duration-200"
             >
-              {link}
-            </a>
+              {link.label}
+            </Link>
           ))}
         </div>
         <div className="text-xs text-gray-400 text-right">
           © 2026 Blessed7. O Santuário da estética.
         </div>
-
       </div>
     </footer>
   );

@@ -20,6 +20,10 @@ export default function PaginaEstoque() {
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [paginaAtual, setPaginaAtual] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalElementos, setTotalElementos] = useState(0);
+  const [tamanhoPagina] = useState(10);
   
   const [novoProduto, setNovoProduto] = useState({ nome: '', preco: '', quantidade: '' });
   const [movimentacoes, setMovimentacoes] = useState([]);
@@ -36,8 +40,10 @@ export default function PaginaEstoque() {
   async function carregarEstoque() {
     try {
       setCarregando(true);
-      const dados = await listarProdutos();
-      setProdutos(dados);
+      const dados = await listarProdutos({ page: paginaAtual, size: tamanhoPagina });
+      setProdutos(Array.isArray(dados?.content) ? dados.content : []);
+      setTotalPaginas(Number(dados?.totalPages ?? 1));
+      setTotalElementos(Number(dados?.totalElements ?? (Array.isArray(dados?.content) ? dados.content.length : 0)));
     } catch (erro) {
       console.error("Erro ao buscar produtos:", erro);
       alert("Falha ao carregar o estoque.");
@@ -49,7 +55,7 @@ export default function PaginaEstoque() {
   useEffect(() => {
     carregarEstoque();
     carregarMovimentacoes();
-  }, []);
+  }, [paginaAtual, tamanhoPagina]);
 
   async function handleRepor(id, quantidade) {
     try {
@@ -174,6 +180,11 @@ async function handleEditar(id, dados) {
               onBaixa={handleBaixa}
               onRepor={handleRepor}
               onEditar={handleEditar}
+              paginaAtual={paginaAtual}
+              totalPaginas={totalPaginas}
+              totalElementos={totalElementos}
+              tamanhoPagina={tamanhoPagina}
+              aoMudarPagina={setPaginaAtual}
             />
           </div>
 

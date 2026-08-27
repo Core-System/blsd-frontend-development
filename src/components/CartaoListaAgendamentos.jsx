@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ModalDetalhesAgendamento from './ModalDetalhesAgendamento';
+import Paginacao from './Paginacao';
 
 const iconeOpcoes = (
   <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
@@ -47,7 +48,16 @@ function formatarDataHora(iso) {
   return { data, hora };
 }
 
-export default function CartaoListaAgendamentos({ agendamentos = [], carregando = false, filtros = {} }) {
+export default function CartaoListaAgendamentos({
+  agendamentos = [],
+  carregando = false,
+  filtros = {},
+  paginaAtual = 0,
+  totalPaginas = 1,
+  totalElementos = 0,
+  tamanhoPagina = 15,
+  aoMudarPagina,
+}) {
   const [menuAberto, setMenuAberto] = useState(null);
   const [agendamentoDetalhes, setAgendamentoDetalhes] = useState(null);
 
@@ -115,8 +125,12 @@ export default function CartaoListaAgendamentos({ agendamentos = [], carregando 
             {/* vazio */}
             {!carregando && filtrados.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 text-sm">
-                  Nenhum agendamento encontrado.
+                <td colSpan={5} className="px-6 py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3 text-gray-400">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f4ec] text-lg">📅</div>
+                    <p className="text-sm font-medium text-[#536558]">Nenhum agendamento encontrado.</p>
+                    <p className="text-xs text-[#7d8d83]">Tente ajustar os filtros de busca ou período.</p>
+                  </div>
                 </td>
               </tr>
             )}
@@ -186,18 +200,28 @@ export default function CartaoListaAgendamentos({ agendamentos = [], carregando 
 
       {/* rodapé */}
       {!carregando && filtrados.length > 0 && (
-        <div className="px-6 py-3 border-t border-[#f0eeea]">
-          <p className="text-[11px] text-gray-400">
-            Exibindo {filtrados.length} agendamento{filtrados.length !== 1 ? 's' : ''}
-          </p>
+        <Paginacao
+          paginaAtual={Number(paginaAtual) + 1}
+          totalPaginas={Math.max(1, Number(totalPaginas) || 1)}
+          totalElementos={Number(totalElementos) || filtrados.length}
+          tamanhoPagina={Number(tamanhoPagina) || 15}
+          aoMudarPagina={(pagina) => aoMudarPagina?.(pagina - 1)}
+          carregando={carregando}
+        />
+      )}
+
+      {!carregando && filtrados.length === 0 && (
+        <div className="px-6 py-3 border-t border-[#f0eeea] text-[11px] uppercase tracking-[0.18em] text-gray-400">
+          Sem resultados
         </div>
       )}
-    {agendamentoDetalhes && (
-      <ModalDetalhesAgendamento
-        agendamento={agendamentoDetalhes}
-        onFechar={() => setAgendamentoDetalhes(null)}
-      />
-    )}
+
+      {agendamentoDetalhes && (
+        <ModalDetalhesAgendamento
+          agendamento={agendamentoDetalhes}
+          onFechar={() => setAgendamentoDetalhes(null)}
+        />
+      )}
     </div>
   );
 }

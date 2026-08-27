@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { listarConsultasCliente, avaliarConsulta } from '../services/consultaService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -158,11 +159,16 @@ useEffect(() => {
       )}
 
       {/* modal de avaliação */}
-      {modalAvaliacao && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl p-7 shadow-2xl">
+      {modalAvaliacao && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setModalAvaliacao(null);
+          }}
+        >
+          <div className="relative max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-[#2C3E2D]">Avaliar consulta</h3>
+              <h3 className="text-lg font-bold text-[#2C3E2D]">Avalie sua experiência</h3>
               <button
                 onClick={() => setModalAvaliacao(null)}
                 className="text-gray-400 hover:text-gray-700 cursor-pointer text-lg"
@@ -210,7 +216,8 @@ useEffect(() => {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

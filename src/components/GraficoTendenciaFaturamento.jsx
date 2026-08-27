@@ -85,7 +85,21 @@ export default function GraficoTendenciaFaturamento() {
         },
         scales: {
           x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 }, maxRotation: 0 }, border: { display: false } },
-          y: { display: false, grid: { display: false } },
+          y: {
+            display: true,
+            position: 'left',
+            grid: { color: '#f0eeea', drawBorder: false },
+            ticks: {
+              color: '#888',
+              font: { size: 8 },
+              callback: (value) => {
+                if (value === 0) return 'R$ 0';
+                if (value >= 1000) return `R$ ${(value / 1000).toFixed(0)}k`;
+                return `R$ ${value}`;
+              },
+            },
+            border: { display: false },
+          },
         },
       },
     });
@@ -103,7 +117,7 @@ export default function GraficoTendenciaFaturamento() {
           <span className="w-2 h-2 rounded-full bg-[#B8982A] inline-block"/>Atual
         </span>
       </div>
-      <div className="flex-1 min-h-0" style={{ minHeight: 200 }}>
+      <div className="flex-1 min-h-0" style={{ minHeight: 240 }}>
         {dados === null && (
           <div className="h-full flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-[#B8982A] border-t-transparent rounded-full animate-spin"/>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
 import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import GraficoTendenciaFaturamento from '../components/GraficoTendenciaFaturamento';
@@ -86,6 +87,95 @@ export default function PaginaDashboard() {
   });
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [procedimentos, setProcedimentos] = useState([]);
+
+  function exportarRelatorio() {
+    const faturamentoMensal = Number(kpis.faturamentoMensal) || 0;
+    const ticketMedio = Number(kpis.ticketMedio) || 0;
+    const totalAtendimentos = procedimentos.reduce(
+      (total, procedimento) => total + (Number(procedimento?.quantidade) || 0),
+      0,
+    );
+    const receitaPorServico = procedimentos.map((procedimento) => {
+      const quantidade = Number(procedimento?.quantidade) || 0;
+      const valorInformado = Number(
+        procedimento?.faturamentoEstimado ?? procedimento?.faturamento ?? procedimento?.receita,
+      );
+      const faturamento = Number.isFinite(valorInformado) && valorInformado > 0
+        ? valorInformado
+        : (ticketMedio * quantidade) || (totalAtendimentos ? (faturamentoMensal * quantidade) / totalAtendimentos : 0);
+      return {
+        nome: procedimento?.nome || procedimento?.servico || 'Serviço',
+        quantidade,
+        faturamento,
+      };
+    });
+    const totalReceitaServicos = receitaPorServico.reduce((total, item) => total + item.faturamento, 0);
+
+    const pagamentos = {};
+    agendamentos.forEach((agendamento) => {
+      const metodo = agendamento?.tipoPagamento || agendamento?.metodoPagamento || 'Não informado';
+      const valor = Number(agendamento?.valor ?? agendamento?.preco ?? agendamento?.valorProcedimento);
+      if (!pagamentos[metodo]) pagamentos[metodo] = { quantidade: 0, valor: 0 };
+      pagamentos[metodo].quantidade += 1;
+      pagamentos[metodo].valor += Number.isFinite(valor) && valor > 0 ? valor : ticketMedio;
+    });
+    const totalReceitaPagamentos = Object.values(pagamentos).reduce((total, item) => total + item.valor, 0);
+
+    const agora = new Date();
+    const dataHora = agora.toLocaleString('pt-BR');
+    const planilha = [
+      ['BLESSED 7 - EXCELÊNCIA CLÍNICA'],
+      ['Relatório Executivo da Dashboard'],
+      ['Gerado em', dataHora],
+      [],
+      ['1. RESUMO DE PERFORMANCE DO MÊS'],
+      ['Indicador', 'Valor'],
+      ['Faturamento Mensal', faturamentoMensal],
+      ['Atendimentos Realizados', Number(kpis.procedimentosMensal) || 0],
+      ['Receita Anual', Number(kpis.receitaAnual) || 0],
+      ['Ticket Médio por Procedimento', ticketMedio],
+      [],
+      ['2. DETALHAMENTO DE SERVIÇOS MAIS PRESTADOS'],
+      ['Procedimento', 'Quantidade de Atendimentos', 'Faturamento Estimado (R$)', '% da Receita'],
+      ...receitaPorServico.map((item) => [
+        item.nome,
+        item.quantidade,
+        item.faturamento,
+        totalReceitaServicos ? item.faturamento / totalReceitaServicos : 0,
+      ]),
+      [],
+      ['3. DISTRIBUIÇÃO POR MEIO DE PAGAMENTO'],
+      ['Método', 'Percentual (%)', 'Valor Total (R$)'],
+      ...Object.entries(pagamentos).map(([metodo, item]) => [
+        metodo,
+        totalReceitaPagamentos ? item.valor / totalReceitaPagamentos : 0,
+        item.valor,
+      ]),
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(planilha);
+    worksheet['!cols'] = [{ wch: 38 }, { wch: 25 }, { wch: 25 }, { wch: 16 }];
+    const moeda = 'R$ #,##0.00';
+    [6, 7, 8, 9].forEach((linha) => {
+      const celula = worksheet[`B${linha + 1}`];
+      if (celula) celula.z = linha === 7 ? '0' : moeda;
+    });
+    for (let linha = 14; linha < 14 + receitaPorServico.length; linha += 1) {
+      if (worksheet[`C${linha}`]) worksheet[`C${linha}`].z = moeda;
+      if (worksheet[`D${linha}`]) worksheet[`D${linha}`].z = '0.00%';
+    }
+    const inicioPagamentos = 17 + receitaPorServico.length;
+    for (let linha = inicioPagamentos; linha < inicioPagamentos + Object.keys(pagamentos).length; linha += 1) {
+      if (worksheet[`B${linha}`]) worksheet[`B${linha}`].z = '0.00%';
+      if (worksheet[`C${linha}`]) worksheet[`C${linha}`].z = moeda;
+    }
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatório Executivo');
+    XLSX.writeFile(workbook, 'Relatorio_Executivo_Blessed7_AGO_2026.xlsx');
+  }
 
   useEffect(() => {
     async function carregarKPIs() {
@@ -130,7 +220,11 @@ export default function PaginaDashboard() {
               </h1>
               <p className="text-sm text-gray-400 mt-1">Aqui está o resumo da performance clínica de hoje.</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 mt-1 bg-white border border-[#e8e6d9] text-sm font-semibold text-gray-700 rounded-lg hover:border-[#2C3E2D] transition-colors">
+            <button
+              type="button"
+              onClick={exportarRelatorio}
+              className="flex items-center gap-2 px-4 py-2 mt-1 bg-white border border-[#e8e6d9] text-sm font-semibold text-gray-700 rounded-lg hover:border-[#2C3E2D] transition-colors"
+            >
               {iconeExportar} Exportar Relatório
             </button>
           </div>
@@ -172,12 +266,12 @@ export default function PaginaDashboard() {
               <GraficoTendenciaFaturamento />
             </div>
             <div className="col-span-12 lg:col-span-4 flex flex-col">
-              <CartaoProcedimentosRealizados />
+              <CartaoProcedimentosRealizados onDadosCarregados={setProcedimentos} />
             </div>
           </div>
 
           {/* ── Próximos Agendamentos ── */}
-          <TabelaProximosAgendamentos />
+          <TabelaProximosAgendamentos onDadosCarregados={setAgendamentos} />
 
         </div>
       </main>
