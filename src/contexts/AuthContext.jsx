@@ -10,18 +10,31 @@ export function AuthProvider({ children }) {
 
     function salvarUsuario(dados) {
         localStorage.setItem('usuario', JSON.stringify(dados));
+        localStorage.setItem('user_role', dados.acesso.nome);
         localStorage.setItem('token', dados.token);
         setUsuario(dados);
     }
 
     function logout() {
         localStorage.removeItem('usuario');
+        localStorage.removeItem('user_role');
         localStorage.removeItem('token');
         setUsuario(null);
     }
 
+    function temPermissao(rolesPermitidas) {
+        if (!usuario || !usuario.acesso || !usuario.acesso.nome){
+            return false
+        };        
+        const roleDoUsuario = usuario.acesso.nome;
+        if (Array.isArray(rolesPermitidas)) {
+            return rolesPermitidas.includes(roleDoUsuario);
+        }
+        return roleDoUsuario === rolesPermitidas;
+    }
+
     return (
-        <AuthContext.Provider value={{ usuario, salvarUsuario, logout }}>
+        <AuthContext.Provider value={{ usuario, salvarUsuario, logout, temPermissao}}>
             {children}
         </AuthContext.Provider>
     );

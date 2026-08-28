@@ -110,8 +110,7 @@ export default function BarraDeNavegacaoSuperior() {
         });
     }
 
-    
-
+    const { temPermissao } = useAuth();
   return (
     <nav className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[#e8e6d9] bg-[#f8f7f2]/85 px-6 py-3 backdrop-blur-xl shadow-[0_8px_24px_rgba(25,35,29,0.05)]">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
@@ -143,12 +142,12 @@ export default function BarraDeNavegacaoSuperior() {
           >
             Agende
           </button>
-          <button
+          {temPermissao(['GESTOR', 'FUNCIONARIO']) && (<button
             onClick={aoClicarDashboard}
             className="rounded-full bg-[#edf3ef] px-4 py-2 text-sm font-bold text-[#2D4336] transition-all hover:bg-[#dfece1]"
           >
             Dashboard
-          </button>
+          </button>)}
         </div>
 
         <div className="flex items-center gap-3">
@@ -205,7 +204,7 @@ export default function BarraDeNavegacaoSuperior() {
           </svg>
           <span>Você precisa estar logado para ir para a dashboard.</span>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/login')}
             className="ml-2 text-[#d4b055] font-bold hover:underline bg-transparent border-none cursor-pointer"
           >
             Entrar
