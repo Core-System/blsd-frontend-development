@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const iconePainel = (
   <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -57,18 +58,18 @@ const iconeInicio = (
 );
 
 const itensNavegacao = [
-  { icone: iconePainel,        rotulo: 'Dashboard',     rota: '/dashboard'     },
+  { icone: iconePainel,        rotulo: 'Dashboard',     rota: '/dashboard', rolesPermitidas:['GESTOR', 'FUNCIONARIO'] },
   { icone: iconeClientes,      rotulo: 'Clientes',      rota: '/clientes'      },
   { icone: iconeAgendamentos,  rotulo: 'Agendamentos',  rota: '/agendamentos'  },
   { icone: iconeEstoque,       rotulo: 'Estoque',       rota: '/estoque'       },
-  { icone: iconeFuncionarios,  rotulo: 'Funcionários',  rota: '/funcionarios'  },
+  { icone: iconeFuncionarios,  rotulo: 'Funcionários',  rota: '/funcionarios', rolesPermitidas:['GESTOR']},
   { icone: iconeInicio,  rotulo: 'Início',  rota: '/'  }
-
 ];
 
 export default function BarraDeNavegacaoLateral() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { temPermissao } = useAuth();
 
   return (
     <aside className="fixed top-0 left-0 h-full w-[152px] bg-[#2C3E2D] flex flex-col z-40">
@@ -78,6 +79,9 @@ export default function BarraDeNavegacaoLateral() {
       </div>
       <nav className="flex-1 px-3 space-y-1">
         {itensNavegacao.map((item) => {
+          if (item.rolesPermitidas && !temPermissao(item.rolesPermitidas)) {
+            return null;
+          }
           const ativo = pathname === item.rota;
           return (
             <button

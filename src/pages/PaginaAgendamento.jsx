@@ -30,32 +30,38 @@ const procedimentos = [
   { 
     id: 1, titulo: 'Limpeza de Pele', preco: 'R$ 280', 
     descricao: 'Procedimento estético profundo...', imagem: imgLimpeza,
-    dicas: ['Evite exposição solar direta 48h antes.', 'Não utilize ácidos ou esfoliantes na véspera.', 'Venha sem maquiagem, se possível.']
+    dicas: ['Evite exposição solar direta 48h antes.', 'Não utilize ácidos ou esfoliantes na véspera.', 'Venha sem maquiagem, se possível.'],
+    categoria: 'Facial'
   },
   { 
     id: 2, titulo: 'Peeling de Diamante', preco: 'R$ 250', 
     descricao: 'Esfoliação mecânica suave...', imagem: imgPeeling,
-    dicas: ['Suspenda cremes com ácido retinóico 3 dias antes.', 'Hidrate bem a pele nos dias anteriores.', 'Evite depilação facial no dia anterior.']
+    dicas: ['Suspenda cremes com ácido retinóico 3 dias antes.', 'Hidrate bem a pele nos dias anteriores.', 'Evite depilação facial no dia anterior.'],
+    categoria: 'Facial'
   },
   { 
     id: 3, titulo: 'Skinbooster', preco: 'R$ 350', 
     descricao: 'Hidratação injetável profunda...', imagem: imgSkincare,
-    dicas: ['Beba bastante água no dia anterior.', 'Evite bebidas alcoólicas 24h antes.', 'Informe sobre qualquer alergia a anestésicos locais.']
+    dicas: ['Beba bastante água no dia anterior.', 'Evite bebidas alcoólicas 24h antes.', 'Informe sobre qualquer alergia a anestésicos locais.'],
+    categoria: 'Facial'
   },
   { 
     id: 4, titulo: 'Drenagem Linfática', preco: 'R$ 220', 
     descricao: 'Técnica de massagem que estimula...', imagem: imgDrenagem,
-    dicas: ['Beba muita água antes e depois da sessão.', 'Faça refeições leves no dia.', 'Venha com roupas confortáveis e fáceis de tirar.']
+    dicas: ['Beba muita água antes e depois da sessão.', 'Faça refeições leves no dia.', 'Venha com roupas confortáveis e fáceis de tirar.'],
+    categoria: 'Corporal'
   },
   { 
     id: 5, titulo: 'Massagem Relaxante', preco: 'R$ 200', 
     descricao: 'Movimentos suaves e contínuos...', imagem: imgMassagem,
-    dicas: ['Evite comer refeições pesadas 1h antes.', 'Tome um banho morno antes de vir, se possível.', 'Chegue com 10 minutos de antecedência para "desacelerar".']
+    dicas: ['Evite comer refeições pesadas 1h antes.', 'Tome um banho morno antes de vir, se possível.', 'Chegue com 10 minutos de antecedência para "desacelerar".'],
+    categoria: 'Corporal'
   },
   { 
     id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'A partir de R$ 80', 
     descricao: 'Remoção de pelos com métodos...', imagem: imgDepilacao,
-    dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.']
+    dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.'],
+    categoria: 'Laser'
   }
 ];
 
