@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { login } from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 
 export default function CartaoDeLogin() {
   const navigate = useNavigate();
@@ -21,7 +22,9 @@ export default function CartaoDeLogin() {
       const dados = await login({ email, senha });
       salvarUsuario(dados);
 
-      const role = dados.acesso?.nome;
+      const decodedToken = jwtDecode(dados.token);
+      const role = decodedToken.role;
+
       if (role === 'CLIENTE') navigate('/agendar');
       else navigate('/agendamentos');
 

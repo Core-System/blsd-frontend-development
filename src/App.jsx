@@ -13,6 +13,7 @@
   import PaginaTermos from "./pages/PaginaTermos";
   import PaginaTrabalheConosco from "./pages/PaginaTrabalheConosco";
   import { ProtectRoute } from "./guards/ProtectRoute";
+  import { PaginaNaoEncontrado } from "./pages/PaginaNaoEncontrado";
 
   function ScrollToTop() {
     const { pathname } = useLocation();
@@ -44,10 +45,15 @@
           </Route>
           </Route>
           
+
+          <Route element={<ProtectRoute rolesPermitidas={['CLIENTE']} />}>
           <Route path="/agendar" element={<PaginaAgendamento />} />
+          </Route>
+          
           <Route path="/privacidade" element={<PaginaPrivacidade />} />
           <Route path="/termos" element={<PaginaTermos />} />
           <Route path="/trabalhe-conosco" element={<PaginaTrabalheConosco />} />
+          <Route path="*" element={<PaginaNaoEncontrado/>}/>
         </Routes>
       </BrowserRouter>
     );

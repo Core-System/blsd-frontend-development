@@ -422,7 +422,7 @@ export default function PaginaFuncionarios() {
   const totalFuncionarios = funcionarios.length;
 
   function getNivelAcesso(f) {
-    return f?.acesso?.nome ?? 'FUNCIONARIO';
+    return f?.acesso ?? 'FUNCIONARIO';
   }
 
   return (

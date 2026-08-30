@@ -136,12 +136,13 @@ export default function BarraDeNavegacaoSuperior() {
               {link}
             </button>
           ))}
+          {temPermissao(['CLIENTE']) && (
           <button
             onClick={aoClicarAgendar}
             className="rounded-full bg-[#edf3ef] px-4 py-2 text-sm font-bold text-[#2D4336] transition-all hover:bg-[#dfece1]"
           >
             Agende
-          </button>
+          </button>)}
           {temPermissao(['GESTOR', 'FUNCIONARIO']) && (<button
             onClick={aoClicarDashboard}
             className="rounded-full bg-[#edf3ef] px-4 py-2 text-sm font-bold text-[#2D4336] transition-all hover:bg-[#dfece1]"
@@ -153,7 +154,9 @@ export default function BarraDeNavegacaoSuperior() {
         <div className="flex items-center gap-3">
           {usuario ? (
             <>
+            {temPermissao(['CLIENTE']) && (
               <BalaoAgendamentos />
+            )}
               <span className="hidden text-sm text-[#4b5d4f] sm:inline">
                 Olá, <strong>{primeiroNome}</strong>
               </span>
