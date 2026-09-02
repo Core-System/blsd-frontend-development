@@ -25,15 +25,19 @@ function Campo({ label, children }) {
 }
 
 const inputCls = 'w-full rounded-lg border border-[#e8e6d9] bg-[#f5f4ec] px-4 py-2.5 text-sm text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-[#2C3E2D] focus:ring-1 focus:ring-[#2C3E2D]/20';
+const inputDisabledCls = 'w-full rounded-lg border border-[#e8e6d9] bg-gray-100 px-4 py-2.5 text-sm text-gray-500 cursor-not-allowed select-none';
 
-export default function ModalEditarPerfil({ cliente, onFechar, onSalvar, salvando }) {
+export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, onSalvar, salvando }) {
   const [form, setForm] = useState(() => ({
     nome: cliente?.nome || '',
     email: cliente?.email || '',
+    cpf: cliente?.cpf || '',
     dataNasc: cliente?.dataNasc || '',
     telefone: cliente?.telefone || '',
     urlFoto: cliente?.urlFoto || '',
   }));
+  
+  const [arquivoFoto, setArquivoFoto] = useState(null);
   const [erros, setErros] = useState({});
   const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -57,7 +61,12 @@ export default function ModalEditarPerfil({ cliente, onFechar, onSalvar, salvand
     const novosErros = {};
     if (!form.nome.trim()) novosErros.nome = 'Nome obrigatório';
     if (!form.email.includes('@')) novosErros.email = 'E-mail inválido';
-    if (form.telefone.replace(/\D/g, '').length < 11) novosErros.telefone = 'Telefone incompleto';
+    
+    if (!isFuncionario) {
+      if (form.telefone && form.telefone.replace(/\D/g, '').length < 10) {
+        novosErros.telefone = 'Telefone incompleto';
+      }
+    }
     return novosErros;
   }
 
@@ -69,17 +78,34 @@ export default function ModalEditarPerfil({ cliente, onFechar, onSalvar, salvand
       return;
     }
 
-    onSalvar(cliente.id, form)
+
+    const payload = {
+      ...cliente, 
+      ...form,    
+      cpf: form.cpf || cliente.cpf
+    };
+    console.log(payload);
+
+    onSalvar(cliente.id, payload, arquivoFoto)
       .then(() => setStatus({ type: 'success', message: 'Perfil atualizado com sucesso.' }))
-      .catch(() => setStatus({ type: 'error', message: 'Não foi possível salvar as alterações. Tente novamente.' }));
+      .catch((err) => {
+        console.error("Erro capturado no catch do modal:", err);
+        setStatus({ type: 'error', message: 'Não foi possível salvar as alterações. Tente novamente.' });
+      });
   }
 
   function handleFotoUpload(event) {
     const arquivo = event.target.files?.[0];
     if (!arquivo) return;
-    const leitor = new FileReader();
-    leitor.onload = () => handleForm('urlFoto', leitor.result);
-    leitor.readAsDataURL(arquivo);
+
+    if (arquivo.type !== 'image/png' && arquivo.type !== 'image/jpeg') {
+      setStatus({ type: 'error', message: 'Apenas arquivos nos formatos PNG ou JPG são permitidos.' });
+      return;
+    }
+
+    setArquivoFoto(arquivo);
+    const previewUrl = URL.createObjectURL(arquivo);
+    handleForm('urlFoto', previewUrl);
   }
 
   const modal = (
@@ -104,14 +130,24 @@ export default function ModalEditarPerfil({ cliente, onFechar, onSalvar, salvand
             {iconeEditar}
           </div>
           <h2 className="mt-3 text-lg font-bold text-[#1d2e27]">Editar perfil</h2>
-          <p className="text-[11px] uppercase tracking-[0.18em] text-[#7b8d80]">Dados pessoais</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[#7b8d80]">
+            {isFuncionario ? 'Dados do Funcionário' : 'Dados do Cliente'}
+          </p>
         </div>
 
         <div className="mt-6 grid gap-6 md:grid-cols-[150px_1fr]">
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-[#f7f6f1] p-4 text-center">
             <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#e8d9a0] bg-[#dfe8df]">
               {form.urlFoto ? (
-                <img src={form.urlFoto} alt="Foto de perfil" className="h-full w-full object-cover" />
+                <img 
+                  src={
+                    form.urlFoto.startsWith('blob:') || form.urlFoto.startsWith('http') 
+                      ? form.urlFoto 
+                      : `http://localhost:8080${form.urlFoto.startsWith('/') ? '' : '/'}${form.urlFoto}`
+                  } 
+                  alt="Foto de perfil" 
+                  className="h-full w-full object-cover" 
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#2C3E2D]">
                   {form.nome?.charAt(0)?.toUpperCase() || 'U'}
@@ -120,7 +156,7 @@ export default function ModalEditarPerfil({ cliente, onFechar, onSalvar, salvand
             </div>
             <label className="cursor-pointer rounded-full bg-[#2D4336] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#23372b]">
               Alterar foto
-              <input type="file" accept="image/*" onChange={handleFotoUpload} className="hidden" />
+              <input type="file" accept="image/png, image/jpeg" onChange={handleFotoUpload} className="hidden" />
             </label>
           </div>
 
@@ -129,19 +165,29 @@ export default function ModalEditarPerfil({ cliente, onFechar, onSalvar, salvand
               <input value={form.nome} onChange={(event) => handleForm('nome', event.target.value)} placeholder="Ex.: Patricia Ferreira" className={inputCls + (erros.nome ? ' border-red-400' : '')} />
               {erros.nome && <p className="text-[10px] text-red-500">{erros.nome}</p>}
             </Campo>
+
             <Campo label="E-mail">
               <input type="email" value={form.email} onChange={(event) => handleForm('email', event.target.value)} placeholder="patricia@blessed7.com" className={inputCls + (erros.email ? ' border-red-400' : '')} />
               {erros.email && <p className="text-[10px] text-red-500">{erros.email}</p>}
             </Campo>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Campo label="Telefone">
-                <input type="text" value={form.telefone} onChange={(event) => handleForm('telefone', event.target.value)} placeholder="(11) 98765-4321" className={inputCls + (erros.telefone ? ' border-red-400' : '')} />
-                {erros.telefone && <p className="text-[10px] text-red-500">{erros.telefone}</p>}
+
+            {isFuncionario && (
+              <Campo label="CPF">
+                <input type="text" value={form.cpf} readOnly className={inputDisabledCls} />
               </Campo>
-              <Campo label="Data de Nascimento">
-                <input type="date" value={form.dataNasc} onChange={(event) => handleForm('dataNasc', event.target.value)} className={inputCls} />
-              </Campo>
-            </div>
+            )}
+
+            {!isFuncionario && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Campo label="Telefone">
+                  <input type="text" value={form.telefone} onChange={(event) => handleForm('telefone', event.target.value)} placeholder="(11) 98765-4321" className={inputCls + (erros.telefone ? ' border-red-400' : '')} />
+                  {erros.telefone && <p className="text-[10px] text-red-500">{erros.telefone}</p>}
+                </Campo>
+                <Campo label="Data de Nascimento">
+                  <input type="date" value={form.dataNasc} onChange={(event) => handleForm('dataNasc', event.target.value)} className={inputCls} />
+                </Campo>
+              </div>
+            )}
           </div>
         </div>
 

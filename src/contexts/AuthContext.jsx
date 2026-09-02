@@ -40,6 +40,7 @@ export function AuthProvider({ children }) {
                 nome: dados.nome,
                 email: decodedToken.sub,
                 id: decodedToken.id,
+                urlFoto: dados.urlFoto,
                 acesso: {
                     nome: decodedToken.role
                 }
