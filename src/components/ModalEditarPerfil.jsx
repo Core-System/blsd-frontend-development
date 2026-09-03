@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { formatarCpf } from '../utils/formatters';
+import { removerMascara } from '../utils/masks';
 
 const iconeEditar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -31,7 +33,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   const [form, setForm] = useState(() => ({
     nome: cliente?.nome || '',
     email: cliente?.email || '',
-    cpf: cliente?.cpf || '',
+    cpf: formatarCpf(cliente?.cpf || ''),
     dataNasc: cliente?.dataNasc || '',
     telefone: cliente?.telefone || '',
     urlFoto: cliente?.urlFoto || '',
@@ -52,7 +54,9 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   if (!cliente) return null;
 
   function handleForm(campo, valor) {
-    setForm((atual) => ({ ...atual, [campo]: valor }));
+    const valorTratado = campo === 'cpf' ? formatarCpf(valor) : valor;
+
+    setForm((atual) => ({ ...atual, [campo]: valorTratado }));
     setErros((atual) => ({ ...atual, [campo]: '' }));
     setStatus({ type: '', message: '' });
   }
@@ -78,11 +82,10 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
       return;
     }
 
-
     const payload = {
       ...cliente, 
       ...form,    
-      cpf: form.cpf || cliente.cpf
+      cpf: form.cpf ? removerMascara(form.cpf) : cliente.cpf
     };
     console.log(payload);
 
@@ -171,11 +174,17 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
               {erros.email && <p className="text-[10px] text-red-500">{erros.email}</p>}
             </Campo>
 
-            {isFuncionario && (
-              <Campo label="CPF">
-                <input type="text" value={form.cpf} readOnly className={inputDisabledCls} />
-              </Campo>
-            )}
+            <Campo label="CPF">
+              <input 
+                type="text" 
+                value={form.cpf} 
+                onChange={(event) => handleForm('cpf', event.target.value)} 
+                maxLength={14}
+                placeholder="000.000.000-00" 
+                className={isFuncionario ? inputDisabledCls : inputCls} 
+                readOnly={isFuncionario} 
+              />
+            </Campo>
 
             {!isFuncionario && (
               <div className="grid gap-4 sm:grid-cols-2">

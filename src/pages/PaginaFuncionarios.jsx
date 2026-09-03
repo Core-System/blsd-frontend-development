@@ -9,6 +9,7 @@ import {
 } from '../services/funcionarioService';
 import { formatarCpf } from '../utils/formatters';
 import { validarEmail, validarSenha } from '../utils/validators';
+import { removerMascara } from '../utils/masks';
 
 /* ── ícones ── */
 const iconePlus = (
@@ -307,7 +308,7 @@ export default function PaginaFuncionarios() {
       await cadastrarFuncionario({
         nome: form.nome.trim(),
         email: form.email.trim(),
-        cpf: form.cpf,
+        cpf: removerMascara(form.cpf),
         senha: form.senha,
       });
       await carregar();
@@ -328,7 +329,7 @@ export default function PaginaFuncionarios() {
       const payload = {
         nome: dados.nome,
         email: dados.email,
-        cpf: dados.cpf,
+        cpf: removerMascara(dados.cpf),
       };
       await atualizarFuncionario(id, payload);
       await carregar();
