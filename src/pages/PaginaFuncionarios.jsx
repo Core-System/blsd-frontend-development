@@ -8,7 +8,7 @@ import {
   deletarFuncionario,
 } from '../services/funcionarioService';
 import { formatarCpf } from '../utils/formatters';
-import { validarEmail, validarSenha } from '../utils/validators';
+import { validarEmail, validarSenha, validarCpf } from '../utils/validators';
 import { removerMascara } from '../utils/masks';
 
 /* ── ícones ── */
@@ -120,7 +120,7 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
     const e = {};
     if (!form.nome.trim()) e.nome = 'Nome obrigatório';
     if (!validarEmail(form.email)) e.email = 'E-mail inválido (ex: usuario@dominio.com)';
-    if (form.cpf.length < 14) e.cpf = 'CPF incompleto';
+    if (!validarCpf(form.cpf)) e.cpf = 'CPF inválido';
     return e;
   }
 
@@ -294,7 +294,7 @@ export default function PaginaFuncionarios() {
     const e = {};
     if (!form.nome.trim())            e.nome  = 'Nome obrigatório';
     if (!validarEmail(form.email))    e.email = 'E-mail inválido';
-    if (form.cpf.length < 14)         e.cpf   = 'CPF incompleto';
+    if (!validarCpf(form.cpf))        e.cpf   = 'CPF inválido';
     if (!validarSenha(form.senha))    e.senha = 'A senha precisa de 8+ caracteres, maiúsculas, minúsculas, números e símbolos';
     return e;
   }

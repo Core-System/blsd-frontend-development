@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { formatarCpf } from '../utils/formatters';
 import { removerMascara } from '../utils/masks';
+import { validarEmail, validarCpf } from '../utils/validators';
 
 const iconeEditar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -63,7 +64,8 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   function validar() {
     const novosErros = {};
     if (!form.nome.trim()) novosErros.nome = 'Nome obrigatório';
-    if (!form.email.includes('@')) novosErros.email = 'E-mail inválido';
+    if (!validarEmail(form.email)) novosErros.email = 'E-mail inválido';
+    if (!validarCpf(form.cpf)) novosErros.cpf = 'CPF inválido';
     
     if (!isFuncionario) {
       if (form.telefone && form.telefone.replace(/\D/g, '').length < 10) {
@@ -123,6 +125,14 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
 
     if (arquivo.type !== 'image/png' && arquivo.type !== 'image/jpeg') {
       toast.error('Apenas arquivos nos formatos PNG ou JPG são permitidos.');
+      event.target.value = '';
+      return;
+    }
+
+    const tamanhoMaximo = 5 * 1024 * 1024;
+    if (arquivo.size > tamanhoMaximo) {
+      toast.error('A imagem é muito grande. O tamanho máximo permitido é de 5MB.');
+      event.target.value = '';
       return;
     }
 
@@ -201,9 +211,10 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
                 onChange={(event) => handleForm('cpf', event.target.value)}
                 maxLength={14}
                 placeholder="000.000.000-00"
-                className={isFuncionario ? inputDisabledCls : inputCls}
+                className={(isFuncionario ? inputDisabledCls : inputCls) + (erros.cpf ? ' border-red-400' : '')}
                 readOnly={isFuncionario}
               />
+              {erros.cpf && <p className="text-[10px] text-red-500 mt-1">{erros.cpf}</p>}
             </Campo>
 
             {!isFuncionario && (
