@@ -58,7 +58,7 @@ const procedimentos = [
     categoria: 'Corporal'
   },
   { 
-    id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'A partir de R$ 80', 
+    id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'R$ 80', 
     descricao: 'Remoção de pelos com métodos...', imagem: imgDepilacao,
     dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.'],
     categoria: 'Laser'

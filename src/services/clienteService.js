@@ -1,11 +1,4 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:8080';
-
-function getAuthHeader() {
-  const token = localStorage.getItem('token');
-  return { Authorization: `Bearer ${token}` };
-}
+import api from "./api";
 
 function normalizarPagina(data, fallbackSize = 10) {
   if (Array.isArray(data)) {
@@ -33,8 +26,7 @@ export async function listarClientes({ page = 0, size = 10, busca = '' } = {}) {
   if (size !== undefined && size !== null) params.size = size;
   if (busca) params.busca = busca;
 
-  const { data } = await axios.get(`${BASE_URL}/cliente`, {
-    headers: getAuthHeader(),
+  const { data } = await api.get(`/cliente`, {
     params,
   });
 
@@ -42,30 +34,36 @@ export async function listarClientes({ page = 0, size = 10, busca = '' } = {}) {
 }
 
 export async function deletarCliente(id) {
-  await axios.delete(`${BASE_URL}/cliente/${id}`, {
-    headers: getAuthHeader(),
-  });
+  await api.delete(`/cliente/${id}`);
 }
 
 export async function atualizarCliente(id, dados) {
-  const { data } = await axios.put(
-    `${BASE_URL}/cliente/${id}`,
+  const { data } = await api.put(
+    `/cliente/${id}`,
     {
       nome: dados.nome,
       email: dados.email,
       dataNasc: dados.dataNasc,
       telefone: dados.telefone,
       urlFoto: dados.urlFoto || '',
-      acesso: { id: 0 },
-    },
-    { headers: getAuthHeader() }
+    }
   );
   return data;
 }
 
 export async function listarCliente(id) {
-  const { data } = await axios.get(`${BASE_URL}/cliente/${id}`, {
-    headers: getAuthHeader(),
-  });
+  const { data } = await api.get(`/cliente/${id}`);
   return data; // [{ id, nome, email, telefone, urlFoto, dataCriacao, dataNasc, acesso, senha }]
+}
+
+export async function atualizarFotoCliente(id, arquivoFoto) {
+  const formData = new FormData();
+  formData.append("file", arquivoFoto);
+
+  const { data } = await api.patch(`/cliente/${id}/foto`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
 }

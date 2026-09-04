@@ -13,7 +13,6 @@ export function ProtectRoute({ rolesPermitidas }){
   const ehAutorizado = rolesPermitidas.includes(userRole);
 
   if (!ehAutorizado) {
-    console.log("Aqui")
     toast.info("Você não tem permissão para acessar essa funcionalidade.")
     return <Navigate to="/" replace />;
   }

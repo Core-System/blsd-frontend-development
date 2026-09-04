@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import {
   listarFuncionarios,
@@ -6,6 +7,9 @@ import {
   atualizarFuncionario,
   deletarFuncionario,
 } from '../services/funcionarioService';
+import { formatarCpf } from '../utils/formatters';
+import { validarEmail, validarSenha, validarCpf } from '../utils/validators';
+import { removerMascara } from '../utils/masks';
 
 /* ── ícones ── */
 const iconePlus = (
@@ -29,11 +33,6 @@ const iconeChevron = (dir) => (
 const iconePonto = (
   <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
     <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
-const iconeCheck = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
 const iconeUsuario = (
@@ -73,26 +72,6 @@ function AvatarNeutro({ tamanho = 36 }) {
   );
 }
 
-function formatarData(dataISO) {
-  if (!dataISO) return '—';
-  try {
-    return new Date(dataISO).toLocaleDateString('pt-BR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-    });
-  } catch {
-    return '—';
-  }
-}
-
-/* ── máscara CPF ── */
-function mascaraCPF(v) {
-  return v.replace(/\D/g, '')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-    .slice(0, 14);
-}
-
 /* ── KPI ── */
 function KPI({ rotulo, valor, sub, destaque, carregando }) {
   return (
@@ -124,16 +103,13 @@ function Campo({ label, children }) {
 
 const inputCls = 'w-full px-4 py-2.5 bg-[#f5f4ec] border border-[#e8e6d9] rounded-lg text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:border-[#2C3E2D] focus:ring-1 focus:ring-[#2C3E2D]/20 transition-colors';
 
-/* ── Modal de edição ── */
 function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
   const [form, setForm] = useState({
     nome: funcionario.nome || '',
     email: funcionario.email || '',
-    cpf: funcionario.cpf || '',
-    senha: '',
+    cpf: formatarCpf(funcionario.cpf || ''),
   });
   const [erros, setErros] = useState({});
-  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   function handleForm(campo, valor) {
     setForm((f) => ({ ...f, [campo]: valor }));
@@ -143,9 +119,8 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
   function validar() {
     const e = {};
     if (!form.nome.trim()) e.nome = 'Nome obrigatório';
-    if (!form.email.includes('@')) e.email = 'E-mail inválido';
-    if (form.cpf.length < 14) e.cpf = 'CPF incompleto';
-    if (form.senha && form.senha.length < 8) e.senha = 'Mínimo 8 caracteres';
+    if (!validarEmail(form.email)) e.email = 'E-mail inválido (ex: usuario@dominio.com)';
+    if (!validarCpf(form.cpf)) e.cpf = 'CPF inválido';
     return e;
   }
 
@@ -156,7 +131,7 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl border border-[#e8e6d9] shadow-2xl w-full max-w-md mx-4 p-6">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -181,7 +156,7 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
               placeholder="Ex.: Ana Paula Souza"
               className={inputCls + (erros.nome ? ' border-red-400' : '')}
             />
-            {erros.nome && <p className="text-[10px] text-red-500">{erros.nome}</p>}
+            {erros.nome && <p className="text-[10px] text-red-500 font-medium">{erros.nome}</p>}
           </Campo>
 
           <Campo label="E-mail">
@@ -192,38 +167,18 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
               placeholder="funcionario@blessed7.com"
               className={inputCls + (erros.email ? ' border-red-400' : '')}
             />
-            {erros.email && <p className="text-[10px] text-red-500">{erros.email}</p>}
+            {erros.email && <p className="text-[10px] text-red-500 font-medium">{erros.email}</p>}
           </Campo>
 
           <Campo label="CPF">
             <input
               value={form.cpf}
-              onChange={(e) => handleForm('cpf', mascaraCPF(e.target.value))}
+              onChange={(e) => handleForm('cpf', formatarCpf(e.target.value))}
               placeholder="000.000.000-00"
               maxLength={14}
               className={inputCls + (erros.cpf ? ' border-red-400' : '')}
             />
-            {erros.cpf && <p className="text-[10px] text-red-500">{erros.cpf}</p>}
-          </Campo>
-
-          <Campo label="Nova senha (deixe vazio para não alterar)">
-            <div className="relative">
-              <input
-                type={mostrarSenha ? 'text' : 'password'}
-                value={form.senha}
-                onChange={(e) => handleForm('senha', e.target.value)}
-                placeholder="Mínimo 8 caracteres"
-                className={inputCls + ' pr-10' + (erros.senha ? ' border-red-400' : '')}
-              />
-              <button
-                type="button"
-                onClick={() => setMostrarSenha(!mostrarSenha)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
-              >
-                {iconeOlho(mostrarSenha)}
-              </button>
-            </div>
-            {erros.senha && <p className="text-[10px] text-red-500">{erros.senha}</p>}
+            {erros.cpf && <p className="text-[10px] text-red-500 font-medium">{erros.cpf}</p>}
           </Campo>
         </div>
 
@@ -246,7 +201,6 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
     </div>
   );
 }
-
 /* ── Modal de confirmação de remoção ── */
 function ModalConfirmacao({ nome, onConfirmar, onCancelar, removendo }) {
   return (
@@ -296,8 +250,6 @@ export default function PaginaFuncionarios() {
   // cadastro
   const [mostrarSenha, setMostrarSenha]     = useState(false);
   const [salvando, setSalvando]             = useState(false);
-  const [sucesso, setSucesso]               = useState(false);
-  const [erroForm, setErroForm]             = useState(null);
   const [form, setForm]                     = useState({ nome: '', email: '', cpf: '', senha: '' });
   const [erros, setErros]                   = useState({});
 
@@ -314,7 +266,6 @@ export default function PaginaFuncionarios() {
   // modal de remoção
   const [funcRemovendo, setFuncRemovendo]   = useState(null);
   const [removendo, setRemovendo]           = useState(false);
-  const [mensagemSucessoEdicao, setMensagemSucessoEdicao] = useState(false);
 
   /* ── carregar ── */
   const carregar = useCallback(async () => {
@@ -337,38 +288,35 @@ export default function PaginaFuncionarios() {
   function handleForm(campo, valor) {
     setForm((f) => ({ ...f, [campo]: valor }));
     setErros((e) => ({ ...e, [campo]: '' }));
-    setErroForm(null);
   }
 
-  function validar() {
+  function validarCadastro() {
     const e = {};
-    if (!form.nome.trim())             e.nome  = 'Nome obrigatório';
-    if (!form.email.includes('@'))     e.email = 'E-mail inválido';
-    if (form.cpf.length < 14)          e.cpf   = 'CPF incompleto';
-    if (form.senha.length < 8)         e.senha = 'Mínimo 8 caracteres';
+    if (!form.nome.trim())            e.nome  = 'Nome obrigatório';
+    if (!validarEmail(form.email))    e.email = 'E-mail inválido';
+    if (!validarCpf(form.cpf))        e.cpf   = 'CPF inválido';
+    if (!validarSenha(form.senha))    e.senha = 'A senha precisa de 8+ caracteres, maiúsculas, minúsculas, números e símbolos';
     return e;
   }
 
   async function handleSubmit() {
-    const e = validar();
+    const e = validarCadastro();
     if (Object.keys(e).length) { setErros(e); return; }
 
     setSalvando(true);
-    setErroForm(null);
     try {
       await cadastrarFuncionario({
         nome: form.nome.trim(),
         email: form.email.trim(),
-        cpf: form.cpf,
+        cpf: removerMascara(form.cpf),
         senha: form.senha,
       });
       await carregar();
       setForm({ nome: '', email: '', cpf: '', senha: '' });
-      setSucesso(true);
-      setTimeout(() => setSucesso(false), 3000);
-    } catch (e) {
-      const msg = e?.response?.data?.message || e?.response?.data || 'Erro ao cadastrar funcionário.';
-      setErroForm(typeof msg === 'string' ? msg : 'Erro ao cadastrar funcionário.');
+      toast.success('Funcionário cadastrado com sucesso!');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data || 'Erro ao cadastrar funcionário.';
+      toast.error(typeof msg === 'string' ? msg : 'Erro ao cadastrar funcionário.');
     } finally {
       setSalvando(false);
     }
@@ -378,21 +326,18 @@ export default function PaginaFuncionarios() {
   async function handleSalvarEdicao(id, dados) {
     setSalvandoEdicao(true);
     try {
-      // se senha vazia, usa placeholder pois backend exige — idealmente o backend aceitaria sem campo senha para update
       const payload = {
         nome: dados.nome,
         email: dados.email,
-        cpf: dados.cpf,
-        senha: dados.senha || undefined,
+        cpf: removerMascara(dados.cpf),
       };
       await atualizarFuncionario(id, payload);
       await carregar();
       setFuncEditando(null);
-      setMensagemSucessoEdicao(true);
-      setTimeout(() => setMensagemSucessoEdicao(false), 4000);
-    } catch (e) {
-      console.error('Erro ao atualizar:', e);
-      alert('Erro ao atualizar funcionário. Tente novamente.');
+      toast.success('Funcionário atualizado com sucesso!');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data || 'Erro ao atualizar funcionário.';
+      toast.error(typeof msg === 'string' ? msg : 'Erro ao atualizar funcionário.');
     } finally {
       setSalvandoEdicao(false);
     }
@@ -405,9 +350,9 @@ export default function PaginaFuncionarios() {
       await deletarFuncionario(funcRemovendo.id);
       await carregar();
       setFuncRemovendo(null);
-    } catch (e) {
-      console.error('Erro ao remover:', e);
-      alert('Erro ao remover funcionário. Tente novamente.');
+      toast.success('Funcionário removido com sucesso!');
+    } catch (err) {
+      toast.error('Erro ao remover funcionário. Tente novamente.');
     } finally {
       setRemovendo(false);
     }
@@ -422,7 +367,7 @@ export default function PaginaFuncionarios() {
   const totalFuncionarios = funcionarios.length;
 
   function getNivelAcesso(f) {
-    return f?.acesso?.nome ?? 'FUNCIONARIO';
+    return f?.acesso?.nome || f?.acesso || 'FUNCIONARIO';
   }
 
   return (
@@ -480,7 +425,7 @@ export default function PaginaFuncionarios() {
             <KPI rotulo="Cadastros" valor={totalFuncionarios} sub="Registros ativos" destaque carregando={carregando} />
           </div>
 
-          {/* ── Formulário de cadastro */}
+          {/* ── Formulário de cadastro ── */}
           <div className="bg-white border border-[#e8e6d9] rounded-xl p-6 mb-5">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-lg bg-[#f0f5f0] flex items-center justify-center text-[#2C3E2D]">
@@ -493,7 +438,6 @@ export default function PaginaFuncionarios() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              {/* Nome */}
               <Campo label="Nome completo">
                 <input
                   value={form.nome}
@@ -501,10 +445,9 @@ export default function PaginaFuncionarios() {
                   placeholder="Ex.: Ana Paula Souza"
                   className={inputCls + (erros.nome ? ' border-red-400' : '')}
                 />
-                {erros.nome && <p className="text-[10px] text-red-500">{erros.nome}</p>}
+                {erros.nome && <p className="text-[10px] text-red-500 font-medium">{erros.nome}</p>}
               </Campo>
 
-              {/* E-mail */}
               <Campo label="E-mail">
                 <input
                   type="email"
@@ -513,29 +456,27 @@ export default function PaginaFuncionarios() {
                   placeholder="funcionario@blessed7.com"
                   className={inputCls + (erros.email ? ' border-red-400' : '')}
                 />
-                {erros.email && <p className="text-[10px] text-red-500">{erros.email}</p>}
+                {erros.email && <p className="text-[10px] text-red-500 font-medium">{erros.email}</p>}
               </Campo>
 
-              {/* CPF */}
               <Campo label="CPF">
                 <input
                   value={form.cpf}
-                  onChange={(e) => handleForm('cpf', mascaraCPF(e.target.value))}
+                  onChange={(e) => handleForm('cpf', formatarCpf(e.target.value))}
                   placeholder="000.000.000-00"
                   maxLength={14}
                   className={inputCls + (erros.cpf ? ' border-red-400' : '')}
                 />
-                {erros.cpf && <p className="text-[10px] text-red-500">{erros.cpf}</p>}
+                {erros.cpf && <p className="text-[10px] text-red-500 font-medium">{erros.cpf}</p>}
               </Campo>
 
-              {/* Senha */}
               <Campo label="Senha de acesso">
                 <div className="relative">
                   <input
                     type={mostrarSenha ? 'text' : 'password'}
                     value={form.senha}
                     onChange={(e) => handleForm('senha', e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder="Mínimo 8 caracteres, maiúsculas e símbolos"
                     className={inputCls + ' pr-10' + (erros.senha ? ' border-red-400' : '')}
                   />
                   <button
@@ -546,11 +487,10 @@ export default function PaginaFuncionarios() {
                     {iconeOlho(mostrarSenha)}
                   </button>
                 </div>
-                {erros.senha && <p className="text-[10px] text-red-500">{erros.senha}</p>}
+                {erros.senha && <p className="text-[10px] text-red-500 font-medium">{erros.senha}</p>}
               </Campo>
             </div>
 
-            {/* botão + feedbacks */}
             <div className="flex items-center gap-3 flex-wrap">
               <button
                 onClick={handleSubmit}
@@ -559,57 +499,29 @@ export default function PaginaFuncionarios() {
               >
                 {iconePlus} {salvando ? 'Cadastrando...' : 'Cadastrar Funcionário'}
               </button>
-              {sucesso && (
-                <div className="flex items-center gap-2 text-[#2C3E2D] text-sm font-semibold">
-                  <span className="w-5 h-5 rounded-full bg-[#e8f5e9] flex items-center justify-center text-[#2C3E2D]">
-                    {iconeCheck}
-                  </span>
-                  Funcionário cadastrado com sucesso!
-                </div>
-              )}
-              {erroForm && (
-                <div className="flex items-center gap-2 text-red-600 text-sm font-semibold">
-                  <span>{iconeAviso}</span>
-                  {erroForm}
-                </div>
-              )}
             </div>
           </div>
 
           {/* ── Tabela de funcionários */}
           <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-            {/* cabeçalho tabela */}
             <div className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] px-6 py-3 border-b border-[#f0eeea] bg-[#fafaf7]">
               {colunas.map((col) => (
                 <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{col}</span>
               ))}
             </div>
-            
-            {mensagemSucessoEdicao && (
-  <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
-    {/* Ícone de Check/Sucesso */}
-    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a8c5a0" strokeWidth={2.5}>
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-    <span>Funcionário atualizado com sucesso!</span>
-  </div>
-)}
 
-            {/* estado de carregamento */}
             {carregando && (
               <div className="py-12 text-center text-gray-400 text-sm">
                 Carregando funcionários...
               </div>
             )}
 
-            {/* sem dados */}
             {!carregando && funcionarios.length === 0 && !erroApi && (
               <div className="py-12 text-center text-gray-400 text-sm">
                 Nenhum funcionário cadastrado ainda.
               </div>
             )}
 
-            {/* linhas */}
             {!carregando && fatia.map((f, i) => {
               const idxGlobal = (paginaAtual - 1) * ITENS_POR_PAGINA + i;
               const nivelAcesso = getNivelAcesso(f);
@@ -620,7 +532,6 @@ export default function PaginaFuncionarios() {
                   className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 hover:bg-[#fafaf7] transition-colors items-center"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* funcionário */}
                   <div className="flex items-center gap-3">
                     <AvatarNeutro tamanho={36} />
                     <div>
@@ -629,13 +540,10 @@ export default function PaginaFuncionarios() {
                     </div>
                   </div>
 
-                  {/* e-mail */}
                   <p className="text-xs text-gray-600 truncate pr-2">{f.email}</p>
 
-                  {/* cpf */}
-                  <p className="text-xs text-gray-600">{f.cpf || '—'}</p>
+                  <p className="text-xs text-gray-600">{formatarCpf(f.cpf) || '—'}</p>
 
-                  {/* nível acesso */}
                   <div className="flex items-center gap-1.5">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       nivelAcesso === 'GESTOR'
@@ -648,7 +556,6 @@ export default function PaginaFuncionarios() {
                     </span>
                   </div>
 
-                  {/* ações */}
                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => setMenuAberto(menuAberto === idxGlobal ? null : idxGlobal)}
@@ -677,7 +584,6 @@ export default function PaginaFuncionarios() {
               );
             })}
 
-            {/* paginação */}
             <div className="flex items-center justify-between px-6 py-3 border-t border-[#f0eeea]">
               <p className="text-[11px] text-gray-400 uppercase tracking-widest">
                 Mostrando {fatia.length} de {funcionarios.length} funcionário{funcionarios.length !== 1 ? 's' : ''}

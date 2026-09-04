@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cadastrar } from "../services/authService";
+import { formatarTelefone } from "../utils/formatters";
+import { validarEmail, validarSenha } from "../utils/validators";
+import { removerMascara } from "../utils/masks";
+import { toast } from "sonner";
 
 export default function CartaoDeCadastro() {
   const navigate = useNavigate();
@@ -10,24 +14,16 @@ export default function CartaoDeCadastro() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const aoDigitarTelefone = (e) => {
-    const apenasNumeros = e.target.value.replace(/\D/g, "");
-    const formatado = apenasNumeros
-      .replace(/^(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{5})(\d)/, "$1-$2")
-      .slice(0, 15);
+    const formatado = formatarTelefone(e.target.value);
     setTelefone(formatado);
   };
-
-  function senhaForte(senha) {
-    return senha.length >= 8 &&
-      /[A-Z]/.test(senha) &&
-      /[0-9]/.test(senha);
-  }
 
   async function aoEnviarFormulario(e) {
     e.preventDefault();
@@ -37,9 +33,14 @@ export default function CartaoDeCadastro() {
       setErro("Preencha todos os campos.");
       return;
     }
-    
-    if (!senhaForte(senha)) {
-      setErro('A senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número.');
+   
+    if (!validarEmail(email)) {
+      setErro("Por favor, insira um e-mail válido.");
+      return;
+    }
+
+    if (!validarSenha(senha)) {
+      setErro('A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial.');
       return;
     }
 
@@ -59,17 +60,18 @@ export default function CartaoDeCadastro() {
         nome: nomeCompleto,
         email,
         senha,
-        telefone: telefone.replace(/\D/g, ""),
+        telefone: removerMascara(telefone),
         dataNasc,
       });
       navigate("/login");
     } catch (e) {
+      const mensagemServidor = e.response?.data?.message;
       if (e.response?.status === 400) {
-        setErro('Verifique os dados informados. A data de nascimento deve ser no passado.');
+        toast.error('Verifique os dados informados. A data de nascimento deve ser no passado.');
       } else if (e.response?.status === 409) {
-        setErro('Este e-mail já está cadastrado.');
+        toast.error(mensagemServidor);
       } else {
-        setErro('Erro ao cadastrar. Tente novamente.');
+        toast.error('Erro ao cadastrar. Tente novamente.');
       }
     } finally {
       setLoading(false);
@@ -141,24 +143,60 @@ export default function CartaoDeCadastro() {
 
         <div className="flex flex-col gap-1">
           <label className={estiloLabel}>Senha</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className={estiloInput}
-          />
+          <div className="relative">
+            <input
+              type={mostrarSenha ? "text" : "password"}
+              placeholder="••••••••"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className={`${estiloInput} pr-12`}
+            />
+            <button
+              type="button"
+              onClick={() => setMostrarSenha(!mostrarSenha)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+            >
+              {mostrarSenha ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className={estiloLabel}>Confirmar senha</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={confirmarSenha}
-            onChange={(e) => setConfirmarSenha(e.target.value)}
-            className={estiloInput}
-          />
+          <div className="relative">
+            <input
+              type={mostrarConfirmarSenha ? "text" : "password"}
+              placeholder="••••••••"
+              value={confirmarSenha}
+              onChange={(e) => setConfirmarSenha(e.target.value)}
+              className={`${estiloInput} pr-12`}
+            />
+            <button
+              type="button"
+              onClick={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+            >
+              {mostrarConfirmarSenha ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="flex items-start gap-2 mt-1">

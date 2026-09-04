@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './api';
 
 const BASE_URL = 'http://localhost:8080';
 
@@ -22,9 +23,7 @@ export async function listarFuncionarios() {
  * Busca funcionário por ID
  */
 export async function buscarFuncionarioPorId(id) {
-  const { data } = await axios.get(`${BASE_URL}/funcionario/${id}`, {
-    headers: getAuthHeader(),
-  });
+  const { data } = await api.get(`/funcionario/${id}`);
   return data;
 }
 
@@ -52,8 +51,8 @@ export async function cadastrarFuncionario({ nome, email, senha, cpf, urlFoto })
  * Atualiza um funcionário existente
  */
 export async function atualizarFuncionario(id, { nome, email, senha, cpf, urlFoto }) {
-  const { data } = await axios.put(
-    `${BASE_URL}/funcionario/${id}`,
+  const { data } = await api.put(
+    `/funcionario/${id}`,
     {
       nome,
       email,
@@ -61,8 +60,7 @@ export async function atualizarFuncionario(id, { nome, email, senha, cpf, urlFot
       cpf,
       urlFoto: urlFoto || '',
       acesso: { id: 2 },
-    },
-    { headers: getAuthHeader() }
+    }
   );
   return data;
 }
@@ -74,4 +72,16 @@ export async function deletarFuncionario(id) {
   await axios.delete(`${BASE_URL}/funcionario/${id}`, {
     headers: getAuthHeader(),
   });
+}
+
+export async function atualizarFotoFuncionario(id, arquivoFoto) {
+  const formData = new FormData();
+  formData.append("file", arquivoFoto);
+
+  const { data } = await api.patch(`/funcionario/${id}/foto`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
 }
