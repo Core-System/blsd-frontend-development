@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 import { formatarCpf } from '../utils/formatters';
 import { removerMascara } from '../utils/masks';
 
@@ -41,7 +42,6 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   
   const [arquivoFoto, setArquivoFoto] = useState(null);
   const [erros, setErros] = useState({});
-  const [status, setStatus] = useState({ type: '', message: '' });
 
   useEffect(() => {
     const fecharComEscape = (event) => {
@@ -58,7 +58,6 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
 
     setForm((atual) => ({ ...atual, [campo]: valorTratado }));
     setErros((atual) => ({ ...atual, [campo]: '' }));
-    setStatus({ type: '', message: '' });
   }
 
   function validar() {
@@ -74,26 +73,47 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     return novosErros;
   }
 
+  function realizarLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('nome_usuario');
+
+    window.location.href = '/login';
+  }
+
   function handleSubmit() {
     const novosErros = validar();
     if (Object.keys(novosErros).length) {
       setErros(novosErros);
-      setStatus({ type: 'error', message: 'Revise os campos destacados antes de salvar.' });
+      toast.error('Revise os campos destacados antes de salvar.');
       return;
     }
 
     const payload = {
-      ...cliente, 
+      ...cliente,
       ...form,    
       cpf: form.cpf ? removerMascara(form.cpf) : cliente.cpf
     };
-    console.log(payload);
+
+    const emailFoiAlterado = form.email.trim() !== cliente.email?.trim();
 
     onSalvar(cliente.id, payload, arquivoFoto)
-      .then(() => setStatus({ type: 'success', message: 'Perfil atualizado com sucesso.' }))
+      .then(() => {
+        if (emailFoiAlterado) {
+          toast.success('E-mail alterado com sucesso! Por segurança, faça login novamente para atualizar suas credenciais.');
+          setTimeout(() => {
+            realizarLogout();
+          }, 2000);
+        } else {
+          toast.success('Perfil atualizado com sucesso.');
+          onFechar();
+        }
+      })
       .catch((err) => {
         console.error("Erro capturado no catch do modal:", err);
-        setStatus({ type: 'error', message: 'Não foi possível salvar as alterações. Tente novamente.' });
+        const mensagemApi = err?.response?.data?.message || 'Não foi possível salvar as alterações. Tente novamente.';
+        toast.error(mensagemApi);
       });
   }
 
@@ -102,7 +122,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     if (!arquivo) return;
 
     if (arquivo.type !== 'image/png' && arquivo.type !== 'image/jpeg') {
-      setStatus({ type: 'error', message: 'Apenas arquivos nos formatos PNG ou JPG são permitidos.' });
+      toast.error('Apenas arquivos nos formatos PNG ou JPG são permitidos.');
       return;
     }
 
@@ -142,14 +162,14 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-[#f7f6f1] p-4 text-center">
             <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#e8d9a0] bg-[#dfe8df]">
               {form.urlFoto ? (
-                <img 
+                <img
                   src={
-                    form.urlFoto.startsWith('blob:') || form.urlFoto.startsWith('http') 
-                      ? form.urlFoto 
+                    form.urlFoto.startsWith('blob:') || form.urlFoto.startsWith('http')
+                      ? form.urlFoto
                       : `http://localhost:8080${form.urlFoto.startsWith('/') ? '' : '/'}${form.urlFoto}`
-                  } 
-                  alt="Foto de perfil" 
-                  className="h-full w-full object-cover" 
+                  }
+                  alt="Foto de perfil"
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#2C3E2D]">
@@ -166,23 +186,23 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
           <div className="space-y-4 text-left">
             <Campo label="Nome completo">
               <input value={form.nome} onChange={(event) => handleForm('nome', event.target.value)} placeholder="Ex.: Patricia Ferreira" className={inputCls + (erros.nome ? ' border-red-400' : '')} />
-              {erros.nome && <p className="text-[10px] text-red-500">{erros.nome}</p>}
+              {erros.nome && <p className="text-[10px] text-red-500 mt-1">{erros.nome}</p>}
             </Campo>
 
             <Campo label="E-mail">
               <input type="email" value={form.email} onChange={(event) => handleForm('email', event.target.value)} placeholder="patricia@blessed7.com" className={inputCls + (erros.email ? ' border-red-400' : '')} />
-              {erros.email && <p className="text-[10px] text-red-500">{erros.email}</p>}
+              {erros.email && <p className="text-[10px] text-red-500 mt-1">{erros.email}</p>}
             </Campo>
 
             <Campo label="CPF">
-              <input 
-                type="text" 
-                value={form.cpf} 
-                onChange={(event) => handleForm('cpf', event.target.value)} 
+              <input
+                type="text"
+                value={form.cpf}
+                onChange={(event) => handleForm('cpf', event.target.value)}
                 maxLength={14}
-                placeholder="000.000.000-00" 
-                className={isFuncionario ? inputDisabledCls : inputCls} 
-                readOnly={isFuncionario} 
+                placeholder="000.000.000-00"
+                className={isFuncionario ? inputDisabledCls : inputCls}
+                readOnly={isFuncionario}
               />
             </Campo>
 
@@ -190,7 +210,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
               <div className="grid gap-4 sm:grid-cols-2">
                 <Campo label="Telefone">
                   <input type="text" value={form.telefone} onChange={(event) => handleForm('telefone', event.target.value)} placeholder="(11) 98765-4321" className={inputCls + (erros.telefone ? ' border-red-400' : '')} />
-                  {erros.telefone && <p className="text-[10px] text-red-500">{erros.telefone}</p>}
+                  {erros.telefone && <p className="text-[10px] text-red-500 mt-1">{erros.telefone}</p>}
                 </Campo>
                 <Campo label="Data de Nascimento">
                   <input type="date" value={form.dataNasc} onChange={(event) => handleForm('dataNasc', event.target.value)} className={inputCls} />
@@ -199,8 +219,6 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
             )}
           </div>
         </div>
-
-        {status.message && <div className={`mt-5 rounded-xl border px-3 py-2 text-sm ${status.type === 'success' ? 'border-[#cfe4d4] bg-[#edf8ef] text-[#1d5f34]' : 'border-[#f5d1c8] bg-[#fff4f2] text-[#9b3d2c]'}`}>{status.message}</div>}
 
         <div className="mt-6 flex gap-3">
           <button type="button" onClick={onFechar} className="flex-1 rounded-xl border border-[#e8e6d9] px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-[#f5f4ec]">Cancelar</button>

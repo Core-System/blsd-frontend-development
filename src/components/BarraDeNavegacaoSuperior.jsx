@@ -111,6 +111,12 @@ export default function BarraDeNavegacaoSuperior() {
         }
       }
 
+      const emailFoiAlterado = payload.email?.trim() !== cliente.email?.trim();
+
+      if (emailFoiAlterado) {
+        return;
+      }
+
       const usuarioAtualizado = ehFuncionario
         ? await buscarFuncionarioPorId(id)
         : await listarCliente(id);
