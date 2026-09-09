@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { login } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export default function CartaoDeLogin() {
   const navigate = useNavigate();
@@ -12,14 +13,23 @@ export default function CartaoDeLogin() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   async function aoEnviarFormulario(e) {
     e.preventDefault();
     setErro(null);
+
+    if (!executeRecaptcha) {
+    setErro("A verificação de segurança ainda está carregando. Tente novamente em instantes.");
+    setLoading(false);
+    return;
+    }
+
     setLoading(true);
 
     try {
-      const dados = await login({ email, senha });
+      const recaptchaToken = await executeRecaptcha("login");
+      const dados = await login({ email, senha, recaptchaToken });
       salvarUsuario(dados);
 
       const decodedToken = jwtDecode(dados.token);

@@ -5,6 +5,7 @@ import { formatarTelefone } from "../utils/formatters";
 import { validarEmail, validarSenha } from "../utils/validators";
 import { removerMascara } from "../utils/masks";
 import { toast } from "sonner";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export default function CartaoDeCadastro() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function CartaoDeCadastro() {
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const aoDigitarTelefone = (e) => {
     const formatado = formatarTelefone(e.target.value);
@@ -54,14 +56,23 @@ export default function CartaoDeCadastro() {
       return;
     }
 
+    if (!executeRecaptcha) {
+    setErro("A verificação de segurança ainda está carregando. Tente novamente em instantes.");
+    setLoading(false);
+    return;
+    }
+
     setLoading(true);
+
     try {
+      const recaptchaToken = await executeRecaptcha("cadastro");
       await cadastrar({
         nome: nomeCompleto,
         email,
         senha,
         telefone: removerMascara(telefone),
         dataNasc,
+        recaptchaToken
       });
       navigate("/login");
     } catch (e) {
