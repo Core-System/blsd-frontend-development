@@ -1,17 +1,11 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:8080/consulta';
-
-const getAuthHeaders = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-});
+import api from './api';
 
 export async function listarConsultasCliente(clienteId) {
-    const r = await axios.get(`${BASE_URL}/cliente/${clienteId}`, getAuthHeaders());
-    return r.data;
+  const { data } = await api.get(`/consulta/cliente/${clienteId}`);
+  return data;
 }
 
 export async function avaliarConsulta(consultaId, dados) {
-    const r = await axios.post(`${BASE_URL}/${consultaId}/avaliar`, dados, getAuthHeaders());
-    return r.data;
+  const { data } = await api.post(`/consulta/${consultaId}/avaliar`, dados);
+  return data;
 }

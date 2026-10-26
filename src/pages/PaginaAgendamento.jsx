@@ -20,50 +20,51 @@ import imgMassagem from '../assets/massagem-relaxante.jpg';
 import imgDepilacao from '../assets/depilacao.jpg';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { listarServicos } from '../services/servicosService';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
-const procedimentos = [
-  { 
-    id: 1, titulo: 'Limpeza de Pele', preco: 'R$ 280', 
-    descricao: 'Procedimento estético profundo...', imagem: imgLimpeza,
-    dicas: ['Evite exposição solar direta 48h antes.', 'Não utilize ácidos ou esfoliantes na véspera.', 'Venha sem maquiagem, se possível.'],
-    categoria: 'Facial'
-  },
-  { 
-    id: 2, titulo: 'Peeling de Diamante', preco: 'R$ 250', 
-    descricao: 'Esfoliação mecânica suave...', imagem: imgPeeling,
-    dicas: ['Suspenda cremes com ácido retinóico 3 dias antes.', 'Hidrate bem a pele nos dias anteriores.', 'Evite depilação facial no dia anterior.'],
-    categoria: 'Facial'
-  },
-  { 
-    id: 3, titulo: 'Skinbooster', preco: 'R$ 350', 
-    descricao: 'Hidratação injetável profunda...', imagem: imgSkincare,
-    dicas: ['Beba bastante água no dia anterior.', 'Evite bebidas alcoólicas 24h antes.', 'Informe sobre qualquer alergia a anestésicos locais.'],
-    categoria: 'Facial'
-  },
-  { 
-    id: 4, titulo: 'Drenagem Linfática', preco: 'R$ 220', 
-    descricao: 'Técnica de massagem que estimula...', imagem: imgDrenagem,
-    dicas: ['Beba muita água antes e depois da sessão.', 'Faça refeições leves no dia.', 'Venha com roupas confortáveis e fáceis de tirar.'],
-    categoria: 'Corporal'
-  },
-  { 
-    id: 5, titulo: 'Massagem Relaxante', preco: 'R$ 200', 
-    descricao: 'Movimentos suaves e contínuos...', imagem: imgMassagem,
-    dicas: ['Evite comer refeições pesadas 1h antes.', 'Tome um banho morno antes de vir, se possível.', 'Chegue com 10 minutos de antecedência para "desacelerar".'],
-    categoria: 'Corporal'
-  },
-  { 
-    id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'R$ 80', 
-    descricao: 'Remoção de pelos com métodos...', imagem: imgDepilacao,
-    dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.'],
-    categoria: 'Laser'
-  }
-];
+// const procedimentos = [
+//   { 
+//     id: 1, titulo: 'Limpeza de Pele', preco: 'R$ 280', 
+//     descricao: 'Procedimento estético profundo...', imagem: imgLimpeza,
+//     dicas: ['Evite exposição solar direta 48h antes.', 'Não utilize ácidos ou esfoliantes na véspera.', 'Venha sem maquiagem, se possível.'],
+//     categoria: 'Facial'
+//   },
+//   { 
+//     id: 2, titulo: 'Peeling de Diamante', preco: 'R$ 250', 
+//     descricao: 'Esfoliação mecânica suave...', imagem: imgPeeling,
+//     dicas: ['Suspenda cremes com ácido retinóico 3 dias antes.', 'Hidrate bem a pele nos dias anteriores.', 'Evite depilação facial no dia anterior.'],
+//     categoria: 'Facial'
+//   },
+//   { 
+//     id: 3, titulo: 'Skinbooster', preco: 'R$ 350', 
+//     descricao: 'Hidratação injetável profunda...', imagem: imgSkincare,
+//     dicas: ['Beba bastante água no dia anterior.', 'Evite bebidas alcoólicas 24h antes.', 'Informe sobre qualquer alergia a anestésicos locais.'],
+//     categoria: 'Facial'
+//   },
+//   { 
+//     id: 4, titulo: 'Drenagem Linfática', preco: 'R$ 220', 
+//     descricao: 'Técnica de massagem que estimula...', imagem: imgDrenagem,
+//     dicas: ['Beba muita água antes e depois da sessão.', 'Faça refeições leves no dia.', 'Venha com roupas confortáveis e fáceis de tirar.'],
+//     categoria: 'Corporal'
+//   },
+//   { 
+//     id: 5, titulo: 'Massagem Relaxante', preco: 'R$ 200', 
+//     descricao: 'Movimentos suaves e contínuos...', imagem: imgMassagem,
+//     dicas: ['Evite comer refeições pesadas 1h antes.', 'Tome um banho morno antes de vir, se possível.', 'Chegue com 10 minutos de antecedência para "desacelerar".'],
+//     categoria: 'Corporal'
+//   },
+//   { 
+//     id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'R$ 80', 
+//     descricao: 'Remoção de pelos com métodos...', imagem: imgDepilacao,
+//     dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.'],
+//     categoria: 'Laser'
+//   }
+// ];
 
 export default function PaginaAgendamento() {
   const location = useLocation();
@@ -82,11 +83,27 @@ export default function PaginaAgendamento() {
   const { salvarUsuario } = useAuth();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+  const [procedimentos, setProcedimentos] = useState([]);
+
+  useEffect(()=>{
+    async function carregar() {
+          try {
+            const resposta = await listarServicos();
+            setProcedimentos(resposta);
+            console.log(procedimentos);
+          } catch (e) {
+            console.error('Erro ao carregar serviços:', e);
+          } finally {
+          }
+        }
+        carregar();
+      },[]);
+      
+      useEffect(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
   }, []);
 
   useEffect(() => {
@@ -108,10 +125,10 @@ export default function PaginaAgendamento() {
       validarLinkAgendamento();
     }
   }, [searchParams, salvarUsuario]);
-
+  
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
-
+  
   const categorias = ['Todas', 'Facial', 'Corporal', 'Laser'];
   const procedimentosFiltrados = procedimentos.filter((proc) => {
     const termo = busca.trim().toLowerCase();
@@ -120,9 +137,9 @@ export default function PaginaAgendamento() {
     const correspondeCategoria = categoriaAtiva === 'Todas' || categoriaProc === categoriaAtiva;
     return correspondeBusca && correspondeCategoria;
   });
-
+  
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
-
+ 
   function handleConfirmar() {
     confirmar({
       nome: usuario?.nome,
@@ -205,8 +222,8 @@ export default function PaginaAgendamento() {
                 {procedimentosFiltrados.map((procItem) => (
                   <CartaoProcedimento
                     key={procItem.id}
-                    imagem={procItem.imagem}
-                    titulo={procItem.titulo}
+                    imagem={procItem.imgUrl}
+                    titulo={procItem.nome}
                     preco={procItem.preco}
                     descricao={procItem.descricao}
                     categoria={procItem.categoria || 'Facial'}
