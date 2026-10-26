@@ -27,6 +27,32 @@ const NOMES_MESES = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
+const IMAGENS_SERVICOS = {
+  'limpeza-de-pele.jpg': imgLimpeza,
+  'peeling.jpg': imgPeeling,
+  'skincare.jpg': imgSkincare,
+  'drenagem.jpg': imgDrenagem,
+  'massagem-relaxante.jpg': imgMassagem,
+  'depilacao.jpg': imgDepilacao,
+};
+
+function resolverImagemServico(urlImagem) {
+  if (!urlImagem) {
+    return imgLimpeza;
+  }
+
+  if (/^(https?:|data:|blob:)/i.test(urlImagem)) {
+    return urlImagem;
+  }
+
+  const nomeArquivo = decodeURIComponent(urlImagem.split(/[?#]/)[0])
+    .split('/')
+    .pop()
+    ?.toLowerCase();
+
+  return IMAGENS_SERVICOS[nomeArquivo] || imgLimpeza;
+}
+
 // const procedimentos = [
 //   { 
 //     id: 1, titulo: 'Limpeza de Pele', preco: 'R$ 280', 
@@ -89,8 +115,7 @@ export default function PaginaAgendamento() {
     async function carregar() {
           try {
             const resposta = await listarServicos();
-            setProcedimentos(resposta);
-            console.log(procedimentos);
+            setProcedimentos(Array.isArray(resposta) ? resposta : resposta.content || []);
           } catch (e) {
             console.error('Erro ao carregar serviços:', e);
           } finally {
@@ -222,7 +247,7 @@ export default function PaginaAgendamento() {
                 {procedimentosFiltrados.map((procItem) => (
                   <CartaoProcedimento
                     key={procItem.id}
-                    imagem={procItem.imgUrl}
+                    imagem={resolverImagemServico(procItem.imgUrl)}
                     titulo={procItem.nome}
                     preco={procItem.preco}
                     descricao={procItem.descricao}
