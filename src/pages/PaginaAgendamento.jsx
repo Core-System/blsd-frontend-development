@@ -12,6 +12,7 @@ import CartaoConfirmacaoAgendamento from '../components/CartaoConfirmacaoAgendam
 import CartaoDicasPreProcedimento from '../components/CartaoDicasPreProcedimento';
 import BarraAcaoAgendamento from '../components/BarraAcaoAgendamento';
 import TelaConfirmacaoAgendamento from '../components/TelaConfirmacaoAgendamento';
+import Paginacao from '../components/Paginacao';
 import imgLimpeza from '../assets/limpeza-de-pele.jpg';
 import imgPeeling from '../assets/peeling.jpg';
 import imgSkincare from '../assets/skincare.jpg';
@@ -96,7 +97,6 @@ export default function PaginaAgendamento() {
   const location = useLocation();
   const [modalDicasAberto, setModalDicasAberto] = useState(false);
   const [passoAtual, setPassoAtual] = useState(1);
-  const [busca, setBusca] = useState('');
   const [categoriaAtiva, setCategoriaAtiva] = useState('Todas');
   const [observacoes, setObservacoes] = useState('');
   
@@ -107,22 +107,71 @@ export default function PaginaAgendamento() {
   const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
   const { salvarUsuario } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [procedimentos, setProcedimentos] = useState([]);
+  const [carregandoProcedimentos, setCarregandoProcedimentos] = useState(false);
+  const [erroProcedimentos, setErroProcedimentos] = useState('');
+  const paginaAtual = Math.max(0, Number(searchParams.get('page') || 0));
+  const tamanhoPagina = Math.max(1, Number(searchParams.get('size') || 6));
+  const buscaQuery = searchParams.get('busca') || '';
+  const sortQuery = searchParams.get('sort') === 'desc' ? 'desc' : 'asc';
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalElementos, setTotalElementos] = useState(0);
 
-  useEffect(()=>{
+  useEffect(() => {
+    const parametrosCanonicos = new URLSearchParams(searchParams);
+    let precisaAtualizar = false;
+
+    if (!searchParams.has('page')) {
+      parametrosCanonicos.set('page', '0');
+      precisaAtualizar = true;
+    }
+
+    if (!searchParams.has('size')) {
+      parametrosCanonicos.set('size', '6');
+      precisaAtualizar = true;
+    }
+
+    if (!searchParams.has('sort')) {
+      parametrosCanonicos.set('sort', 'asc');
+      precisaAtualizar = true;
+    }
+
+    if (precisaAtualizar) {
+      setSearchParams(parametrosCanonicos, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
     async function carregar() {
-          try {
-            const resposta = await listarServicos();
-            setProcedimentos(Array.isArray(resposta) ? resposta : resposta.content || []);
-          } catch (e) {
-            console.error('Erro ao carregar serviços:', e);
-          } finally {
-          }
-        }
-        carregar();
-      },[]);
+      try {
+        setCarregandoProcedimentos(true);
+        setErroProcedimentos('');
+        const resposta = await listarServicos({
+          page: paginaAtual,
+          size: tamanhoPagina,
+          busca: buscaQuery,
+          sort: sortQuery,
+        });
+        const lista = Array.isArray(resposta) ? resposta : resposta?.content || [];
+
+        setProcedimentos(lista);
+        setTotalPaginas(Number(resposta?.totalPages ?? 1));
+        setTotalElementos(Number(resposta?.totalElements ?? lista.length));
+      } catch (e) {
+        console.error('Erro ao carregar serviços:', e);
+        setErroProcedimentos('Não foi possível carregar os serviços.');
+        setProcedimentos([]);
+        setTotalPaginas(1);
+        setTotalElementos(0);
+      } finally {
+        setCarregandoProcedimentos(false);
+      }
+    }
+
+    carregar();
+  }, [paginaAtual, tamanhoPagina, buscaQuery, sortQuery]);
       
       useEffect(() => {
         window.scrollTo({
@@ -142,26 +191,58 @@ export default function PaginaAgendamento() {
           });
           salvarUsuario(response.data);
           localStorage.setItem('token', response.data.token);
-          window.history.replaceState({}, document.title, window.location.pathname);
+          const parametrosAtualizados = new URLSearchParams(searchParams);
+          parametrosAtualizados.delete('code');
+          setSearchParams(parametrosAtualizados, { replace: true });
         } catch (e) {
           console.error('Erro ao validar link de agendamento:', e);
         }
       }
       validarLinkAgendamento();
     }
-  }, [searchParams, salvarUsuario]);
+  }, [searchParams, salvarUsuario, setSearchParams]);
   
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
   
   const categorias = ['Todas', 'Facial', 'Corporal', 'Laser'];
   const procedimentosFiltrados = procedimentos.filter((proc) => {
-    const termo = busca.trim().toLowerCase();
     const categoriaProc = proc.categoria || 'Facial';
-    const correspondeBusca = !termo || proc.titulo.toLowerCase().includes(termo);
     const correspondeCategoria = categoriaAtiva === 'Todas' || categoriaProc === categoriaAtiva;
-    return correspondeBusca && correspondeCategoria;
+    return correspondeCategoria;
   });
+
+  function atualizarQueryParams(alteracoes) {
+    const novosParams = new URLSearchParams(searchParams);
+
+    Object.entries(alteracoes).forEach(([chave, valor]) => {
+      if (valor === '' || valor === null || valor === undefined) {
+        novosParams.delete(chave);
+      } else {
+        novosParams.set(chave, String(valor));
+      }
+    });
+
+    setSearchParams(novosParams);
+  }
+
+  function handleBusca(event) {
+    atualizarQueryParams({
+      busca: event.target.value.trim(),
+      page: 0,
+    });
+  }
+
+  function handleSort(event) {
+    atualizarQueryParams({
+      sort: event.target.value,
+      page: 0,
+    });
+  }
+
+  function handleMudarPagina(pagina) {
+    atualizarQueryParams({ page: pagina - 1 });
+  }
   
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
  
@@ -213,18 +294,29 @@ export default function PaginaAgendamento() {
                   </h2>
                 </div>
                 <div className="rounded-full border border-[#dfe7e0] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#536558]">
-                  {procedimentosFiltrados.length} opções
+                  {totalElementos} opções
                 </div>
               </div>
 
               <div className="mb-6 flex flex-col gap-4 rounded-[2rem] bg-white p-4 shadow-[0_18px_38px_rgba(30,39,32,0.06)] ring-1 ring-[#edf1ee] md:flex-row md:items-center md:justify-between">
                 <input
                   type="text"
-                  value={busca}
-                  onChange={(event) => setBusca(event.target.value)}
+                  value={buscaQuery}
+                  onChange={handleBusca}
                   placeholder="Buscar procedimento"
                   className="w-full rounded-xl border border-[#e8ece8] bg-[#f5f6f4] px-4 py-3 text-sm text-[#2C3E2D] outline-none transition focus:border-[#2D4336] focus:ring-2 focus:ring-[#d4b055]/20 md:max-w-md"
                 />
+                <label className="flex items-center gap-2 text-xs font-semibold text-[#536558]">
+                  Ordenar:
+                  <select
+                    value={sortQuery}
+                    onChange={handleSort}
+                    className="rounded-xl border border-[#e8ece8] bg-[#f5f6f4] px-3 py-3 text-sm text-[#2C3E2D] outline-none transition focus:border-[#2D4336] focus:ring-2 focus:ring-[#d4b055]/20"
+                  >
+                    <option value="asc">Crescente</option>
+                    <option value="desc">Decrescente</option>
+                  </select>
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {categorias.map((categoria) => (
                     <button
@@ -243,6 +335,12 @@ export default function PaginaAgendamento() {
                 </div>
               </div>
 
+              {erroProcedimentos && (
+                <div className="mb-6 rounded-[1.5rem] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  {erroProcedimentos}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {procedimentosFiltrados.map((procItem) => (
                   <CartaoProcedimento
@@ -259,11 +357,28 @@ export default function PaginaAgendamento() {
                 ))}
               </div>
 
-              {procedimentosFiltrados.length === 0 && (
+              {!carregandoProcedimentos && procedimentosFiltrados.length === 0 && (
                 <div className="mt-6 rounded-[1.5rem] border border-dashed border-[#d6ddd7] bg-white p-8 text-center text-[#55675c]">
                   Nenhum procedimento encontrado com esse filtro.
                 </div>
               )}
+
+              {carregandoProcedimentos && (
+                <div className="mt-6 rounded-[1.5rem] bg-white p-8 text-center text-sm text-[#55675c]">
+                  Carregando procedimentos...
+                </div>
+              )}
+
+              <div className="mt-6 overflow-hidden rounded-[1.5rem]">
+                <Paginacao
+                  paginaAtual={paginaAtual + 1}
+                  totalPaginas={totalPaginas}
+                  totalElementos={totalElementos}
+                  tamanhoPagina={tamanhoPagina}
+                  aoMudarPagina={handleMudarPagina}
+                  carregando={carregandoProcedimentos}
+                />
+              </div>
             </div>
           )}
 
