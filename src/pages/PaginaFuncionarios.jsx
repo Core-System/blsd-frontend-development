@@ -493,7 +493,9 @@ export default function PaginaFuncionarios() {
               </div>
             )}
 
-            {!carregando && funcionarios.map((f, i) => {
+            {!carregando && funcionarios
+              .filter((f) => getNivelAcesso(f) !== 'GESTOR')
+              .map((f, i) => {
               const idxGlobal = (paginaAtual - 1) * ITENS_POR_PAGINA + i;
               const nivelAcesso = getNivelAcesso(f);
 
