@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { login } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "sonner";
 
 export default function CartaoDeLogin() {
   const navigate = useNavigate();
@@ -10,12 +11,10 @@ export default function CartaoDeLogin() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
 
   async function aoEnviarFormulario(e) {
     e.preventDefault();
-    setErro(null);
     setLoading(true);
 
     try {
@@ -29,7 +28,7 @@ export default function CartaoDeLogin() {
       else navigate('/agendamentos');
 
     } catch (e) {
-      setErro('Email ou senha inválidos.');
+      toast.error('Email ou senha inválidos.');
     } finally {
       setLoading(false);
     }
@@ -87,11 +86,6 @@ export default function CartaoDeLogin() {
             </button>
           </div>
         </div>
-
-        {/* mensagem de erro */}
-        {erro && (
-          <p className="text-red-500 text-sm text-center">{erro}</p>
-        )}
 
         <button
           onClick={aoEnviarFormulario}

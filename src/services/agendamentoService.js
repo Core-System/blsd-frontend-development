@@ -20,7 +20,7 @@ export async function criarAgendamento({
   procedimento,
 }) {
   const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
-  const { data } = await api.post('/calendario/calcom/agendar', {
+  const { data } = await api.post('/consulta/agendar', {
     nome,
     email,
     dataHoraInicio,

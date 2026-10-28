@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import CartaoKPIClientes from '../components/CartaoKPIClientes';
 import TabelaClientes from '../components/TabelaClientes';
 import { listarClientes } from '../services/clienteService';
+import { toast } from 'sonner';
 
-/* ── ícones ── */
 const iconePlus = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -44,7 +44,6 @@ const statusOpcoes = ['Todos'];
 export default function PaginaClientes() {
   const [clientes, setClientes]         = useState([]);
   const [carregando, setCarregando]     = useState(true);
-  const [erro, setErro]                 = useState(null);
   const [busca, setBusca]               = useState('');
   const [paginaAtual, setPaginaAtual]   = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -64,7 +63,7 @@ export default function PaginaClientes() {
         setTotalElementos(Number(resposta?.totalElements ?? lista.length));
       } catch (e) {
         console.error('Erro ao carregar clientes:', e);
-        setErro('Não foi possível carregar os clientes.');
+        toast.error('Não foi possível carregar os clientes.');
       } finally {
         setCarregando(false);
       }
@@ -72,23 +71,10 @@ export default function PaginaClientes() {
     carregar();
   }, [paginaAtual, tamanhoPagina, busca]);
 
-  // ── KPIs derivados dos dados reais ──
-  const total    = clientes.length;
-  // "Ativo" = tem dataCriacao (todos os cadastrados são ativos por padrão)
+  const total    = totalElementos;
   const ativos   = clientes.length;
-  // Taxa de retenção = % que tem mais de 1 consulta — sem endpoint específico,
-  // usamos 100% dos cadastrados como proxy até termos o endpoint
   const retencao = total > 0 ? Math.round((ativos / total) * 100) : 0;
-
-  // ── Filtragem local ──
-  const clientesFiltrados = useMemo(() => {
-    return clientes.filter((c) => {
-      const termoBusca = busca.toLowerCase();
-      const bateNome   = c.nome?.toLowerCase().includes(termoBusca);
-      const bateEmail  = c.email?.toLowerCase().includes(termoBusca);
-      return bateNome || bateEmail;
-    });
-  }, [clientes, busca]);
+  const clientesFiltrados = clientes;
 
   function handleRemover(id) {
     setClientes((prev) => prev.filter((c) => c.id !== id));
@@ -101,7 +87,6 @@ export default function PaginaClientes() {
       <main className="ml-[152px] min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-7">
 
-          {/* ── Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-3xl font-black text-gray-900 leading-tight">Gestão de Clientes</h1>
@@ -110,7 +95,6 @@ export default function PaginaClientes() {
  
           </div>
 
-          {/* ── KPIs */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <CartaoKPIClientes
               rotulo="Total de Clientes"
@@ -133,7 +117,6 @@ export default function PaginaClientes() {
             />
           </div>
 
-          {/* ── Filtros */}
           <div className="flex items-center gap-3 mb-4">
             <div className="flex items-center gap-2 bg-white border border-[#e8e6d9] rounded-lg px-3 py-2 flex-1 max-w-xs">
               <span className="text-gray-400 flex-shrink-0">{iconeBusca}</span>
@@ -163,14 +146,6 @@ export default function PaginaClientes() {
             </div>
           </div>
 
-          {/* ── erro ── */}
-          {erro && (
-            <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
-              {erro}
-            </div>
-          )}
-
-          {/* ── Tabela ── */}
           <TabelaClientes
             clientes={clientesFiltrados}
             carregando={carregando}

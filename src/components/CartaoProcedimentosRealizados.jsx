@@ -3,7 +3,7 @@ import GraficoReceitaAnual from './GraficoReceitaAnual';
 import { getRankingServicos } from '../services/dashboardService';
 
 export default function CartaoProcedimentosRealizados({ onDadosCarregados }) {
-  const [ranking, setRanking] = useState(null); // null=carregando
+  const [ranking, setRanking] = useState(null);
 
   useEffect(() => {
     getRankingServicos()
@@ -14,7 +14,6 @@ export default function CartaoProcedimentosRealizados({ onDadosCarregados }) {
           onDadosCarregados?.([]);
           return;
         }
-        // Garante que r.servico existe antes de chamar .toUpperCase()
         const max = Math.max(...lista.map((r) => Number(r.quantidade) || 0), 1);
         const rankingFormatado = lista.map((r) => ({
           nome: (r.servico || r.nome || 'Serviço').toUpperCase(),
@@ -26,7 +25,7 @@ export default function CartaoProcedimentosRealizados({ onDadosCarregados }) {
       })
       .catch((e) => {
         console.error('Erro ranking serviços:', e);
-        setRanking([]); // estado seguro em caso de erro
+        setRanking([]);
         onDadosCarregados?.([]);
       });
   }, []);

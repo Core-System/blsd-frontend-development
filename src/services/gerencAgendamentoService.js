@@ -1,14 +1,8 @@
 import api from './api';
 
 function normalizarPagina(data, fallbackSize = 15) {
-  if (Array.isArray(data)) {
-    return {
-      content: data,
-      totalElements: data.length,
-      totalPages: Math.max(1, Math.ceil(data.length / fallbackSize)),
-      number: 0,
-      size: fallbackSize,
-    };
+  if (!data || !Array.isArray(data.content)) {
+    throw new Error('Resposta paginada inválida para agendamentos.');
   }
 
   return {
@@ -25,11 +19,17 @@ export async function listarConsultas({
   size = 15,
   status = '',
   busca = '',
+  procedimento = '',
+  inicio = '',
+  fim = '',
 } = {}) {
   const params = { page, size };
 
   if (status) params.status = status;
   if (busca) params.busca = busca;
+  if (procedimento) params.procedimento = procedimento;
+  if (inicio) params.inicio = inicio;
+  if (fim) params.fim = fim;
 
   const { data } = await api.get('/consulta', { params });
   return normalizarPagina(data, size);

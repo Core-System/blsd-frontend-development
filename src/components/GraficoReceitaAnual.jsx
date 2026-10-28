@@ -20,20 +20,17 @@ export default function GraficoReceitaAnual() {
   const chartRef = useRef(null);
   const [dados, setDados] = useState(null);
 
-  // 1. Busca os dados
   useEffect(() => {
     let mounted = true;
     getReceitaPorAno()
       .then((res) => {
         if (!mounted) return;
         const lista = Array.isArray(res) ? res : [];
-        // Simula distribuição: últimos 2 anos mostram PIX vs Cartão
         const simulado = lista.slice(-2).map((r, idx) => ({
           ano: r.ano,
           total: r.total,
           metodo: idx % 2 === 0 ? 'PIX' : 'Cartão',
         }));
-        // Agrupa por método
         const porMetodo = {};
         simulado.forEach((item) => {
           if (!porMetodo[item.metodo]) porMetodo[item.metodo] = 0;
@@ -52,7 +49,6 @@ export default function GraficoReceitaAnual() {
     return () => { mounted = false; };
   }, []);
 
-  // 2. Só cria o chart depois que o canvas está no DOM E os dados chegaram
   useEffect(() => {
     if (!dados || !canvasRef.current) return;
     if (dados.valores.length === 0) return;
@@ -106,21 +102,19 @@ export default function GraficoReceitaAnual() {
     });
 
     return () => { chartRef.current?.destroy(); };
-  }, [dados]); // dispara quando dados muda
+  }, [dados]);
 
   return (
     <div>
       <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Receita por Método</p>
       <div style={{ height: 140 }}>
         {dados === null ? (
-          // skeleton
           <div className="h-full flex items-center justify-center">
             <div className="w-8 h-8 rounded-full border-2 border-[#B8982A] border-t-transparent animate-spin"/>
           </div>
         ) : dados.valores.length === 0 ? (
           <p className="text-[10px] text-gray-400 py-6 text-center">Sem dados disponíveis.</p>
         ) : (
-          // canvas sempre montado quando dados existem
           <canvas ref={canvasRef}/>
         )}
       </div>

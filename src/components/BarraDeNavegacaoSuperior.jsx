@@ -5,6 +5,7 @@ import BalaoAgendamentos from './BalaoAgendamentos';
 import ModalEditarPerfil from './ModalEditarPerfil';
 import { atualizarCliente, atualizarFotoCliente, listarCliente } from '../services/clienteService';
 import { atualizarFotoFuncionario, atualizarFuncionario, buscarFuncionarioPorId } from '../services/funcionarioService';
+import { toast } from 'sonner';
 
 const links = ['Início', 'Procedimentos', 'Sobre nós', 'Contato'];
 
@@ -20,7 +21,6 @@ export default function BarraDeNavegacaoSuperior() {
 
   const [cliente, setCliente] = useState([]);
   const [, setCarregando] = useState(true);
-  const [, setErroApi] = useState(null);
 
   const [clienteEditando, setClienteEditando] = useState(null);
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
@@ -69,7 +69,6 @@ export default function BarraDeNavegacaoSuperior() {
     }
 
     setCarregando(true);
-    setErroApi(null);
     try {
       let data;
       if (temPermissao(['GESTOR', 'FUNCIONARIO'])) {
@@ -80,7 +79,7 @@ export default function BarraDeNavegacaoSuperior() {
       setCliente(data);
     } catch (e) {
       console.error('Erro ao carregar dados do usuário:', e);
-      setErroApi('Não foi possível carregar os dados. Verifique a conexão.');
+      toast.error('Não foi possível carregar os dados. Verifique a conexão.');
     } finally {
       setCarregando(false);
     }
@@ -224,7 +223,6 @@ export default function BarraDeNavegacaoSuperior() {
           )}
         </div>
       </div>
-      {/* Toast de aviso */}
       {mensagemLogin && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -257,7 +255,6 @@ export default function BarraDeNavegacaoSuperior() {
       )}
       {mensagemSucessoEdicao && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
-          {/* Ícone de Check/Sucesso */}
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a8c5a0" strokeWidth={2.5}>
             <polyline points="20 6 9 17 4 12" />
           </svg>

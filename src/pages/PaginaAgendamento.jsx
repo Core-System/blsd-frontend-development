@@ -54,45 +54,6 @@ function resolverImagemServico(urlImagem) {
   return IMAGENS_SERVICOS[nomeArquivo] || imgLimpeza;
 }
 
-// const procedimentos = [
-//   { 
-//     id: 1, titulo: 'Limpeza de Pele', preco: 'R$ 280', 
-//     descricao: 'Procedimento estético profundo...', imagem: imgLimpeza,
-//     dicas: ['Evite exposição solar direta 48h antes.', 'Não utilize ácidos ou esfoliantes na véspera.', 'Venha sem maquiagem, se possível.'],
-//     categoria: 'Facial'
-//   },
-//   { 
-//     id: 2, titulo: 'Peeling de Diamante', preco: 'R$ 250', 
-//     descricao: 'Esfoliação mecânica suave...', imagem: imgPeeling,
-//     dicas: ['Suspenda cremes com ácido retinóico 3 dias antes.', 'Hidrate bem a pele nos dias anteriores.', 'Evite depilação facial no dia anterior.'],
-//     categoria: 'Facial'
-//   },
-//   { 
-//     id: 3, titulo: 'Skinbooster', preco: 'R$ 350', 
-//     descricao: 'Hidratação injetável profunda...', imagem: imgSkincare,
-//     dicas: ['Beba bastante água no dia anterior.', 'Evite bebidas alcoólicas 24h antes.', 'Informe sobre qualquer alergia a anestésicos locais.'],
-//     categoria: 'Facial'
-//   },
-//   { 
-//     id: 4, titulo: 'Drenagem Linfática', preco: 'R$ 220', 
-//     descricao: 'Técnica de massagem que estimula...', imagem: imgDrenagem,
-//     dicas: ['Beba muita água antes e depois da sessão.', 'Faça refeições leves no dia.', 'Venha com roupas confortáveis e fáceis de tirar.'],
-//     categoria: 'Corporal'
-//   },
-//   { 
-//     id: 5, titulo: 'Massagem Relaxante', preco: 'R$ 200', 
-//     descricao: 'Movimentos suaves e contínuos...', imagem: imgMassagem,
-//     dicas: ['Evite comer refeições pesadas 1h antes.', 'Tome um banho morno antes de vir, se possível.', 'Chegue com 10 minutos de antecedência para "desacelerar".'],
-//     categoria: 'Corporal'
-//   },
-//   { 
-//     id: 6, titulo: 'Depilação (Cera e Laser)', preco: 'R$ 80', 
-//     descricao: 'Remoção de pelos com métodos...', imagem: imgDepilacao,
-//     dicas: ['Apare os pelos se estiverem muito longos (para cera).', 'Não tome sol na área 7 dias antes (para laser).', 'Não use hidratantes na área no dia da sessão.'],
-//     categoria: 'Laser'
-//   }
-// ];
-
 export default function PaginaAgendamento() {
   const location = useLocation();
   const [modalDicasAberto, setModalDicasAberto] = useState(false);
@@ -111,7 +72,6 @@ export default function PaginaAgendamento() {
 
   const [procedimentos, setProcedimentos] = useState([]);
   const [carregandoProcedimentos, setCarregandoProcedimentos] = useState(false);
-  const [erroProcedimentos, setErroProcedimentos] = useState('');
   const paginaAtual = Math.max(0, Number(searchParams.get('page') || 0));
   const tamanhoPagina = Math.max(1, Number(searchParams.get('size') || 6));
   const buscaQuery = searchParams.get('busca') || '';
@@ -147,21 +107,21 @@ export default function PaginaAgendamento() {
     async function carregar() {
       try {
         setCarregandoProcedimentos(true);
-        setErroProcedimentos('');
         const resposta = await listarServicos({
           page: paginaAtual,
           size: tamanhoPagina,
           busca: buscaQuery,
+          categoria: categoriaAtiva === 'Todas' ? '' : categoriaAtiva,
           sort: sortQuery,
         });
-        const lista = Array.isArray(resposta) ? resposta : resposta?.content || [];
+        const lista = Array.isArray(resposta?.content) ? resposta.content : [];
 
         setProcedimentos(lista);
         setTotalPaginas(Number(resposta?.totalPages ?? 1));
         setTotalElementos(Number(resposta?.totalElements ?? lista.length));
       } catch (e) {
         console.error('Erro ao carregar serviços:', e);
-        setErroProcedimentos('Não foi possível carregar os serviços.');
+        toast.error('Não foi possível carregar os serviços.');
         setProcedimentos([]);
         setTotalPaginas(1);
         setTotalElementos(0);
@@ -171,7 +131,7 @@ export default function PaginaAgendamento() {
     }
 
     carregar();
-  }, [paginaAtual, tamanhoPagina, buscaQuery, sortQuery]);
+  }, [paginaAtual, tamanhoPagina, buscaQuery, sortQuery, categoriaAtiva]);
       
       useEffect(() => {
         window.scrollTo({
@@ -205,11 +165,7 @@ export default function PaginaAgendamento() {
   const { usuario } = useAuth();
   
   const categorias = ['Todas', 'Facial', 'Corporal', 'Laser'];
-  const procedimentosFiltrados = procedimentos.filter((proc) => {
-    const categoriaProc = proc.categoria || 'Facial';
-    const correspondeCategoria = categoriaAtiva === 'Todas' || categoriaProc === categoriaAtiva;
-    return correspondeCategoria;
-  });
+  const procedimentosFiltrados = procedimentos;
 
   function atualizarQueryParams(alteracoes) {
     const novosParams = new URLSearchParams(searchParams);
@@ -253,7 +209,7 @@ export default function PaginaAgendamento() {
       mes: dataSelecionada?.mes,
       ano: dataSelecionada?.ano,
       hora: horarioSelecionado,
-      procedimento: proc?.titulo,
+      procedimento: proc?.nome,
       preco: proc?.preco,
       local: localSelecionado === 'clinica'
         ? 'Rua Entre-Folhas, 4a - Jardim Arize'
@@ -268,7 +224,6 @@ export default function PaginaAgendamento() {
     if (numero === 3 && procedimentoSelecionado && dataSelecionada) { setPassoAtual(3); return; }
   }
 
-  // Exibe a tela de sucesso quando há agendamento confirmado
   if (sucesso) {
     return <TelaConfirmacaoAgendamento agendamento={sucesso} />;
   }
@@ -333,12 +288,6 @@ export default function PaginaAgendamento() {
                   ))}
                 </div>
               </div>
-
-              {erroProcedimentos && (
-                <div className="mb-6 rounded-[1.5rem] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                  {erroProcedimentos}
-                </div>
-              )}
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {procedimentosFiltrados.map((procItem) => (
@@ -414,7 +363,7 @@ export default function PaginaAgendamento() {
 
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_0.9fr]">
                 <CartaoConfirmacaoAgendamento
-                  procedimento={proc?.titulo || 'Procedimento'}
+                  procedimento={proc?.nome || 'Procedimento'}
                   preco={proc?.preco || '—'}
                   data={dataSelecionada ? (() => {
                     const semana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
@@ -450,7 +399,6 @@ export default function PaginaAgendamento() {
           )}
         </div>
 
-        {/* Modal de dicas pré-procedimento */}
         {modalDicasAberto && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div className="bg-[#f8f7f2] w-full max-w-md rounded-2xl p-8 shadow-2xl relative">
@@ -467,7 +415,7 @@ export default function PaginaAgendamento() {
                 Dicas de Preparo
               </h3>
               <p className="text-[#d4b055] font-semibold mb-6 uppercase text-xs tracking-widest">
-                {proc?.titulo}
+                {proc?.nome}
               </p>
               
               <ul className="space-y-4">
@@ -493,10 +441,9 @@ export default function PaginaAgendamento() {
           </div>
         )}
 
-        {/* Sticky bottom action bar */}
         <BarraAcaoAgendamento
           passo={passoAtual}
-          procedimento={proc?.titulo}
+          procedimento={proc?.nome}
           data={dataSelecionada ? `${dataSelecionada.dia} de ${NOMES_MESES[dataSelecionada.mes]}` : ''}
           horario={horarioSelecionado}
           onVoltar={() => setPassoAtual(Math.max(1, passoAtual - 1))}

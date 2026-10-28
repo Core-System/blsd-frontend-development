@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { criarAgendamento } from "../services/agendamentoService";
+import { toast } from "sonner";
 
 export function useAgendamento(){
     const [loading, setLoading] = useState(false);
@@ -14,7 +15,8 @@ export function useAgendamento(){
             await criarAgendamento(dados);
             setSucesso(dados);
         } catch (e) {
-            setErro('Não foi possível confirmar o agendamento. Tente novamente.');
+            const mensagem = e?.response?.data?.message || 'Não foi possível confirmar o agendamento. Tente novamente.';
+            toast.error(mensagem);
             throw e;
         } finally {
             setLoading(false);

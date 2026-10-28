@@ -11,7 +11,6 @@ import { formatarCpf } from '../utils/formatters';
 import { validarEmail, validarSenha, validarCpf } from '../utils/validators';
 import { removerMascara } from '../utils/masks';
 
-/* ── ícones ── */
 const iconePlus = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -57,7 +56,6 @@ const iconeAviso = (
   </svg>
 );
 
-/* ── Avatar neutro ── */
 function AvatarNeutro({ tamanho = 36 }) {
   return (
     <div
@@ -72,7 +70,6 @@ function AvatarNeutro({ tamanho = 36 }) {
   );
 }
 
-/* ── KPI ── */
 function KPI({ rotulo, valor, sub, destaque, carregando }) {
   return (
     <div className={`rounded-xl px-6 py-5 flex flex-col justify-between min-h-[110px] border ${
@@ -91,7 +88,6 @@ function KPI({ rotulo, valor, sub, destaque, carregando }) {
   );
 }
 
-/* ── campo de formulário ── */
 function Campo({ label, children }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -201,7 +197,6 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
     </div>
   );
 }
-/* ── Modal de confirmação de remoção ── */
 function ModalConfirmacao({ nome, onConfirmar, onCancelar, removendo }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -238,53 +233,47 @@ function ModalConfirmacao({ nome, onConfirmar, onCancelar, removendo }) {
   );
 }
 
-/* ════════════════════════════════════════════ */
 const ITENS_POR_PAGINA = 10;
 const colunas = ['Funcionário', 'E-mail', 'CPF', 'Nível de Acesso', 'Ações'];
 
 export default function PaginaFuncionarios() {
   const [funcionarios, setFuncionarios]     = useState([]);
   const [carregando, setCarregando]         = useState(true);
-  const [erroApi, setErroApi]               = useState(null);
 
-  // cadastro
   const [mostrarSenha, setMostrarSenha]     = useState(false);
   const [salvando, setSalvando]             = useState(false);
   const [form, setForm]                     = useState({ nome: '', email: '', cpf: '', senha: '' });
   const [erros, setErros]                   = useState({});
 
-  // paginação
   const [pagina, setPagina]                 = useState(1);
+  const [totalPaginas, setTotalPaginas]     = useState(1);
+  const [totalElementos, setTotalElementos] = useState(0);
 
-  // menu de ações
   const [menuAberto, setMenuAberto]         = useState(null);
 
-  // modal de edição
   const [funcEditando, setFuncEditando]     = useState(null);
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
-  // modal de remoção
   const [funcRemovendo, setFuncRemovendo]   = useState(null);
   const [removendo, setRemovendo]           = useState(false);
 
-  /* ── carregar ── */
   const carregar = useCallback(async () => {
     setCarregando(true);
-    setErroApi(null);
     try {
-      const data = await listarFuncionarios();
-      setFuncionarios(data);
+      const data = await listarFuncionarios({ page: pagina - 1, size: ITENS_POR_PAGINA });
+      setFuncionarios(Array.isArray(data?.content) ? data.content : []);
+      setTotalPaginas(Number(data?.totalPages ?? 1));
+      setTotalElementos(Number(data?.totalElements ?? 0));
     } catch (e) {
       console.error('Erro ao carregar funcionários:', e);
-      setErroApi('Não foi possível carregar os funcionários. Verifique a conexão com o servidor.');
+      toast.error('Não foi possível carregar os funcionários. Verifique a conexão com o servidor.');
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [pagina]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
-  /* ── form helpers ── */
   function handleForm(campo, valor) {
     setForm((f) => ({ ...f, [campo]: valor }));
     setErros((e) => ({ ...e, [campo]: '' }));
@@ -322,7 +311,6 @@ export default function PaginaFuncionarios() {
     }
   }
 
-  /* ── editar ── */
   async function handleSalvarEdicao(id, dados) {
     setSalvandoEdicao(true);
     try {
@@ -343,7 +331,6 @@ export default function PaginaFuncionarios() {
     }
   }
 
-  /* ── remover ── */
   async function handleConfirmarRemocao() {
     setRemovendo(true);
     try {
@@ -358,13 +345,9 @@ export default function PaginaFuncionarios() {
     }
   }
 
-  /* ── paginação ── */
-  const totalPaginas = Math.max(1, Math.ceil(funcionarios.length / ITENS_POR_PAGINA));
-  const paginaAtual  = Math.min(pagina, totalPaginas);
-  const fatia = funcionarios.slice((paginaAtual - 1) * ITENS_POR_PAGINA, paginaAtual * ITENS_POR_PAGINA);
+  const paginaAtual = Math.min(pagina, totalPaginas);
 
-  /* ── KPIs ── */
-  const totalFuncionarios = funcionarios.length;
+  const totalFuncionarios = totalElementos;
 
   function getNivelAcesso(f) {
     return f?.acesso?.nome || f?.acesso || 'FUNCIONARIO';
@@ -395,7 +378,6 @@ export default function PaginaFuncionarios() {
       <main className="ml-[152px] min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1200px] mx-auto px-6 py-7">
 
-          {/* ── Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
@@ -407,25 +389,12 @@ export default function PaginaFuncionarios() {
             </div>
           </div>
 
-          {/* ── Erro de API ── */}
-          {erroApi && (
-            <div className="mb-5 flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-sm text-red-700">
-              <span className="flex-shrink-0">{iconeAviso}</span>
-              <span>{erroApi}</span>
-              <button onClick={carregar} className="ml-auto text-xs font-bold underline hover:no-underline">
-                Tentar novamente
-              </button>
-            </div>
-          )}
-
-          {/* ── KPIs */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <KPI rotulo="Total de Funcionários" valor={totalFuncionarios} sub="Equipe completa" carregando={carregando} />
             <KPI rotulo="Nível de Acesso Padrão" valor="FUNC" sub="Perfil funcionário" carregando={carregando} />
             <KPI rotulo="Cadastros" valor={totalFuncionarios} sub="Registros ativos" destaque carregando={carregando} />
           </div>
 
-          {/* ── Formulário de cadastro ── */}
           <div className="bg-white border border-[#e8e6d9] rounded-xl p-6 mb-5">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-lg bg-[#f0f5f0] flex items-center justify-center text-[#2C3E2D]">
@@ -502,7 +471,6 @@ export default function PaginaFuncionarios() {
             </div>
           </div>
 
-          {/* ── Tabela de funcionários */}
           <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
             <div className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] px-6 py-3 border-b border-[#f0eeea] bg-[#fafaf7]">
               {colunas.map((col) => (
@@ -516,13 +484,13 @@ export default function PaginaFuncionarios() {
               </div>
             )}
 
-            {!carregando && funcionarios.length === 0 && !erroApi && (
+            {!carregando && funcionarios.length === 0 && (
               <div className="py-12 text-center text-gray-400 text-sm">
                 Nenhum funcionário cadastrado ainda.
               </div>
             )}
 
-            {!carregando && fatia.map((f, i) => {
+            {!carregando && funcionarios.map((f, i) => {
               const idxGlobal = (paginaAtual - 1) * ITENS_POR_PAGINA + i;
               const nivelAcesso = getNivelAcesso(f);
 
@@ -586,7 +554,7 @@ export default function PaginaFuncionarios() {
 
             <div className="flex items-center justify-between px-6 py-3 border-t border-[#f0eeea]">
               <p className="text-[11px] text-gray-400 uppercase tracking-widest">
-                Mostrando {fatia.length} de {funcionarios.length} funcionário{funcionarios.length !== 1 ? 's' : ''}
+                Mostrando {funcionarios.length} de {totalElementos} funcionário{totalElementos !== 1 ? 's' : ''}
               </p>
               {totalPaginas > 1 && (
                 <div className="flex items-center gap-1">

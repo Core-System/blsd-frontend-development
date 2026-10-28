@@ -101,14 +101,12 @@ async function handleEditar(id, dados) {
   async function handleSalvarProduto(e) {
     e.preventDefault();
     try {
-      // 1- Cria o produto com estoque ZERO para evitar duplicidade na soma
       const produtoSalvo = await criarProduto({
         nome: novoProduto.nome,
         preco: parseFloat(novoProduto.preco),
         quantidade: 0 
       });
       
-      // 2- Dispara a movimentação de entrada inicial para registrar no historico
       if (produtoSalvo && produtoSalvo.id) {
         await registrarMovimentacao({
           produtoId: produtoSalvo.id,
@@ -121,7 +119,6 @@ async function handleEditar(id, dados) {
       setModalAberto(false);
       setNovoProduto({ nome: '', preco: '', quantidade: '' });
       
-      // 3- Atualiza as duas listas na tela ao mesmo tempo
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
@@ -130,7 +127,7 @@ async function handleEditar(id, dados) {
     }
   }
 
-  const totalItens = produtos.length;
+  const totalItens = totalElementos;
   const statusCritico = produtos.filter(p => p.quantidade <= 5).length;
   const baixoEstoque = produtos.filter(p => p.quantidade > 5 && p.quantidade <= 12).length;
 
@@ -141,7 +138,6 @@ async function handleEditar(id, dados) {
       <main className="ml-[152px] mt-14 min-h-[calc(100vh-56px)] overflow-y-auto bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-7">
 
-          {/* Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
@@ -166,14 +162,12 @@ async function handleEditar(id, dados) {
             </div>
           </div>
 
-          {/* ── KPIs */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
             <CartaoKPIEstoque tipo="total" rotulo="Total de Itens" valor={carregando ? "..." : String(totalItens).padStart(2, '0')} />
             <CartaoKPIEstoque tipo="critico" rotulo="Status Crítico" valor={carregando ? "..." : String(statusCritico).padStart(2, '0')} destaque={statusCritico > 0} />
             <CartaoKPIEstoque tipo="baixo" rotulo="Baixo Estoque" valor={carregando ? "..." : String(baixoEstoque).padStart(2, '0')} />
           </div>
 
-          {/* ── Tabela de inventário*/}
           <div className="mb-4">
             <TabelaInventario
               produtos={produtos}
@@ -189,7 +183,6 @@ async function handleEditar(id, dados) {
             />
           </div>
 
-          {/* ── Rodapé: Movimentações */}
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12">
               <CartaoUltimasMovimentacoes movimentacoes={movimentacoes} />
@@ -199,7 +192,6 @@ async function handleEditar(id, dados) {
         </div>
       </main>
 
-      {/* ── MODAL DE ADICIONAR PRODUTO ── */}
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl">

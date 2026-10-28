@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import GraficoTendenciaFaturamento from '../components/GraficoTendenciaFaturamento';
@@ -12,7 +13,6 @@ import {
   getTicketMedio,
 } from '../services/dashboardService';
 
-/* ── ícones ── */
 const iconeExportar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -38,13 +38,11 @@ const iconeConfig = (
   </svg>
 );
 
-/* ── formata moeda BR ── */
 function formatarReais(valor) {
   if (valor == null) return '—';
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-/* ── KPI card ── */
 function KPI({ rotulo, valor, badge, meta, carregando }) {
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl px-5 py-4 flex flex-col gap-1 min-w-0">
@@ -65,7 +63,6 @@ function KPI({ rotulo, valor, badge, meta, carregando }) {
   );
 }
 
-/* ── Header ── */
 function HeaderDashboard({ nome }) {
   return (
     <>
@@ -73,7 +70,6 @@ function HeaderDashboard({ nome }) {
   );
 }
 
-/* ══════════════════════════════════════════ */
 export default function PaginaDashboard() {
   const { usuario } = useAuth();
   const nomeCompleto = usuario?.nome || 'Usuário';
@@ -86,7 +82,6 @@ export default function PaginaDashboard() {
     ticketMedio: null,
   });
   const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
   const [procedimentos, setProcedimentos] = useState([]);
 
@@ -181,13 +176,17 @@ export default function PaginaDashboard() {
     async function carregarKPIs() {
       try {
         setCarregando(true);
-        // allSettled garante que uma falha isolada não derruba os outros KPIs
         const [faturamento, procedimentos, receita, ticket] = await Promise.allSettled([
           getFaturamentoMensal(),
           getProcedimentosMensal(),
           getReceitaAnualTotal(),
           getTicketMedio(),
         ]);
+        const houveFalha = [faturamento, procedimentos, receita, ticket]
+          .some((resultado) => resultado.status === 'rejected');
+        if (houveFalha) {
+          toast.error('Não foi possível carregar todos os indicadores do dashboard.');
+        }
         setKpis({
           faturamentoMensal:  faturamento.status  === 'fulfilled' ? faturamento.value  : null,
           procedimentosMensal:procedimentos.status === 'fulfilled' ? procedimentos.value: null,
@@ -196,7 +195,7 @@ export default function PaginaDashboard() {
         });
       } catch (e) {
         console.error('Erro ao carregar KPIs do dashboard:', e);
-        setErro('Não foi possível carregar os dados.');
+        toast.error('Não foi possível carregar os dados do dashboard.');
       } finally {
         setCarregando(false);
       }
@@ -212,7 +211,6 @@ export default function PaginaDashboard() {
       <main className="ml-[152px] pt-6 min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-6">
 
-          {/* ── Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-3xl font-black text-gray-900 leading-tight">
@@ -229,14 +227,6 @@ export default function PaginaDashboard() {
             </button>
           </div>
 
-          {/* ── erro global ── */}
-          {erro && (
-            <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
-              {erro}
-            </div>
-          )}
-
-          {/* ── KPIs ── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
             <KPI
               rotulo="Faturamento Mensal"
@@ -260,7 +250,6 @@ export default function PaginaDashboard() {
             />
           </div>
 
-          {/* ── Gráficos ── */}
           <div className="grid grid-cols-12 gap-4 mb-4 items-stretch">
             <div className="col-span-12 lg:col-span-8 flex flex-col">
               <GraficoTendenciaFaturamento />
@@ -270,7 +259,6 @@ export default function PaginaDashboard() {
             </div>
           </div>
 
-          {/* ── Próximos Agendamentos ── */}
           <TabelaProximosAgendamentos onDadosCarregados={setAgendamentos} />
 
         </div>

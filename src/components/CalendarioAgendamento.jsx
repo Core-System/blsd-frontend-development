@@ -18,10 +18,9 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
   const hoje = new Date();
 
   const [ano, setAno]   = useState(hoje.getFullYear());
-  const [mes, setMes]   = useState(hoje.getMonth()); // 0-based
+  const [mes, setMes]   = useState(hoje.getMonth());
   const [diaSelecionado, setDiaSelecionado] = useState(null);
 
-  // Conjunto de dias que têm agendamentos no mês/ano visível
   const diasComAgendamento = useMemo(() => {
     const conjunto = new Set();
     agendamentos.forEach((a) => {
@@ -34,7 +33,6 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
     return conjunto;
   }, [agendamentos, ano, mes]);
 
-  // Navegar meses
   function mesAnterior() {
     if (mes === 0) { setMes(11); setAno(a => a - 1); }
     else setMes(m => m - 1);
@@ -48,9 +46,8 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
     onDiaSelecionado?.({ dia: null, mes: null });
   }
 
-  // Montar células do calendário
   const celulas = useMemo(() => {
-    const primeiroDia = new Date(ano, mes, 1).getDay(); // 0=Dom
+    const primeiroDia = new Date(ano, mes, 1).getDay();
     const totalDias   = new Date(ano, mes + 1, 0).getDate();
     const diasMesAnterior = new Date(ano, mes, 0).getDate();
 
@@ -61,7 +58,6 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
     for (let d = 1; d <= totalDias; d++) {
       lista.push({ dia: d, atual: true });
     }
-    // Completar última linha
     const restante = 7 - (lista.length % 7);
     if (restante < 7) {
       for (let d = 1; d <= restante; d++) {
@@ -76,7 +72,6 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
 
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl p-5">
-      {/* Cabeçalho */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-gray-800">
           {MESES[mes]} {ano}
@@ -97,7 +92,6 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
         </div>
       </div>
 
-      {/* Dias da semana */}
       <div className="grid grid-cols-7 mb-2">
         {DIAS_DA_SEMANA.map((d) => (
           <div key={d} className="text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider py-1">
@@ -106,7 +100,6 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
         ))}
       </div>
 
-      {/* Células */}
       <div className="grid grid-cols-7 gap-y-1">
         {celulas.map((celula, i) => {
           const selecionado  = celula.atual && celula.dia === diaSelecionado;
@@ -131,7 +124,6 @@ export default function CalendarioAgendamento({ agendamentos = [], onDiaSelecion
               >
                 {celula.dia}
               </button>
-              {/* ponto indicador de agendamento */}
               <div className={`w-1 h-1 rounded-full mt-0.5 ${temAgend && !selecionado ? 'bg-[#B8982A]' : 'bg-transparent'}`}/>
             </div>
           );
