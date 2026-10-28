@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { formatarCpf } from '../utils/formatters';
@@ -34,6 +35,7 @@ const inputDisabledCls = 'w-full rounded-lg border border-[#e8e6d9] bg-gray-100 
 
 export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, onSalvar, salvando }) {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState(() => ({
     nome: cliente?.nome || '',
     email: cliente?.email || '',
@@ -67,7 +69,9 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     const novosErros = {};
     if (!form.nome.trim()) novosErros.nome = 'Nome obrigatório';
     if (!validarEmail(form.email)) novosErros.email = 'E-mail inválido';
-    if (!validarCpf(form.cpf)) novosErros.cpf = 'CPF inválido';
+    if (isFuncionario && form.cpf && !validarCpf(form.cpf)) {
+      novosErros.cpf = 'CPF inválido';
+    }
     
     if (!isFuncionario) {
       if (form.telefone && form.telefone.replace(/\D/g, '').length < 10) {
@@ -78,8 +82,8 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   }
 
   function realizarLogout() {
+    navigate('/login', { replace: true });
     logout();
-    window.location.href = '/login';
   }
 
   function handleSubmit() {
@@ -93,7 +97,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     const payload = {
       ...cliente,
       ...form,    
-      cpf: form.cpf ? removerMascara(form.cpf) : cliente.cpf
+      cpf: form.cpf ? removerMascara(form.cpf) : null
     };
 
     const emailFoiAlterado = form.email.trim() !== cliente.email?.trim();

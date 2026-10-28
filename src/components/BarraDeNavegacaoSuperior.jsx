@@ -46,8 +46,8 @@ export default function BarraDeNavegacaoSuperior() {
   }
 
   function aoSair() {
-    logout();
     navigate('/login');
+    logout();
   }
 
   const rolarParaSecao = (id) => {

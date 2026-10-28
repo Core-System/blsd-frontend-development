@@ -55,8 +55,8 @@ export default function BarraDeNavegacao({
   const navigate = useNavigate();
 
   function aoSair() {
-    logout();
     navigate('/login');
+    logout();
   }
 
   const iniciais = usuario?.nome

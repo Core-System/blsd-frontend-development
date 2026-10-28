@@ -15,7 +15,7 @@ export async function cadastrarFuncionario({ nome, email, senha, cpf, urlFoto })
     nome,
     email,
     senha,
-    cpf,
+    cpf: cpf || null,
     urlFoto: urlFoto || '',
     acesso: { id: 2 },
   });
@@ -27,7 +27,7 @@ export async function atualizarFuncionario(id, { nome, email, senha, cpf, urlFot
     nome,
     email,
     senha,
-    cpf,
+    cpf: cpf || null,
     urlFoto: urlFoto || '',
     acesso: { id: 2 },
   });
