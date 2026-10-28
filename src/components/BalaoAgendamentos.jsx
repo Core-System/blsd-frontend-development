@@ -30,7 +30,6 @@ export default function BalaoAgendamentos() {
   const [enviando, setEnviando] = useState(false);
   const ref = useRef();
 
-  // fecha ao clicar fora
 useEffect(() => {
   function handleClick(e) {
     if (ref.current && !ref.current.contains(e.target)) {
@@ -87,7 +86,6 @@ useEffect(() => {
   return (
     <div className="relative" ref={ref}>
 
-      {/* botão */}
       <button
         onClick={abrirBalao}
         className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold text-gray-600 hover:text-[#2C3E2D] hover:bg-white/60 rounded-md transition-all"
@@ -96,7 +94,6 @@ useEffect(() => {
         Agendamentos
       </button>
 
-      {/* balão */}
       {aberto && (
         <div className="absolute right-0 top-10 w-80 bg-white border border-[#e8e6d9] rounded-xl shadow-xl z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-[#e8e6d9]">
@@ -134,7 +131,6 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  {/* botão avaliar — só aparece se CONCLUIDA e sem avaliação */}
                   {c.status === 'CONCLUIDA' && !c.avaliacao && (
                     <button
                       onClick={() => { setModalAvaliacao(c); setNota(0); setDescricao(''); }}
@@ -144,7 +140,6 @@ useEffect(() => {
                     </button>
                   )}
 
-                  {/* avaliação já feita */}
                   {c.avaliacao && (
                     <p className="mt-1.5 text-[11px] text-[#B8982A]">
                       {'★'.repeat(c.avaliacao.nota)}
@@ -159,7 +154,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* modal de avaliação */}
       {modalAvaliacao && createPortal(
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
@@ -185,7 +179,6 @@ useEffect(() => {
                 : ''}
             </p>
 
-            {/* estrelas */}
             <div className="flex gap-2 mb-5">
               {[1, 2, 3, 4, 5].map(n => (
                 <button

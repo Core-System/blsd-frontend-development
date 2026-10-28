@@ -8,8 +8,6 @@ const iconeOpcoes = (
   </svg>
 );
 
-/* ── Avatar neutro ── */
-/* ── Avatar neutro ── */
 function AvatarNeutro({ tamanho = 28 }) {
   return (
     <div
@@ -80,7 +78,6 @@ export default function CartaoListaAgendamentos({
 
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-      {/* header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#f0ede0]">
         <div>
           <h2 className="text-base font-bold text-gray-800">Lista de</h2>
@@ -101,7 +98,6 @@ export default function CartaoListaAgendamentos({
           </thead>
           <tbody className="divide-y divide-[#f5f3e8]">
 
-            {/* skeleton */}
             {carregando && Array.from({ length: 4 }).map((_, i) => (
               <tr key={i}>
                 <td className="px-6 py-4">
@@ -122,7 +118,6 @@ export default function CartaoListaAgendamentos({
               </tr>
             ))}
 
-            {/* vazio */}
             {!carregando && filtrados.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-6 py-12 text-center">
@@ -135,7 +130,6 @@ export default function CartaoListaAgendamentos({
               </tr>
             )}
 
-            {/* linhas */}
             {!carregando && filtrados.map((a, i) => {
               const { data, hora } = formatarDataHora(a.dataHoraInicio);
               const nomeCliente = a.cliente?.nome || '—';
@@ -144,13 +138,11 @@ export default function CartaoListaAgendamentos({
 
               return (
                 <tr key={a.id} className="hover:bg-[#fdfcf7] transition-colors group">
-                  {/* Data & Hora */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <p className="text-xs font-semibold text-gray-800">{data}</p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{hora}</p>
                   </td>
 
-                  {/* Cliente */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2.5">
                       <AvatarNeutro tamanho={28} />
@@ -158,14 +150,12 @@ export default function CartaoListaAgendamentos({
                     </div>
                   </td>
 
-                  {/* Procedimento */}
                   <td className="px-6 py-4">
                     <span className="px-2.5 py-1 rounded-md text-[10px] font-semibold whitespace-nowrap bg-[#eef4ee] text-[#2C3E2D] border border-[#c8dbc8]">
                       {procedimento}
                     </span>
                   </td>
 
-                  {/* Status */}
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold whitespace-nowrap ${ESTILOS_STATUS[status] || ESTILOS_STATUS.PENDENTE}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${PONTO_STATUS[status] || PONTO_STATUS.PENDENTE}`}/>
@@ -173,7 +163,6 @@ export default function CartaoListaAgendamentos({
                     </span>
                   </td>
 
-                  {/* Ações */}
                   <td className="px-6 py-4">
                     <div className="relative">
                       <button
@@ -198,7 +187,6 @@ export default function CartaoListaAgendamentos({
         </table>
       </div>
 
-      {/* rodapé */}
       {!carregando && filtrados.length > 0 && (
         <Paginacao
           paginaAtual={Number(paginaAtual) + 1}

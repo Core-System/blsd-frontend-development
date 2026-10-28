@@ -74,7 +74,6 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         ))}
       </div>
 
-      {/* skeleton */}
       {carregando && Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0">
           <div className="px-2 space-y-1.5">
@@ -91,19 +90,15 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         </div>
       ))}
 
-      {/* erro */}
       {erro && !carregando && (
         <p className="text-center text-xs text-gray-400 py-8">Não foi possível carregar os agendamentos.</p>
       )}
 
-      {/* vazio */}
       {!carregando && !erro && agendamentos.length === 0 && (
         <p className="text-center text-xs text-gray-400 py-8">Nenhum agendamento próximo encontrado.</p>
       )}
 
-      {/* linhas */}
       {!carregando && !erro && agendamentos.map((a, i) => {
-        // Defesa total: garante que nenhum campo undefined causa crash
         const { data, hora } = formatarDataHora(a?.dataHoraInicio);
         const nomeCliente    = a?.nomeCliente || '—';
         const ini            = iniciais(nomeCliente);

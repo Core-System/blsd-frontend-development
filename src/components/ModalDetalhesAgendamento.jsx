@@ -94,7 +94,6 @@ function InfoLinha({ icone, label, valor }) {
 }
 
 export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
-  // Fecha ao apertar Esc
   useEffect(() => {
     function handler(e) { if (e.key === 'Escape') onFechar(); }
     document.addEventListener('keydown', handler);
@@ -115,18 +114,14 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
     : '—';
 
   return (
-    /* overlay */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onFechar(); }}
     >
-      {/* fundo escuro */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"/>
 
-      {/* card */}
       <div className="relative bg-[#f5f4ec] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
 
-        {/* cabeçalho verde */}
         <div className="bg-[#2C3E2D] px-6 pt-6 pb-8 relative overflow-hidden">
           <div className="absolute -bottom-6 -right-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none"/>
           <div className="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-white/5 pointer-events-none"/>
@@ -146,7 +141,6 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
             </button>
           </div>
 
-          {/* avatar + nome do cliente */}
           <div className="flex items-center gap-3 mt-5 relative z-10">
             {cliente.urlFoto ? (
               <img src={cliente.urlFoto} alt={cliente.nome}
@@ -162,7 +156,6 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
               <p className="text-white font-bold text-sm">{cliente.nome || '—'}</p>
               <p className="text-[#a8c5a0] text-xs">{cliente.email || '—'}</p>
             </div>
-            {/* badge status */}
             <div className="ml-auto">
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${st.bg} ${st.text}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}/>
@@ -172,7 +165,6 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
           </div>
         </div>
 
-        {/* corpo */}
         <div className="px-6 py-2 bg-white mx-4 -mt-4 rounded-xl shadow-sm">
           <InfoLinha
             icone={iconeCalendario}
@@ -208,7 +200,6 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
           )}
         </div>
 
-        {/* avaliação */}
         {a.avaliacao && (
           <div className="mx-4 mt-3 px-4 py-3 bg-[#f0f5f0] border border-[#dce8dc] rounded-xl">
             <p className="text-[10px] font-bold text-[#2C3E2D] uppercase tracking-widest mb-1">Avaliação</p>
@@ -228,7 +219,6 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
           </div>
         )}
 
-        {/* rodapé */}
         <div className="px-6 py-4">
           <button
             onClick={onFechar}

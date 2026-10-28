@@ -1,8 +1,3 @@
-/**
- * BarraAcaoAgendamento: Sticky bottom bar para o fluxo de agendamento
- * Mostra resumo do que foi selecionado e botões de navegação
- * Visível durante Passos 1 e 2, oculta em Passo 3 (confirmação)
- */
 export default function BarraAcaoAgendamento({
   passo = 1,
   procedimento = '',
@@ -13,7 +8,6 @@ export default function BarraAcaoAgendamento({
   onAvancar,
   avancarlEnabled = true,
 }) {
-  // Oculta na tela de confirmação (Passo 3)
   if (passo === 3) {
     return null;
   }
@@ -21,7 +15,6 @@ export default function BarraAcaoAgendamento({
   return (
     <div className="sticky bottom-0 left-0 right-0 z-30 border-t border-[#e8e6d9] bg-white shadow-[0_-8px_24px_rgba(25,35,29,0.08)] px-6 py-4">
       <div className="mx-auto max-w-6xl flex items-center justify-between gap-6">
-        {/* Resumo do que foi selecionado */}
         <div className="flex-1 min-w-0">
           {procedimento && (
             <div className="flex flex-col gap-1">
@@ -35,7 +28,6 @@ export default function BarraAcaoAgendamento({
           )}
         </div>
 
-        {/* Botões de ação */}
         <div className="flex items-center gap-3 flex-shrink-0">
           {passo > 1 && (
             <button

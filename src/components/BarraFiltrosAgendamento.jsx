@@ -16,7 +16,6 @@ export default function BarraFiltrosAgendamento({
 }) {
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl p-4 flex flex-wrap items-end gap-3">
-      {/* paciente */}
       <div className="flex-1 min-w-[200px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">
           Filtrar por Paciente
@@ -30,7 +29,6 @@ export default function BarraFiltrosAgendamento({
         />
       </div>
 
-      {/* período */}
       <div className="min-w-[150px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Período</label>
         <div className="relative">
@@ -44,7 +42,6 @@ export default function BarraFiltrosAgendamento({
         </div>
       </div>
 
-      {/* procedimento */}
       <div className="min-w-[140px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Procedimento</label>
         <div className="relative">
@@ -61,7 +58,6 @@ export default function BarraFiltrosAgendamento({
         </div>
       </div>
 
-      {/* status */}
       <div className="min-w-[140px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Status</label>
         <div className="relative">

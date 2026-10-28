@@ -1,12 +1,10 @@
 export default function SecaoDestaque() {
   return (
     <section className="bg-[#f0f4d8] px-10 pb-12">
-      {/* Card verde*/}
       <div
         className="rounded-2xl bg-[#4a6741] flex items-center justify-between"
         style={{padding: '48px 56px', minHeight: '320px'}}
       >
-        {/* Texto - lado esquerdo */}
         <div style={{maxWidth: '360px'}}>
           <h2
             className="font-sans font-bold text-white uppercase tracking-widest mb-5"
@@ -34,7 +32,6 @@ export default function SecaoDestaque() {
           </button>
         </div>
 
-        {/* Imagens - lado direito */}
         <div className="flex items-start gap-4 shrink-0">
           <img
             src="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=300"

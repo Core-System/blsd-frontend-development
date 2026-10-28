@@ -10,7 +10,6 @@ const iconeSeta = (
 export default function CartaoAlertaInteligente() {
   return (
     <div className="bg-[#2C3E2D] rounded-xl p-5 text-white flex flex-col justify-between h-full relative overflow-hidden">
-      {/* detalhe decorativo */}
       <div className="absolute -bottom-6 -right-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none"/>
       <div className="absolute -bottom-2 -right-2 w-16 h-16 rounded-full bg-white/5 pointer-events-none"/>
 

@@ -127,7 +127,6 @@ export default function BarraDeNavegacao({
           </>
         )}
 
-        {/* ── Usuário logado */}
         {usuario ? (
           <div className="flex items-center gap-2.5 ml-3 pl-3 border-l border-[#e0ddd0]">
             <BalaoAgendamentos />
@@ -158,7 +157,6 @@ export default function BarraDeNavegacao({
 </button>
           </div>
         ) : (
-          /* ── Visitante: botão Entrar */
           <div className="ml-3 pl-3 border-l border-[#e0ddd0]">
             <button
               onClick={() => navigate('/login')}

@@ -45,12 +45,10 @@ export default function TabelaInventario({
 }) {
   const [menuAberto, setMenuAberto] = useState(null);
 
-  // ── Modal Repor
   const [modalRepor, setModalRepor]   = useState(false);
   const [produtoAtivo, setProdutoAtivo] = useState(null);
   const [qtdRepor, setQtdRepor]       = useState('');
 
-  // ── Modal Editar
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosEditar, setDadosEditar] = useState({ nome: '', preco: '', quantidade: '' });
 
@@ -198,7 +196,6 @@ function abrirBaixa(produto) {
         )}
       </div>
 
-      {/* ── Modal Repor ── */}
       {modalRepor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl">
@@ -225,7 +222,6 @@ function abrirBaixa(produto) {
         </div>
       )}
 
-      {/* ── Modal Baixa (Saída) ── */}
       {modalBaixa && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl">
@@ -260,7 +256,6 @@ function abrirBaixa(produto) {
         </div>
       )}
 
-{/* ── Modal Editar ── */}
       {modalEditar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl">

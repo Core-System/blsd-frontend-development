@@ -49,7 +49,6 @@ export default function CabecalhoGlobal() {
 
   return (
     <header className="fixed top-0 left-[152px] right-0 h-14 bg-[#f5f4ec] border-b border-[#e8e6d9] flex items-center px-6 gap-4 z-30">
-      {/* pesquisa */}
       <div className="flex-1 max-w-lg relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{iconeBusca}</span>
         <input
@@ -59,7 +58,6 @@ export default function CabecalhoGlobal() {
         />
       </div>
 
-      {/* lado direito */}
       <div className="flex items-center gap-1 ml-auto">
         <button className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 px-2 py-1.5 rounded-md hover:bg-white/60 transition-all text-xs font-medium">
           {iconeAjuda}
@@ -74,7 +72,6 @@ export default function CabecalhoGlobal() {
           </button>
         ))}
 
-        {/* usuario */}
         <div className="flex items-center gap-2.5 ml-3 pl-3 border-l border-[#e0ddd0]">
           <div className="text-right">
             <p className="text-xs font-semibold text-gray-800 leading-tight">

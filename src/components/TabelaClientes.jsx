@@ -14,7 +14,6 @@ const iconePonto = (
   </svg>
 );
 
-/* ── Avatar neutro reutilizável ── */
 function AvatarNeutro({ tamanho = 9 }) {
   const px = tamanho * 4;
   return (
@@ -72,14 +71,12 @@ export default function TabelaClientes({
 
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-      {/* cabeçalho */}
       <div className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-3 border-b border-[#f0eeea] bg-[#fafaf7]">
         {colunas.map((col) => (
           <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{col}</span>
         ))}
       </div>
 
-      {/* skeleton */}
       {carregando && Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center gap-2">
           <div className="flex items-center gap-3">
@@ -99,7 +96,6 @@ export default function TabelaClientes({
         </div>
       ))}
 
-      {/* vazio */}
       {!carregando && clientes.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f4ec] text-lg">👤</div>
@@ -108,7 +104,6 @@ export default function TabelaClientes({
         </div>
       )}
 
-      {/* linhas */}
       {!carregando && visiveis.map((c, i) => {
         const estaRemovendo = removendo === c.id;
 
@@ -117,7 +112,6 @@ export default function TabelaClientes({
             key={c.id}
             className={`grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center transition-colors ${estaRemovendo ? 'opacity-40' : 'hover:bg-[#fafaf7]'}`}
           >
-            {/* paciente */}
             <div className="flex items-center gap-3">
               <AvatarNeutro tamanho={9} />
               <div>
@@ -126,22 +120,18 @@ export default function TabelaClientes({
               </div>
             </div>
 
-            {/* contato */}
             <div>
               <p className="text-xs text-gray-600 truncate">{c.email}</p>
               <p className="text-[11px] text-gray-400">{c.telefone || '—'}</p>
             </div>
 
-            {/* cadastro */}
             <p className="text-xs text-gray-500">{formatarData(c.dataCriacao)}</p>
 
-            {/* status */}
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500"/>
               <span className="text-xs font-semibold text-green-600">ATIVO</span>
             </div>
 
-            {/* ações */}
             <div className="relative">
               <button
                 disabled={estaRemovendo}
