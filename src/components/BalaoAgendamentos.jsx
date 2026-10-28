@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 import { listarConsultasCliente, avaliarConsulta } from '../services/consultaService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -41,7 +42,6 @@ useEffect(() => {
 }, []);
 
   async function abrirBalao() {
-  console.log('clicou, usuario.id:', usuario?.id);
   const novoEstado = !aberto;
   setAberto(novoEstado);
 
@@ -54,6 +54,7 @@ useEffect(() => {
         setConsultas(dados);
       } catch {
         setConsultas([]);
+        toast.error('Não foi possível carregar seus agendamentos.');
       } finally {
         setCarregando(false);
       }
@@ -77,7 +78,7 @@ useEffect(() => {
 
       window.dispatchEvent(new Event('novaAvaliacaoFeita'));
     } catch {
-      alert('Erro ao enviar avaliação.');
+      toast.error('Não foi possível enviar sua avaliação. Tente novamente.');
     } finally {
       setEnviando(false);
     }

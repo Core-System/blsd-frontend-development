@@ -1,5 +1,4 @@
 import { useState } from "react"
-import axios from "axios";
 import { criarAgendamento } from "../services/agendamentoService";
 
 export function useAgendamento(){
@@ -14,13 +13,9 @@ export function useAgendamento(){
         try {
             await criarAgendamento(dados);
             setSucesso(dados);
-        } catch(e){
-            console.warn('API indisponível; usando confirmação local de demonstração.', e);
-            setSucesso({
-                ...dados,
-                status: 'ok',
-                modo: 'fallback',
-            });
+        } catch (e) {
+            setErro('Não foi possível confirmar o agendamento. Tente novamente.');
+            throw e;
         } finally {
             setLoading(false);
         }

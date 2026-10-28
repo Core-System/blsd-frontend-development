@@ -121,8 +121,11 @@ export default function BarraDeNavegacaoSuperior() {
         ? await buscarFuncionarioPorId(id)
         : await listarCliente(id);
 
-      const tokenAtual = localStorage.getItem('token');
-      salvarUsuario({ token: tokenAtual, nome: usuarioAtualizado.nome });
+      salvarUsuario({
+        token: localStorage.getItem('token'),
+        nome: usuarioAtualizado.nome,
+        urlFoto: usuarioAtualizado.urlFoto,
+      });
 
       await carregar();
       setClienteEditando(null);

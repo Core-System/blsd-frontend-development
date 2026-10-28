@@ -190,7 +190,6 @@ export default function PaginaAgendamento() {
             params: { code: codeAgendamento }
           });
           salvarUsuario(response.data);
-          localStorage.setItem('token', response.data.token);
           const parametrosAtualizados = new URLSearchParams(searchParams);
           parametrosAtualizados.delete('code');
           setSearchParams(parametrosAtualizados, { replace: true });

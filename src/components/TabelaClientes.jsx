@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { deletarCliente } from '../services/clienteService';
 import Paginacao from './Paginacao';
 
@@ -62,7 +63,7 @@ export default function TabelaClientes({
       onRemover?.(id);
     } catch (e) {
       console.error('Erro ao remover cliente:', e);
-      alert('Não foi possível remover o cliente.');
+      toast.error('Não foi possível remover o cliente.');
     } finally {
       setRemovendoId(null);
       setMenuAberto(null);

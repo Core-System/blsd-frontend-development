@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { listarProdutos, criarProduto, atualizarProduto, deletarProduto } from '../services/produtoService';
 import { registrarMovimentacao, listarMovimentacoes } from '../services/movimentacaoService';
 
@@ -46,7 +47,7 @@ export default function PaginaEstoque() {
       setTotalElementos(Number(dados?.totalElements ?? (Array.isArray(dados?.content) ? dados.content.length : 0)));
     } catch (erro) {
       console.error("Erro ao buscar produtos:", erro);
-      alert("Falha ao carregar o estoque.");
+      toast.error("Não foi possível carregar o estoque.");
     } finally {
       setCarregando(false);
     }
@@ -68,7 +69,7 @@ export default function PaginaEstoque() {
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
-      alert("Erro ao repor estoque.");
+      toast.error("Não foi possível repor o estoque.");
     }
   }
 
@@ -83,7 +84,7 @@ async function handleBaixa(id, quantidade) {
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
-      alert("Erro ao registrar baixa. Verifique se há saldo suficiente.");
+      toast.error("Não foi possível registrar a baixa. Verifique se há saldo suficiente.");
     }
   }
 
@@ -93,7 +94,7 @@ async function handleEditar(id, dados) {
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
-      alert("Erro ao editar produto.");
+      toast.error("Não foi possível editar o produto.");
     }
   }
 
@@ -125,7 +126,7 @@ async function handleEditar(id, dados) {
       carregarMovimentacoes();
     } catch (erro) {
       console.error("Erro ao salvar:", erro);
-      alert(erro.response?.data?.message || "Erro ao cadastrar produto. Verifique se o nome já existe.");
+      toast.error(erro.response?.data?.message || "Não foi possível cadastrar o produto. Verifique se o nome já existe.");
     }
   }
 

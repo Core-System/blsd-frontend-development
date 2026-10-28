@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
 import { formatarCpf } from '../utils/formatters';
 import { removerMascara } from '../utils/masks';
 import { validarEmail, validarCpf } from '../utils/validators';
@@ -32,6 +33,7 @@ const inputCls = 'w-full rounded-lg border border-[#e8e6d9] bg-[#f5f4ec] px-4 py
 const inputDisabledCls = 'w-full rounded-lg border border-[#e8e6d9] bg-gray-100 px-4 py-2.5 text-sm text-gray-500 cursor-not-allowed select-none';
 
 export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, onSalvar, salvando }) {
+  const { logout } = useAuth();
   const [form, setForm] = useState(() => ({
     nome: cliente?.nome || '',
     email: cliente?.email || '',
@@ -76,11 +78,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   }
 
   function realizarLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('user_role');
-    localStorage.removeItem('nome_usuario');
-
+    logout();
     window.location.href = '/login';
   }
 
