@@ -12,6 +12,7 @@ import {
   getReceitaAnualTotal,
   getTicketMedio,
 } from '../services/dashboardService';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 
 const iconeExportar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -84,6 +85,7 @@ export default function PaginaDashboard() {
   const [carregando, setCarregando] = useState(true);
   const [agendamentos, setAgendamentos] = useState([]);
   const [procedimentos, setProcedimentos] = useState([]);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   function exportarRelatorio() {
     const faturamentoMensal = Number(kpis.faturamentoMensal) || 0;
@@ -231,22 +233,22 @@ export default function PaginaDashboard() {
             <KPI
               rotulo="Faturamento Mensal"
               valor={formatarReais(kpis.faturamentoMensal)}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
             <KPI
               rotulo="Procedimentos Mensais"
               valor={kpis.procedimentosMensal ?? '—'}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
             <KPI
               rotulo="Receita Anual"
               valor={formatarReais(kpis.receitaAnual)}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
             <KPI
               rotulo="Ticket Médio / Procedimento"
               valor={formatarReais(kpis.ticketMedio)}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
           </div>
 

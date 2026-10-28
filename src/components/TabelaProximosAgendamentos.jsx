@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProximosAgendamentos } from '../services/dashboardService';
+import LoadingSpinner from './LoadingSpinner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 
 const CORES_AVATAR = ['bg-amber-400','bg-blue-400','bg-rose-400','bg-teal-400','bg-purple-400','bg-orange-400'];
 
@@ -40,6 +42,7 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
   const [agendamentos, setAgendamentos] = useState([]);
   const [carregando, setCarregando]     = useState(true);
   const [erro, setErro]                 = useState(false);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   useEffect(() => {
     getProximosAgendamentos()
@@ -74,7 +77,10 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         ))}
       </div>
 
-      {carregando && Array.from({ length: 3 }).map((_, i) => (
+      {carregando && (
+        <>
+          {carregandoVisivel && <LoadingSpinner size="small" label="Carregando próximos agendamentos" showLabel />}
+          {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0">
           <div className="px-2 space-y-1.5">
             <div className="h-3 w-24 bg-gray-100 animate-pulse rounded"/>
@@ -88,7 +94,9 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
           <div className="px-2 h-3 w-16 bg-gray-100 animate-pulse rounded"/>
           <div className="px-2 h-3 w-4 bg-gray-100 animate-pulse rounded"/>
         </div>
-      ))}
+          ))}
+        </>
+      )}
 
       {erro && !carregando && (
         <p className="text-center text-xs text-gray-400 py-8">Não foi possível carregar os agendamentos.</p>

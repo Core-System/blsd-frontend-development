@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { deletarCliente } from '../services/clienteService';
 import Paginacao from './Paginacao';
+import LoadingSpinner from './LoadingSpinner';
 
 const iconeChevron = (dir) => (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -40,6 +41,7 @@ const colunas = ['Paciente', 'Contato', 'Cadastro', 'Status', 'Ações'];
 export default function TabelaClientes({
   clientes = [],
   carregando = false,
+  mostrarSpinner = false,
   onRemover,
   paginaAtual = 0,
   totalPaginas = 1,
@@ -77,7 +79,10 @@ export default function TabelaClientes({
         ))}
       </div>
 
-      {carregando && Array.from({ length: 4 }).map((_, i) => (
+      {carregando && (
+        <>
+          {mostrarSpinner && <LoadingSpinner size="small" label="Carregando clientes" showLabel />}
+          {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center gap-2">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse flex-shrink-0"/>
@@ -94,7 +99,9 @@ export default function TabelaClientes({
           <div className="h-5 w-12 bg-gray-100 animate-pulse rounded-full"/>
           <div className="h-3 w-4 bg-gray-100 animate-pulse rounded"/>
         </div>
-      ))}
+          ))}
+        </>
+      )}
 
       {!carregando && clientes.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">

@@ -4,6 +4,7 @@ import CartaoKPIClientes from '../components/CartaoKPIClientes';
 import TabelaClientes from '../components/TabelaClientes';
 import { listarClientes } from '../services/clienteService';
 import { toast } from 'sonner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 
 const iconePlus = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -51,6 +52,7 @@ export default function PaginaClientes() {
   const [tamanhoPagina] = useState(8);
   const [filtroStatus, setFiltroStatus] = useState('Todos');
   const [dropStatus, setDropStatus]     = useState(false);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   useEffect(() => {
     async function carregar() {
@@ -98,19 +100,19 @@ export default function PaginaClientes() {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <CartaoKPIClientes
               rotulo="Total de Clientes"
-              valor={carregando ? '—' : total.toLocaleString('pt-BR')}
-              sub={carregando ? '' : `${total} cadastrados`}
+              valor={carregandoVisivel ? '—' : total.toLocaleString('pt-BR')}
+              sub={carregandoVisivel ? '' : `${total} cadastrados`}
               subIcone={iconeTendencia}
             />
             <CartaoKPIClientes
               rotulo="Clientes Ativos"
-              valor={carregando ? '—' : ativos.toLocaleString('pt-BR')}
+              valor={carregandoVisivel ? '—' : ativos.toLocaleString('pt-BR')}
               sub="Engajamento alto"
               subIcone={iconeEnvolvimento}
             />
             <CartaoKPIClientes
               rotulo="Taxa de Retenção"
-              valor={carregando ? '—' : `${retencao}%`}
+              valor={carregandoVisivel ? '—' : `${retencao}%`}
               sub="Baseado nos cadastros"
               subIcone={iconeAlvo}
               destaque
@@ -149,6 +151,7 @@ export default function PaginaClientes() {
           <TabelaClientes
             clientes={clientesFiltrados}
             carregando={carregando}
+            mostrarSpinner={carregandoVisivel}
             onRemover={handleRemover}
             paginaAtual={paginaAtual}
             totalPaginas={totalPaginas}

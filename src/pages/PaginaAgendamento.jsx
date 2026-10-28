@@ -22,6 +22,8 @@ import imgDepilacao from '../assets/depilacao.jpg';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import { listarServicos } from '../services/servicosService';
+import { toast } from 'sonner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -78,6 +80,7 @@ export default function PaginaAgendamento() {
   const sortQuery = searchParams.get('sort') === 'desc' ? 'desc' : 'asc';
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalElementos, setTotalElementos] = useState(0);
+  const carregandoProcedimentosVisivel = useDelayedLoading(carregandoProcedimentos);
 
   useEffect(() => {
     const parametrosCanonicos = new URLSearchParams(searchParams);
@@ -324,7 +327,7 @@ export default function PaginaAgendamento() {
                   totalElementos={totalElementos}
                   tamanhoPagina={tamanhoPagina}
                   aoMudarPagina={handleMudarPagina}
-                  carregando={carregandoProcedimentos}
+                  carregando={carregandoProcedimentosVisivel}
                 />
               </div>
             </div>

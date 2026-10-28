@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import {
   listarFuncionarios,
@@ -10,6 +11,7 @@ import {
 import { formatarCpf } from '../utils/formatters';
 import { validarEmail, validarSenha, validarCpf } from '../utils/validators';
 import { removerMascara } from '../utils/masks';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const iconePlus = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -250,6 +252,7 @@ export default function PaginaFuncionarios() {
   const [totalElementos, setTotalElementos] = useState(0);
 
   const [menuAberto, setMenuAberto]         = useState(null);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   const [funcEditando, setFuncEditando]     = useState(null);
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
@@ -390,9 +393,9 @@ export default function PaginaFuncionarios() {
           </div>
 
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <KPI rotulo="Total de Funcionários" valor={totalFuncionarios} sub="Equipe completa" carregando={carregando} />
-            <KPI rotulo="Nível de Acesso Padrão" valor="FUNC" sub="Perfil funcionário" carregando={carregando} />
-            <KPI rotulo="Cadastros" valor={totalFuncionarios} sub="Registros ativos" destaque carregando={carregando} />
+            <KPI rotulo="Total de Funcionários" valor={totalFuncionarios} sub="Equipe completa" carregando={carregandoVisivel} />
+            <KPI rotulo="Nível de Acesso Padrão" valor="FUNC" sub="Perfil funcionário" carregando={carregandoVisivel} />
+            <KPI rotulo="Cadastros" valor={totalFuncionarios} sub="Registros ativos" destaque carregando={carregandoVisivel} />
           </div>
 
           <div className="bg-white border border-[#e8e6d9] rounded-xl p-6 mb-5">
@@ -478,9 +481,9 @@ export default function PaginaFuncionarios() {
               ))}
             </div>
 
-            {carregando && (
-              <div className="py-12 text-center text-gray-400 text-sm">
-                Carregando funcionários...
+            {carregandoVisivel && (
+              <div className="py-4">
+                <LoadingSpinner size="small" label="Carregando funcionários" showLabel />
               </div>
             )}
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Paginacao from './Paginacao';
+import LoadingSpinner from './LoadingSpinner';
 
 const iconeFiltrar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -34,6 +35,7 @@ const statusCfg = {
 export default function TabelaInventario({
   produtos = [],
   carregando = false,
+  mostrarSpinner = false,
   onBaixa,
   onRepor,
   onEditar,
@@ -122,6 +124,7 @@ function abrirBaixa(produto) {
 
           {carregando && (
             <div className="space-y-3 py-6">
+              {mostrarSpinner && <LoadingSpinner size="small" label="Carregando estoque" showLabel />}
               {Array.from({ length: 4 }).map((_, idx) => (
                 <div key={idx} className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 items-center">
                   <div className="flex items-center gap-3 px-1">

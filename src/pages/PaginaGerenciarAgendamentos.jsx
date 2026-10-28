@@ -7,6 +7,7 @@ import CartaoListaAgendamentos from '../components/CartaoListaAgendamentos';
 import CartaoKPI from '../components/CartaoKPI';
 import { listarConsultas } from '../services/gerencAgendamentoService';
 import { toast } from 'sonner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 
 const iconCalendar = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -39,6 +40,7 @@ export default function PaginaGerenciarAgendamentos() {
   const [filtroProcedimento,setFiltroProcedimento]= useState('Todos');
   const [filtroStatus,      setFiltroStatus]      = useState('Ver todos');
   const [filtroDia, setFiltroDia] = useState({ dia: null, mes: null });
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   useEffect(() => {
     async function carregar() {
@@ -149,12 +151,13 @@ export default function PaginaGerenciarAgendamentos() {
                 total={filtrados.length}
                 procedimentoTop={procedimentoTop}
                 carregando={carregando}
+                mostrarSpinner={carregandoVisivel}
               />
             </div>
             <div className="col-span-12 lg:col-span-8 xl:col-span-9">
               <CartaoListaAgendamentos
                 agendamentos={filtrados}
-                carregando={carregando}
+                carregando={carregandoVisivel}
                 paginaAtual={paginaAtual}
                 totalPaginas={totalPaginas}
                 totalElementos={totalElementos}
@@ -168,7 +171,7 @@ export default function PaginaGerenciarAgendamentos() {
             <div className="col-span-12 sm:col-span-6">
               <CartaoKPI
                 icone="tendencia"
-                valor={carregando ? '...' : `${agendamentos.length}`}
+                valor={carregandoVisivel ? '...' : `${agendamentos.length}`}
                 rotulo="Total de Agendamentos"
                 descricao="no histórico completo"
               />
@@ -176,7 +179,7 @@ export default function PaginaGerenciarAgendamentos() {
             <div className="col-span-12 sm:col-span-6">
               <CartaoKPI
                 icone="ampulheta"
-                valor={carregando ? '...' : `${filtrados.filter(a => (a.status || 'PENDENTE') === 'PENDENTE').length}`}
+                valor={carregandoVisivel ? '...' : `${filtrados.filter(a => (a.status || 'PENDENTE') === 'PENDENTE').length}`}
                 unidade="pendentes"
                 rotulo="Agendamentos Pendentes"
               />

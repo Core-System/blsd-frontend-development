@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ModalDetalhesAgendamento from './ModalDetalhesAgendamento';
 import Paginacao from './Paginacao';
+import LoadingSpinner from './LoadingSpinner';
 
 const iconeOpcoes = (
   <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
@@ -49,6 +50,7 @@ function formatarDataHora(iso) {
 export default function CartaoListaAgendamentos({
   agendamentos = [],
   carregando = false,
+  mostrarSpinner = false,
   filtros = {},
   paginaAtual = 0,
   totalPaginas = 1,
@@ -98,7 +100,14 @@ export default function CartaoListaAgendamentos({
           </thead>
           <tbody className="divide-y divide-[#f5f3e8]">
 
-            {carregando && Array.from({ length: 4 }).map((_, i) => (
+            {carregando && (
+              <>
+                <tr>
+                  <td colSpan={5}>
+                    {mostrarSpinner && <LoadingSpinner size="small" label="Carregando agendamentos" showLabel />}
+                  </td>
+                </tr>
+                {Array.from({ length: 4 }).map((_, i) => (
               <tr key={i}>
                 <td className="px-6 py-4">
                   <div className="space-y-1.5">
@@ -116,7 +125,9 @@ export default function CartaoListaAgendamentos({
                 <td className="px-6 py-4"><div className="h-6 w-24 bg-gray-100 animate-pulse rounded-md"/></td>
                 <td className="px-6 py-4"><div className="h-3 w-4 bg-gray-100 animate-pulse rounded"/></td>
               </tr>
-            ))}
+                ))}
+              </>
+            )}
 
             {!carregando && filtrados.length === 0 && (
               <tr>

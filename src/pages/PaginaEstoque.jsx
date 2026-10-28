@@ -9,6 +9,7 @@ import CartaoKPIEstoque from '../components/CartaoKPIEstoque';
 import TabelaInventario from '../components/TabelaInventario';
 import CartaoUltimasMovimentacoes from '../components/CartaoUltimasMovimentacoes';
 import CartaoAlertaInteligente from '../components/CartaoAlertaInteligente';
+import useDelayedLoading from '../hooks/useDelayedLoading';
 
 const iconePlus = (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -28,6 +29,7 @@ export default function PaginaEstoque() {
   
   const [novoProduto, setNovoProduto] = useState({ nome: '', preco: '', quantidade: '' });
   const [movimentacoes, setMovimentacoes] = useState([]);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   async function carregarMovimentacoes() {
     try {
@@ -163,15 +165,16 @@ async function handleEditar(id, dados) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-            <CartaoKPIEstoque tipo="total" rotulo="Total de Itens" valor={carregando ? "..." : String(totalItens).padStart(2, '0')} />
-            <CartaoKPIEstoque tipo="critico" rotulo="Status Crítico" valor={carregando ? "..." : String(statusCritico).padStart(2, '0')} destaque={statusCritico > 0} />
-            <CartaoKPIEstoque tipo="baixo" rotulo="Baixo Estoque" valor={carregando ? "..." : String(baixoEstoque).padStart(2, '0')} />
+            <CartaoKPIEstoque tipo="total" rotulo="Total de Itens" valor={carregandoVisivel ? "..." : String(totalItens).padStart(2, '0')} />
+            <CartaoKPIEstoque tipo="critico" rotulo="Status Crítico" valor={carregandoVisivel ? "..." : String(statusCritico).padStart(2, '0')} destaque={statusCritico > 0} />
+            <CartaoKPIEstoque tipo="baixo" rotulo="Baixo Estoque" valor={carregandoVisivel ? "..." : String(baixoEstoque).padStart(2, '0')} />
           </div>
 
           <div className="mb-4">
             <TabelaInventario
               produtos={produtos}
               carregando={carregando}
+              mostrarSpinner={carregandoVisivel}
               onBaixa={handleBaixa}
               onRepor={handleRepor}
               onEditar={handleEditar}
