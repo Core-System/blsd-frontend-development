@@ -1,14 +1,9 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Bell, CircleHelp, LogOut, Search, Settings } from 'lucide-react';
 
-
-const iconeBusca = (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.35-4.35" strokeLinecap="round" />
-  </svg>
-);
+const iconeBusca = <Search size={16} strokeWidth={2} aria-hidden="true" />;
 const iconeAjuda = (
   <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
     <circle cx="12" cy="12" r="10" />

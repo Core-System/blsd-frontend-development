@@ -1,10 +1,7 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 
-const iconeSeta = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <polyline points="6 9 12 15 18 9"/>
-  </svg>
-);
+const iconeSeta = <ChevronDown size={14} strokeWidth={2} aria-hidden="true" />;
 
 const selectCls = "w-full appearance-none px-3 py-2.5 pr-8 bg-[#f9f8f2] border border-[#e8e6d9] rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#2C3E2D]/40 cursor-pointer transition-colors";
 

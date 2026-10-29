@@ -1,52 +1,14 @@
 import React, { useEffect } from 'react';
+import { CalendarDays, Circle, CreditCard, MapPin, Scissors, Star, UserRound, X, Clock3 } from 'lucide-react';
 
-const iconeFechar = (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>
-);
-const iconeCalendario = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="3" y="4" width="18" height="18" rx="2"/>
-    <path d="M16 2v4M8 2v4M3 10h18" strokeLinecap="round"/>
-  </svg>
-);
-const iconeRelogio = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="12" cy="12" r="10"/>
-    <polyline points="12 6 12 12 16 14"/>
-  </svg>
-);
-const iconeLocal = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-    <circle cx="12" cy="10" r="3"/>
-  </svg>
-);
-const iconePagamento = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="1" y="4" width="22" height="16" rx="2"/>
-    <line x1="1" y1="10" x2="23" y2="10"/>
-  </svg>
-);
-const iconeServico = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-    <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-    <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
-    <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
-    <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
-    <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
-    <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
-    <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/>
-  </svg>
-);
-const iconeCliente = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="12" cy="8" r="4"/>
-    <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-  </svg>
-);
+const iconProps = { size: 15, strokeWidth: 2, 'aria-hidden': true };
+const iconeFechar = <X size={16} strokeWidth={2.5} aria-hidden="true" />;
+const iconeCalendario = <CalendarDays {...iconProps} />;
+const iconeRelogio = <Clock3 {...iconProps} />;
+const iconeLocal = <MapPin {...iconProps} />;
+const iconePagamento = <CreditCard {...iconProps} />;
+const iconeServico = <Scissors {...iconProps} />;
+const iconeCliente = <UserRound {...iconProps} />;
 
 const CORES_AVATAR = ['bg-amber-400','bg-blue-400','bg-rose-400','bg-teal-400','bg-purple-400','bg-orange-400'];
 
@@ -205,11 +167,7 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
             <p className="text-[10px] font-bold text-[#2C3E2D] uppercase tracking-widest mb-1">Avaliação</p>
             <div className="flex items-center gap-1 mb-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} width="12" height="12" viewBox="0 0 24 24"
-                  fill={i < (a.avaliacao.nota || 0) ? '#B8982A' : 'none'}
-                  stroke="#B8982A" strokeWidth={2}>
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
+                <Star key={i} size={12} fill={i < (a.avaliacao.nota || 0) ? '#B8982A' : 'none'} stroke="#B8982A" strokeWidth={2} aria-hidden="true" />
               ))}
               <span className="text-xs font-bold text-[#2C3E2D] ml-1">{a.avaliacao.nota}/5</span>
             </div>

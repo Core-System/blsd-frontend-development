@@ -6,6 +6,7 @@ import ModalEditarPerfil from './ModalEditarPerfil';
 import { atualizarCliente, atualizarFotoCliente, listarCliente } from '../services/clienteService';
 import { atualizarFotoFuncionario, atualizarFuncionario, buscarFuncionarioPorId } from '../services/funcionarioService';
 import { toast } from 'sonner';
+import { Check, Info, UserRound } from 'lucide-react';
 
 const links = ['Início', 'Procedimentos', 'Sobre nós', 'Contato'];
 
@@ -200,10 +201,7 @@ export default function BarraDeNavegacaoSuperior() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="white" />
-                  </svg>
+                  <UserRound size={22} strokeWidth={1.8} aria-hidden="true" />
                 )}
               </div>
               <button
@@ -225,10 +223,7 @@ export default function BarraDeNavegacaoSuperior() {
       </div>
       {mensagemLogin && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
-          </svg>
+          <Info size={18} strokeWidth={2} aria-hidden="true" />
           <span>Você precisa estar logado para agendar.</span>
           <button
             onClick={() => navigate('/login')}
@@ -240,10 +235,7 @@ export default function BarraDeNavegacaoSuperior() {
       )}
       {mensagemDashboard && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4M12 16h.01" strokeLinecap="round" />
-          </svg>
+          <Info size={18} strokeWidth={2} aria-hidden="true" />
           <span>Você precisa estar logado para ir para a dashboard.</span>
           <button
             onClick={() => navigate('/login')}
@@ -255,9 +247,7 @@ export default function BarraDeNavegacaoSuperior() {
       )}
       {mensagemSucessoEdicao && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a8c5a0" strokeWidth={2.5}>
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
+          <Check size={18} strokeWidth={2.5} aria-hidden="true" />
           <span>Perfil atualizado com sucesso!</span>
         </div>
       )}

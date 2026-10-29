@@ -24,6 +24,7 @@ import api from '../services/api';
 import { listarServicos } from '../services/servicosService';
 import { toast } from 'sonner';
 import useDelayedLoading from '../hooks/useDelayedLoading';
+import { CheckCircle2, X } from 'lucide-react';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -409,9 +410,7 @@ export default function PaginaAgendamento() {
                 onClick={() => setModalDicasAberto(false)}
                 className="absolute top-5 right-5 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
               </button>
               
               <h3 className="text-2xl font-bold text-[#2C3E2D] mb-1" style={{ fontFamily: 'Georgia, serif' }}>
@@ -425,9 +424,7 @@ export default function PaginaAgendamento() {
                 {proc?.dicas?.map((dica, index) => (
                   <li key={index} className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed">
                     <span className="text-[#576b5d] mt-0.5 flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
+                      <CheckCircle2 className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
                     </span>
                     <span>{dica}</span>
                   </li>

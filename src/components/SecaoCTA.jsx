@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 const FAQ = [
   { p: 'Qual é a missão da Blessed 7 na estética?', r: 'Proporcionar bem-estar, autoestima e resultados visíveis com atendimento humanizado e personalizado.' },
@@ -10,9 +11,7 @@ const FAQ = [
 
 function IconeChevron({ aberto }) {
   return (
-    <svg className={`h-5 w-5 text-[#B8982A] transition-transform duration-300 ${aberto ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <ChevronDown className={`h-5 w-5 text-[#B8982A] transition-transform duration-300 ${aberto ? 'rotate-180' : ''}`} strokeWidth={1.5} aria-hidden="true" />
   );
 }
 

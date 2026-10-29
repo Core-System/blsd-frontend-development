@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import ModalDetalhesAgendamento from './ModalDetalhesAgendamento';
 import Paginacao from './Paginacao';
 import LoadingSpinner from './LoadingSpinner';
+import { CircleUserRound, MoreHorizontal } from 'lucide-react';
 
-const iconeOpcoes = (
-  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
+const iconeOpcoes = <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />;
 
 function AvatarNeutro({ tamanho = 28 }) {
   return (
@@ -15,10 +12,7 @@ function AvatarNeutro({ tamanho = 28 }) {
       className="rounded-full bg-[#e8e6d9] flex items-center justify-center flex-shrink-0"
       style={{ width: tamanho, height: tamanho, minWidth: tamanho }}
     >
-      <svg width={tamanho * 0.55} height={tamanho * 0.55} fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={1.8}>
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-      </svg>
+      <CircleUserRound size={tamanho * 0.55} stroke="#9ca3af" strokeWidth={1.8} aria-hidden="true" />
     </div>
   );
 }

@@ -8,13 +8,9 @@ import CartaoKPI from '../components/CartaoKPI';
 import { listarConsultas } from '../services/gerencAgendamentoService';
 import { toast } from 'sonner';
 import useDelayedLoading from '../hooks/useDelayedLoading';
+import { CalendarDays } from 'lucide-react';
 
-const iconCalendar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="3" y="4" width="18" height="18" rx="2"/>
-    <path d="M16 2v4M8 2v4M3 10h18" strokeLinecap="round"/>
-  </svg>
-);
+const iconCalendar = <CalendarDays size={14} strokeWidth={2} aria-hidden="true" />;
 
 function getMesAno(date) {
   return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });

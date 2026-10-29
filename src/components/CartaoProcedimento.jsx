@@ -1,4 +1,5 @@
 import React from 'react';
+import { Check } from 'lucide-react';
 
 export default function CartaoProcedimento({ imagem, titulo, preco, descricao, categoria, duracao, selecionado, aoClicar }) {
   return (
@@ -23,7 +24,7 @@ export default function CartaoProcedimento({ imagem, titulo, preco, descricao, c
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
         {selecionado && (
           <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#d4b055] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2D4336]">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5L9.5 17L19 7.5" /></svg>
+            <Check size={12} strokeWidth={2.5} aria-hidden="true" />
             Selecionado
           </span>
         )}

@@ -3,17 +3,12 @@ import { toast } from 'sonner';
 import { deletarCliente } from '../services/clienteService';
 import Paginacao from './Paginacao';
 import LoadingSpinner from './LoadingSpinner';
+import { CircleUserRound, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 
-const iconeChevron = (dir) => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    {dir === 'left' ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
-  </svg>
-);
-const iconePonto = (
-  <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
+const iconeChevron = (dir) => dir === 'left'
+  ? <ChevronLeft size={14} strokeWidth={2.5} aria-hidden="true" />
+  : <ChevronRight size={14} strokeWidth={2.5} aria-hidden="true" />;
+const iconePonto = <MoreHorizontal size={15} strokeWidth={2} aria-hidden="true" />;
 
 function AvatarNeutro({ tamanho = 9 }) {
   const px = tamanho * 4;
@@ -22,10 +17,7 @@ function AvatarNeutro({ tamanho = 9 }) {
       className={`w-${tamanho} h-${tamanho} rounded-full bg-[#e8e6d9] flex items-center justify-center flex-shrink-0`}
       style={{ width: px, height: px, minWidth: px }}
     >
-      <svg width={px * 0.55} height={px * 0.55} fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={1.8}>
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-      </svg>
+      <CircleUserRound size={px * 0.55} stroke="#9ca3af" strokeWidth={1.8} aria-hidden="true" />
     </div>
   );
 }

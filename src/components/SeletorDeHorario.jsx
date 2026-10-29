@@ -1,11 +1,7 @@
 import React from 'react';
+import { Clock3 } from 'lucide-react';
 
-const iconRelogio = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 6v6l4 2" strokeLinecap="round"/>
-  </svg>
-);
+const iconRelogio = <Clock3 size={15} strokeWidth={2} aria-hidden="true" />;
 
 const horarios = [
   { horario: '09:00', periodo: 'Manhã', popular: false },

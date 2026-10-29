@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { login } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "sonner";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function CartaoDeLogin() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function CartaoDeLogin() {
       if (role === 'CLIENTE') navigate('/agendar');
       else navigate('/agendamentos');
 
-    } catch (e) {
+    } catch {
       toast.error('Email ou senha inválidos.');
     } finally {
       setLoading(false);
@@ -73,16 +74,9 @@ export default function CartaoDeLogin() {
               onClick={() => setMostrarSenha(!mostrarSenha)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
             >
-              {mostrarSenha ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              )}
+              {mostrarSenha
+                ? <EyeOff size={20} strokeWidth={1.8} aria-hidden="true" />
+                : <Eye size={20} strokeWidth={1.8} aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -93,9 +87,7 @@ export default function CartaoDeLogin() {
           className="w-full bg-[#B8982A] hover:bg-[#A0831F] text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200 mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Entrando...' : 'ENTRAR'}
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-          </svg>
+          <ArrowRight size={16} strokeWidth={2.5} aria-hidden="true" />
         </button>
 
         <p className="text-center text-sm text-gray-500">

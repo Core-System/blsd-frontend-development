@@ -12,50 +12,23 @@ import { formatarCpf } from '../utils/formatters';
 import { validarEmail, validarSenha, validarCpf } from '../utils/validators';
 import { removerMascara } from '../utils/masks';
 import LoadingSpinner from '../components/LoadingSpinner';
+import {
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  UserRound,
+  X,
+} from 'lucide-react';
 
-const iconePlus = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-);
-const iconeOlho = (aberto) => (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    {aberto
-      ? <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>
-      : <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
-    }
-  </svg>
-);
 const iconeChevron = (dir) => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    {dir === 'left' ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
-  </svg>
-);
-const iconePonto = (
-  <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
-const iconeUsuario = (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-    <circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-  </svg>
-);
-const iconeEditar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-  </svg>
-);
-const iconeFechar = (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>
-);
-const iconeAviso = (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-  </svg>
+  dir === 'left'
+    ? <ChevronLeft size={14} strokeWidth={2} aria-hidden="true" />
+    : <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
 );
 
 function AvatarNeutro({ tamanho = 36 }) {
@@ -64,10 +37,7 @@ function AvatarNeutro({ tamanho = 36 }) {
       className="rounded-full bg-[#e8e6d9] flex items-center justify-center flex-shrink-0"
       style={{ width: tamanho, height: tamanho, minWidth: tamanho }}
     >
-      <svg width={tamanho * 0.55} height={tamanho * 0.55} fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={1.8}>
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-      </svg>
+      <UserRound size={tamanho * 0.55} strokeWidth={1.8} aria-hidden="true" />
     </div>
   );
 }
@@ -134,7 +104,7 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[#f0f5f0] flex items-center justify-center text-[#2C3E2D]">
-              {iconeEditar}
+              <Pencil size={14} strokeWidth={1.8} aria-hidden="true" />
             </div>
             <div>
               <h2 className="text-base font-bold text-gray-900">Editar Funcionário</h2>
@@ -142,7 +112,7 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
             </div>
           </div>
           <button onClick={onFechar} className="text-gray-400 hover:text-gray-700 transition-colors">
-            {iconeFechar}
+            <X size={16} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
 
@@ -205,7 +175,7 @@ function ModalConfirmacao({ nome, onConfirmar, onCancelar, removendo }) {
       <div className="bg-white rounded-2xl border border-[#e8e6d9] shadow-2xl w-full max-w-sm mx-4 p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-            {iconeAviso}
+            <AlertCircle size={16} strokeWidth={2} aria-hidden="true" />
           </div>
           <div>
             <h2 className="text-base font-bold text-gray-900">Remover funcionário</h2>
@@ -341,7 +311,7 @@ export default function PaginaFuncionarios() {
       await carregar();
       setFuncRemovendo(null);
       toast.success('Funcionário removido com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao remover funcionário. Tente novamente.');
     } finally {
       setRemovendo(false);
@@ -401,7 +371,7 @@ export default function PaginaFuncionarios() {
           <div className="bg-white border border-[#e8e6d9] rounded-xl p-6 mb-5">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-lg bg-[#f0f5f0] flex items-center justify-center text-[#2C3E2D]">
-                {iconeUsuario}
+                <UserRound size={16} strokeWidth={1.8} aria-hidden="true" />
               </div>
               <div>
                 <h2 className="text-base font-bold text-gray-900">Novo Funcionário</h2>
@@ -456,7 +426,9 @@ export default function PaginaFuncionarios() {
                     onClick={() => setMostrarSenha(!mostrarSenha)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
                   >
-                    {iconeOlho(mostrarSenha)}
+                    {mostrarSenha
+                      ? <EyeOff size={16} strokeWidth={1.8} aria-hidden="true" />
+                      : <Eye size={16} strokeWidth={1.8} aria-hidden="true" />}
                   </button>
                 </div>
                 {erros.senha && <p className="text-[10px] text-red-500 font-medium">{erros.senha}</p>}
@@ -469,7 +441,8 @@ export default function PaginaFuncionarios() {
                 disabled={salvando}
                 className="flex items-center gap-2 px-5 py-2.5 bg-[#B8982A] hover:bg-[#a07f22] text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-60"
               >
-                {iconePlus} {salvando ? 'Cadastrando...' : 'Cadastrar Funcionário'}
+                <Plus size={14} strokeWidth={2} aria-hidden="true" />
+                {salvando ? 'Cadastrando...' : 'Cadastrar Funcionário'}
               </button>
             </div>
           </div>
@@ -534,7 +507,7 @@ export default function PaginaFuncionarios() {
                       onClick={() => setMenuAberto(menuAberto === idxGlobal ? null : idxGlobal)}
                       className="p-1 text-gray-400 hover:text-gray-700 transition-colors"
                     >
-                      {iconePonto}
+                      <MoreHorizontal size={15} strokeWidth={2} aria-hidden="true" />
                     </button>
                     {menuAberto === idxGlobal && (
                       <div className="absolute right-0 top-7 bg-white border border-[#e8e6d9] rounded-lg shadow-lg z-10 py-1 min-w-[140px]">
@@ -542,7 +515,7 @@ export default function PaginaFuncionarios() {
                           onClick={() => { setFuncEditando(f); setMenuAberto(null); }}
                           className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec] flex items-center gap-2"
                         >
-                          {iconeEditar} Editar
+                          <Pencil size={14} strokeWidth={1.8} aria-hidden="true" /> Editar
                         </button>
                         <button
                           onClick={() => { setFuncRemovendo(f); setMenuAberto(null); }}
