@@ -1,7 +1,7 @@
 import api from './api';
 
-export async function login({ email, senha }) {
-  const { data } = await api.post('/usuarios/login', { email, senha });
+export async function login({ email, senha, recaptchaToken }) {
+  const { data } = await api.post('/usuarios/login', { email, senha, recaptchaToken });
   return data;
 }
 

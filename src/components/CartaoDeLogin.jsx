@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { login } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "sonner";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function CartaoDeLogin() {
   const navigate = useNavigate();
@@ -13,13 +14,25 @@ export default function CartaoDeLogin() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const recaptchaRef = useRef(null);
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
   async function aoEnviarFormulario(e) {
     e.preventDefault();
+    if (!recaptchaSiteKey) {
+      toast.error("O CAPTCHA não está configurado.");
+      return;
+    }
+    if (!recaptchaToken) {
+      toast.error("Confirme o CAPTCHA para continuar.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const dados = await login({ email, senha });
+      const dados = await login({ email, senha, recaptchaToken });
       salvarUsuario(dados);
 
       const decodedToken = jwtDecode(dados.token);
@@ -29,7 +42,9 @@ export default function CartaoDeLogin() {
       else navigate('/agendamentos');
 
     } catch {
-      toast.error('Email ou senha inválidos.');
+      toast.error("Não foi possível autenticar. Verifique seus dados e o CAPTCHA.");
+      recaptchaRef.current?.reset();
+      setRecaptchaToken("");
     } finally {
       setLoading(false);
     }
@@ -80,6 +95,25 @@ export default function CartaoDeLogin() {
             </button>
           </div>
         </div>
+
+        {recaptchaSiteKey ? (
+          <div className="flex justify-center overflow-hidden">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={recaptchaSiteKey}
+              onChange={(token) => setRecaptchaToken(token || "")}
+              onExpired={() => setRecaptchaToken("")}
+              onErrored={() => {
+                setRecaptchaToken("");
+                toast.error("Não foi possível carregar o CAPTCHA.");
+              }}
+            />
+          </div>
+        ) : (
+          <p className="text-center text-sm text-red-600">
+            CAPTCHA indisponível. Configure a chave pública do reCAPTCHA v2.
+          </p>
+        )}
 
         <button
           onClick={aoEnviarFormulario}
