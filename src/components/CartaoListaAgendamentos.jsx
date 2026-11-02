@@ -59,7 +59,7 @@ export default function CartaoListaAgendamentos({
     const nome = a.cliente?.nome?.toLowerCase() || '';
     const buscaNome = filtros.paciente ? nome.includes(filtros.paciente.toLowerCase()) : true;
 
-    const status = a.status || 'PENDENTE';
+    const status = a.statusConsulta || 'PENDENTE';
     const buscaStatus = filtros.status && filtros.status !== 'Ver todos'
       ? status === filtros.status.toUpperCase()
       : true;
@@ -135,10 +135,10 @@ export default function CartaoListaAgendamentos({
               </tr>
             )}
 
-            {!carregando && filtrados.map((a, i) => {
+            {!carregando && filtrados.map((a) => {
               const { data, hora } = formatarDataHora(a.dataHoraInicio);
               const nomeCliente = a.cliente?.nome || '—';
-              const status = a.status || 'PENDENTE';
+              const status = a.statusConsulta || 'PENDENTE';
               const procedimento = a.servicos?.[0]?.toUpperCase() || '—';
 
               return (

@@ -22,6 +22,7 @@ import imgDepilacao from '../assets/depilacao.jpg';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import { listarServicos } from '../services/servicosService';
+import { listarHorariosDisponiveis } from '../services/consultaService';
 import { toast } from 'sonner';
 import useDelayedLoading from '../hooks/useDelayedLoading';
 import { CheckCircle2, X } from 'lucide-react';
@@ -68,7 +69,12 @@ export default function PaginaAgendamento() {
   
   const [procedimentoSelecionado, setProcedimentoSelecionado] = useState(procedimentoInicial);
   const [dataSelecionada, setDataSelecionada] = useState(null);
-  const [horarioSelecionado, setHorarioSelecionado] = useState('13:00');
+  const [horarioSelecionado, setHorarioSelecionado] = useState('');
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+  const [paginaHorarios, setPaginaHorarios] = useState(0);
+  const [totalPaginasHorarios, setTotalPaginasHorarios] = useState(1);
+  const [totalElementosHorarios, setTotalElementosHorarios] = useState(0);
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const [localSelecionado, setLocalSelecionado] = useState('clinica');
   const { salvarUsuario } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -136,6 +142,40 @@ export default function PaginaAgendamento() {
 
     carregar();
   }, [paginaAtual, tamanhoPagina, buscaQuery, sortQuery, categoriaAtiva]);
+
+  useEffect(() => {
+    if (!dataSelecionada) {
+      setHorariosDisponiveis([]);
+      setTotalPaginasHorarios(1);
+      setTotalElementosHorarios(0);
+      return;
+    }
+
+    async function carregarHorarios() {
+      setCarregandoHorarios(true);
+      try {
+        const data = `${dataSelecionada.ano}-${String(dataSelecionada.mes + 1).padStart(2, '0')}-${String(dataSelecionada.dia).padStart(2, '0')}`;
+        const resposta = await listarHorariosDisponiveis({
+          data,
+          page: paginaHorarios,
+          size: 6,
+        });
+        setHorariosDisponiveis(resposta?.content || []);
+        setTotalPaginasHorarios(Number(resposta?.totalPages ?? 1));
+        setTotalElementosHorarios(Number(resposta?.totalElements ?? 0));
+      } catch (error) {
+        console.error('Erro ao carregar horários disponíveis:', error);
+        toast.error('Não foi possível carregar os horários disponíveis.');
+        setHorariosDisponiveis([]);
+        setTotalPaginasHorarios(1);
+        setTotalElementosHorarios(0);
+      } finally {
+        setCarregandoHorarios(false);
+      }
+    }
+
+    carregarHorarios();
+  }, [dataSelecionada, paginaHorarios]);
       
       useEffect(() => {
         window.scrollTo({
@@ -201,6 +241,12 @@ export default function PaginaAgendamento() {
 
   function handleMudarPagina(pagina) {
     atualizarQueryParams({ page: pagina - 1 });
+  }
+
+  function handleSelecionarData(data) {
+    setDataSelecionada(data);
+    setHorarioSelecionado('');
+    setPaginaHorarios(0);
   }
   
   const proc = procedimentos.find(p => p.id === procedimentoSelecionado);
@@ -344,11 +390,20 @@ export default function PaginaAgendamento() {
               <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-3">
                 <SeletorDeData
                   dataSelecionada={dataSelecionada}
-                  aoSelecionarData={setDataSelecionada}
+                  aoSelecionarData={handleSelecionarData}
                 />
                 <SeletorDeHorario
                   horarioSelecionado={horarioSelecionado}
                   aoSelecionarHorario={setHorarioSelecionado}
+                  horarios={horariosDisponiveis}
+                  totalPaginas={totalPaginasHorarios}
+                  totalElementos={totalElementosHorarios}
+                  paginaAtual={paginaHorarios + 1}
+                  aoMudarPagina={(pagina) => {
+                    setHorarioSelecionado('');
+                    setPaginaHorarios(pagina - 1);
+                  }}
+                  carregando={carregandoHorarios}
                 />
                 <SeletorDeLocal
                   localSelecionado={localSelecionado}

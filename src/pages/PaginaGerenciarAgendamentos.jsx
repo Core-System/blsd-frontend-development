@@ -175,7 +175,7 @@ export default function PaginaGerenciarAgendamentos() {
             <div className="col-span-12 sm:col-span-6">
               <CartaoKPI
                 icone="ampulheta"
-                valor={carregandoVisivel ? '...' : `${filtrados.filter(a => (a.status || 'PENDENTE') === 'PENDENTE').length}`}
+                valor={carregandoVisivel ? '...' : `${filtrados.filter(a => (a.statusConsulta || 'PENDENTE') === 'PENDENTE').length}`}
                 unidade="pendentes"
                 rotulo="Agendamentos Pendentes"
               />
