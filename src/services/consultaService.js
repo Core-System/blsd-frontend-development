@@ -10,6 +10,16 @@ export async function avaliarConsulta(consultaId, dados) {
   return data;
 }
 
+export async function concluirConsulta(consultaId) {
+  const { data } = await api.post(`/consulta/${consultaId}/concluir`);
+  return data;
+}
+
+export async function cancelarConsulta(consultaId) {
+  const { data } = await api.post(`/consulta/${consultaId}/cancelar`);
+  return data;
+}
+
 export async function listarHorariosDisponiveis({ data, page = 0, size = 6 }) {
   const { data: resposta } = await api.get('/consulta/horarios-disponiveis', {
     params: { data, page, size },

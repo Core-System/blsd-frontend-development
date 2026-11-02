@@ -38,6 +38,12 @@ export default function PaginaGerenciarAgendamentos() {
   const [filtroDia, setFiltroDia] = useState({ dia: null, mes: null });
   const carregandoVisivel = useDelayedLoading(carregando);
 
+  function atualizarAgendamento(atualizado) {
+    setAgendamentos((atuais) => atuais.map((agendamento) => (
+      agendamento.id === atualizado.id ? atualizado : agendamento
+    )));
+  }
+
   useEffect(() => {
     async function carregar() {
       try {
@@ -159,6 +165,7 @@ export default function PaginaGerenciarAgendamentos() {
                 totalElementos={totalElementos}
                 tamanhoPagina={tamanhoPagina}
                 aoMudarPagina={setPaginaAtual}
+                aoAtualizarAgendamento={atualizarAgendamento}
               />
             </div>
           </div>

@@ -104,7 +104,7 @@ useEffect(() => {
               </p>
             )}
             {!carregando && consultas.map(c => {
-              const st = statusCfg[c.status] || statusCfg.PENDENTE;
+              const st = statusCfg[c.statusConsulta] || statusCfg.PENDENTE;
               const data = c.dataHoraInicio
                 ? new Date(c.dataHoraInicio).toLocaleString('pt-BR', {
                     dateStyle: 'short', timeStyle: 'short'
@@ -125,7 +125,7 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  {c.status === 'CONCLUIDA' && !c.avaliacao && (
+                  {c.statusConsulta === 'CONCLUIDA' && !c.avaliacao && (
                     <button
                       onClick={() => { setModalAvaliacao(c); setNota(0); setDescricao(''); }}
                       className="mt-2 text-[11px] font-semibold text-[#B8982A] hover:text-[#a07f22] transition-colors cursor-pointer"

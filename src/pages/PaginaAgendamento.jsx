@@ -19,7 +19,7 @@ import imgSkincare from '../assets/skincare.jpg';
 import imgDrenagem from '../assets/drenagem.jpg';
 import imgMassagem from '../assets/massagem-relaxante.jpg';
 import imgDepilacao from '../assets/depilacao.jpg';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import { listarServicos } from '../services/servicosService';
 import { listarHorariosDisponiveis } from '../services/consultaService';
@@ -81,6 +81,8 @@ export default function PaginaAgendamento() {
 
   const [procedimentos, setProcedimentos] = useState([]);
   const [carregandoProcedimentos, setCarregandoProcedimentos] = useState(false);
+  const [validandoLink, setValidandoLink] = useState(false);
+  const [linkInvalido, setLinkInvalido] = useState(false);
   const paginaAtual = Math.max(0, Number(searchParams.get('page') || 0));
   const tamanhoPagina = Math.max(1, Number(searchParams.get('size') || 6));
   const buscaQuery = searchParams.get('busca') || '';
@@ -187,6 +189,7 @@ export default function PaginaAgendamento() {
   useEffect(() => {
     const codeAgendamento = searchParams.get('code');
     if (codeAgendamento) {
+      setValidandoLink(true);
       localStorage.removeItem('token');
       async function validarLinkAgendamento() {
         try {
@@ -199,6 +202,10 @@ export default function PaginaAgendamento() {
           setSearchParams(parametrosAtualizados, { replace: true });
         } catch (e) {
           console.error('Erro ao validar link de agendamento:', e);
+          setLinkInvalido(true);
+          toast.error('O link de gerenciamento expirou ou é inválido.');
+        } finally {
+          setValidandoLink(false);
         }
       }
       validarLinkAgendamento();
@@ -207,9 +214,18 @@ export default function PaginaAgendamento() {
   
   const { loading, erro, sucesso, confirmar } = useAgendamento();
   const { usuario } = useAuth();
+  const codigoAgendamento = searchParams.get('code');
   
   const categorias = ['Todas', 'Facial', 'Corporal', 'Laser'];
   const procedimentosFiltrados = procedimentos;
+
+  if (validandoLink) {
+    return <ShellPublico><div className="flex min-h-screen items-center justify-center">Validando link...</div></ShellPublico>;
+  }
+
+  if (linkInvalido || (!usuario && !codigoAgendamento)) {
+    return <Navigate to="/login" replace />;
+  }
 
   function atualizarQueryParams(alteracoes) {
     const novosParams = new URLSearchParams(searchParams);

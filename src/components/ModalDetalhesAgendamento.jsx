@@ -66,7 +66,7 @@ export default function ModalDetalhesAgendamento({ agendamento, onFechar }) {
 
   const a           = agendamento;
   const cliente     = a.cliente || {};
-  const status      = a.status || 'PENDENTE';
+  const status      = a.statusConsulta || 'PENDENTE';
   const st          = LABEL_STATUS[status] || LABEL_STATUS.PENDENTE;
   const cor         = CORES_AVATAR[(cliente.id || 0) % CORES_AVATAR.length];
   const ini         = iniciais(cliente.nome);

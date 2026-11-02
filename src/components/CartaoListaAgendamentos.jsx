@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ModalDetalhesAgendamento from './ModalDetalhesAgendamento';
 import Paginacao from './Paginacao';
 import LoadingSpinner from './LoadingSpinner';
-import { CircleUserRound, MoreHorizontal } from 'lucide-react';
+import { AlertTriangle, CircleUserRound, MoreHorizontal, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { cancelarConsulta, concluirConsulta } from '../services/consultaService';
 
 const iconeOpcoes = <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />;
 
@@ -33,6 +35,78 @@ const LABEL_STATUS = {
   CANCELADA: 'CANCELADO',
 };
 
+function ModalConfirmacaoAcao({ acao, agendamento, confirmando, onConfirmar, onCancelar }) {
+  if (!acao || !agendamento) return null;
+
+  const cancelar = acao === 'cancelar';
+  const titulo = cancelar ? 'Cancelar consulta' : 'Concluir consulta';
+  const descricao = cancelar
+    ? 'Tem certeza que deseja cancelar esta consulta? Essa ação não poderá ser desfeita.'
+    : 'Tem certeza que deseja marcar esta consulta como concluída?';
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      role="presentation"
+    >
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={() => {
+          if (!confirmando) onCancelar();
+        }}
+      />
+      <div
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-[#e8e6d9] bg-white p-6 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmacao-acao-titulo"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${cancelar ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-700'}`}>
+              <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 id="confirmacao-acao-titulo" className="text-base font-bold text-gray-900">{titulo}</h2>
+              <p className="text-[11px] text-gray-400">Agendamento #{agendamento.id}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onCancelar}
+            className="rounded-full p-1 text-gray-400 transition-colors hover:bg-[#f5f4ec] hover:text-gray-700"
+            aria-label="Fechar confirmação"
+          >
+            <X size={17} strokeWidth={2} aria-hidden="true" />
+          </button>
+        </div>
+
+        <p className="mt-5 text-sm leading-6 text-gray-600">{descricao}</p>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancelar}
+            disabled={confirmando}
+            className="flex-1 rounded-lg border border-[#e8e6d9] px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-[#f5f4ec] disabled:opacity-60"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirmar}
+            disabled={confirmando}
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-bold text-white transition-colors disabled:opacity-60 ${cancelar ? 'bg-red-500 hover:bg-red-600' : 'bg-[#2C3E2D] hover:bg-[#243325]'}`}
+          >
+            {confirmando ? 'Aguarde...' : 'Confirmar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function formatarDataHora(iso) {
   if (!iso) return { data: '—', hora: '—' };
   const d = new Date(iso);
@@ -51,9 +125,61 @@ export default function CartaoListaAgendamentos({
   totalElementos = 0,
   tamanhoPagina = 15,
   aoMudarPagina,
+  aoAtualizarAgendamento,
 }) {
   const [menuAberto, setMenuAberto] = useState(null);
   const [agendamentoDetalhes, setAgendamentoDetalhes] = useState(null);
+  const [acaoSolicitada, setAcaoSolicitada] = useState(null);
+  const [acaoEmAndamento, setAcaoEmAndamento] = useState(null);
+
+  useEffect(() => {
+    if (!acaoSolicitada) return undefined;
+
+    function fecharComEscape(event) {
+      if (event.key === 'Escape' && !acaoEmAndamento) setAcaoSolicitada(null);
+    }
+
+    document.addEventListener('keydown', fecharComEscape);
+    return () => document.removeEventListener('keydown', fecharComEscape);
+  }, [acaoSolicitada, acaoEmAndamento]);
+
+  useEffect(() => {
+    if (menuAberto === null) return undefined;
+
+    function fecharAoClicarFora(event) {
+      if (!event.target.closest('[data-menu-agendamento]')) {
+        setMenuAberto(null);
+      }
+    }
+
+    document.addEventListener('mousedown', fecharAoClicarFora);
+    return () => document.removeEventListener('mousedown', fecharAoClicarFora);
+  }, [menuAberto]);
+
+  function solicitarAcao(agendamento, acao) {
+    setMenuAberto(null);
+    setAcaoSolicitada({ agendamento, acao });
+  }
+
+  async function executarAcao() {
+    const { agendamento, acao } = acaoSolicitada;
+    setAcaoEmAndamento(`${acao}-${agendamento.id}`);
+    try {
+      const atualizado = acao === 'concluir'
+        ? await concluirConsulta(agendamento.id)
+        : await cancelarConsulta(agendamento.id);
+      aoAtualizarAgendamento?.(atualizado);
+      setAcaoSolicitada(null);
+      toast.success(acao === 'concluir' ? 'Consulta concluída.' : 'Consulta cancelada.');
+    } catch (error) {
+      const mensagem = acao === 'cancelar'
+        ? 'Não foi possível cancelar a consulta.'
+        : error?.response?.data?.message || 'Não foi possível concluir a consulta.';
+      toast.error(mensagem);
+    } finally {
+      setAcaoEmAndamento(null);
+    }
+  }
 
   const filtrados = agendamentos.filter((a) => {
     const nome = a.cliente?.nome?.toLowerCase() || '';
@@ -169,7 +295,7 @@ export default function CartaoListaAgendamentos({
                   </td>
 
                   <td className="px-6 py-4">
-                    <div className="relative">
+                    <div className="relative" data-menu-agendamento>
                       <button
                         onClick={() => setMenuAberto(menuAberto === a.id ? null : a.id)}
                         className="p-1.5 rounded-md hover:bg-[#f0ede0] text-gray-400 hover:text-gray-700 transition-all"
@@ -179,8 +305,32 @@ export default function CartaoListaAgendamentos({
                       {menuAberto === a.id && (
                         <div className="absolute right-0 top-7 bg-white border border-[#e8e6d9] rounded-lg shadow-lg z-10 py-1 min-w-[130px]">
                           <button onClick={() => { setAgendamentoDetalhes(a); setMenuAberto(null); }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Ver detalhes</button>
-                          <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Remarcar</button>
-                          <button className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50">Cancelar</button>
+                          {status === 'PENDENTE' && (
+                            <>
+                              <button
+                                onClick={() => solicitarAcao(a, 'concluir')}
+                                disabled={acaoEmAndamento !== null}
+                                className="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 disabled:opacity-50"
+                              >
+                                {acaoEmAndamento === `concluir-${a.id}` ? 'Concluindo...' : 'Concluir'}
+                              </button>
+                              <button
+                                onClick={() => solicitarAcao(a, 'cancelar')}
+                                disabled={acaoEmAndamento !== null}
+                                className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 disabled:opacity-50"
+                              >
+                                {acaoEmAndamento === `cancelar-${a.id}` ? 'Cancelando...' : 'Cancelar'}
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            disabled
+                            title="Remarcação ainda não disponível"
+                            className="w-full cursor-not-allowed px-3 py-1.5 text-left text-xs text-gray-400"
+                          >
+                            Remarcar
+                          </button>
                         </div>
                       )}
                     </div>
@@ -215,6 +365,14 @@ export default function CartaoListaAgendamentos({
           onFechar={() => setAgendamentoDetalhes(null)}
         />
       )}
+
+      <ModalConfirmacaoAcao
+        acao={acaoSolicitada?.acao}
+        agendamento={acaoSolicitada?.agendamento}
+        confirmando={acaoEmAndamento !== null}
+        onConfirmar={executarAcao}
+        onCancelar={() => setAcaoSolicitada(null)}
+      />
     </div>
   );
 }

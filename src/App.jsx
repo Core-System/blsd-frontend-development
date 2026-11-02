@@ -46,9 +46,7 @@
           </Route>
           
 
-          <Route element={<ProtectRoute rolesPermitidas={['CLIENTE']} />}>
           <Route path="/agendar" element={<PaginaAgendamento />} />
-          </Route>
           
           <Route path="/privacidade" element={<PaginaPrivacidade />} />
           <Route path="/termos" element={<PaginaTermos />} />
