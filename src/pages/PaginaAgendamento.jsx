@@ -276,6 +276,7 @@ export default function PaginaAgendamento() {
       ano: dataSelecionada?.ano,
       hora: horarioSelecionado,
       procedimento: proc?.nome,
+      localConsulta: localSelecionado.toUpperCase(),
       preco: proc?.preco,
       local: localSelecionado === 'clinica'
         ? 'Rua Entre-Folhas, 4a - Jardim Arize'

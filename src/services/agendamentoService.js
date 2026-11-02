@@ -18,6 +18,7 @@ export async function criarAgendamento({
   ano,
   hora,
   procedimento,
+  localConsulta,
 }) {
   const dataHoraInicio = anotarDataHoraISO(dia, mes, ano, hora);
   const { data } = await api.post('/consulta/agendar', {
@@ -25,6 +26,7 @@ export async function criarAgendamento({
     email,
     dataHoraInicio,
     procedimento,
+    localConsulta,
   });
 
   return data;

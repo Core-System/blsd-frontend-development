@@ -19,16 +19,20 @@ export default function SeletorDeLocal({ localSelecionado, aoSelecionarLocal }) 
       <div className="mb-4 flex gap-2 rounded-2xl bg-[#f1f5f1] p-1.5">
         {Object.entries(locais).map(([key, val]) => {
           const ativo = localSelecionado === key;
+          const indisponivel = key === 'domicilio';
           return (
             <button
               key={key}
               type="button"
               onClick={() => aoSelecionarLocal(key)}
-              className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
+              disabled={indisponivel}
+              title={indisponivel ? 'Atendimento em domicílio temporariamente indisponível' : undefined}
+              className={`relative flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
                 ativo ? 'bg-[#2D4336] text-white shadow-[0_8px_18px_rgba(45,67,54,0.2)]' : 'text-[#526357] hover:text-[#2D4336]'
-              }`}
+              } ${indisponivel ? 'cursor-not-allowed opacity-50' : ''}`}
             >
               {val.label}
+              {indisponivel && <span className="ml-1 text-[9px] uppercase tracking-wide">(indisponível)</span>}
             </button>
           );
         })}
