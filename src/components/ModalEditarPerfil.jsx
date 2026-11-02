@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
-import { formatarCpf } from '../utils/formatters';
+import { formatarCpf, formatarTelefone } from '../utils/formatters';
 import { removerMascara } from '../utils/masks';
 import { validarEmail, validarCpf } from '../utils/validators';
 import { Pencil, X } from 'lucide-react';
@@ -31,7 +31,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     email: cliente?.email || '',
     cpf: formatarCpf(cliente?.cpf || ''),
     dataNasc: cliente?.dataNasc || '',
-    telefone: cliente?.telefone || '',
+    telefone: formatarTelefone(cliente?.telefone || ''),
     urlFoto: cliente?.urlFoto || '',
   }));
   
@@ -49,7 +49,11 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   if (!cliente) return null;
 
   function handleForm(campo, valor) {
-    const valorTratado = campo === 'cpf' ? formatarCpf(valor) : valor;
+    const valorTratado = campo === 'cpf'
+      ? formatarCpf(valor)
+      : campo === 'telefone'
+        ? formatarTelefone(valor)
+        : valor;
 
     setForm((atual) => ({ ...atual, [campo]: valorTratado }));
     setErros((atual) => ({ ...atual, [campo]: '' }));
@@ -87,7 +91,9 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     const payload = {
       ...cliente,
       ...form,    
-      cpf: form.cpf ? removerMascara(form.cpf) : null
+      cpf: form.cpf ? removerMascara(form.cpf) : null,
+      telefone: removerMascara(form.telefone),
+      urlFoto: arquivoFoto ? cliente.urlFoto || '' : form.urlFoto,
     };
 
     const emailFoiAlterado = form.email.trim() !== cliente.email?.trim();
@@ -196,18 +202,20 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
               {erros.email && <p className="text-[10px] text-red-500 mt-1">{erros.email}</p>}
             </Campo>
 
-            <Campo label="CPF">
-              <input
-                type="text"
-                value={form.cpf}
-                onChange={(event) => handleForm('cpf', event.target.value)}
-                maxLength={14}
-                placeholder="000.000.000-00"
-                className={(isFuncionario ? inputDisabledCls : inputCls) + (erros.cpf ? ' border-red-400' : '')}
-                readOnly={isFuncionario}
-              />
-              {erros.cpf && <p className="text-[10px] text-red-500 mt-1">{erros.cpf}</p>}
-            </Campo>
+            {isFuncionario && (
+              <Campo label="CPF">
+                <input
+                  type="text"
+                  value={form.cpf}
+                  onChange={(event) => handleForm('cpf', event.target.value)}
+                  maxLength={14}
+                  placeholder="000.000.000-00"
+                  className={inputDisabledCls + (erros.cpf ? ' border-red-400' : '')}
+                  readOnly
+                />
+                {erros.cpf && <p className="text-[10px] text-red-500 mt-1">{erros.cpf}</p>}
+              </Campo>
+            )}
 
             {!isFuncionario && (
               <div className="grid gap-4 sm:grid-cols-2">
