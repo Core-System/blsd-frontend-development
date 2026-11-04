@@ -1,16 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 import { listarConsultasCliente, avaliarConsulta } from '../services/consultaService';
 import { useAuth } from '../contexts/AuthContext';
+import { CalendarDays } from 'lucide-react';
 
-const iconeCalendario = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="3" y="4" width="18" height="18" rx="2"/>
-    <line x1="16" y1="2" x2="16" y2="6"/>
-    <line x1="8" y1="2" x2="8" y2="6"/>
-    <line x1="3" y1="10" x2="21" y2="10"/>
-  </svg>
-);
+const iconeCalendario = <CalendarDays size={14} strokeWidth={2} aria-hidden="true" />;
 
 const statusCfg = {
   CONCLUIDA: { bg: 'bg-green-100', cor: 'text-green-700', label: 'Concluída' },
@@ -29,7 +24,6 @@ export default function BalaoAgendamentos() {
   const [enviando, setEnviando] = useState(false);
   const ref = useRef();
 
-  // fecha ao clicar fora
 useEffect(() => {
   function handleClick(e) {
     if (ref.current && !ref.current.contains(e.target)) {
@@ -41,7 +35,6 @@ useEffect(() => {
 }, []);
 
   async function abrirBalao() {
-  console.log('clicou, usuario.id:', usuario?.id);
   const novoEstado = !aberto;
   setAberto(novoEstado);
 
@@ -54,6 +47,7 @@ useEffect(() => {
         setConsultas(dados);
       } catch {
         setConsultas([]);
+        toast.error('Não foi possível carregar seus agendamentos.');
       } finally {
         setCarregando(false);
       }
@@ -77,7 +71,7 @@ useEffect(() => {
 
       window.dispatchEvent(new Event('novaAvaliacaoFeita'));
     } catch {
-      alert('Erro ao enviar avaliação.');
+      toast.error('Não foi possível enviar sua avaliação. Tente novamente.');
     } finally {
       setEnviando(false);
     }
@@ -86,7 +80,6 @@ useEffect(() => {
   return (
     <div className="relative" ref={ref}>
 
-      {/* botão */}
       <button
         onClick={abrirBalao}
         className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold text-gray-600 hover:text-[#2C3E2D] hover:bg-white/60 rounded-md transition-all"
@@ -95,7 +88,6 @@ useEffect(() => {
         Agendamentos
       </button>
 
-      {/* balão */}
       {aberto && (
         <div className="absolute right-0 top-10 w-80 bg-white border border-[#e8e6d9] rounded-xl shadow-xl z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-[#e8e6d9]">
@@ -112,7 +104,7 @@ useEffect(() => {
               </p>
             )}
             {!carregando && consultas.map(c => {
-              const st = statusCfg[c.status] || statusCfg.PENDENTE;
+              const st = statusCfg[c.statusConsulta] || statusCfg.PENDENTE;
               const data = c.dataHoraInicio
                 ? new Date(c.dataHoraInicio).toLocaleString('pt-BR', {
                     dateStyle: 'short', timeStyle: 'short'
@@ -133,8 +125,7 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  {/* botão avaliar — só aparece se CONCLUIDA e sem avaliação */}
-                  {c.status === 'CONCLUIDA' && !c.avaliacao && (
+                  {c.statusConsulta === 'CONCLUIDA' && !c.avaliacao && (
                     <button
                       onClick={() => { setModalAvaliacao(c); setNota(0); setDescricao(''); }}
                       className="mt-2 text-[11px] font-semibold text-[#B8982A] hover:text-[#a07f22] transition-colors cursor-pointer"
@@ -143,7 +134,6 @@ useEffect(() => {
                     </button>
                   )}
 
-                  {/* avaliação já feita */}
                   {c.avaliacao && (
                     <p className="mt-1.5 text-[11px] text-[#B8982A]">
                       {'★'.repeat(c.avaliacao.nota)}
@@ -158,7 +148,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* modal de avaliação */}
       {modalAvaliacao && createPortal(
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
@@ -184,7 +173,6 @@ useEffect(() => {
                 : ''}
             </p>
 
-            {/* estrelas */}
             <div className="flex gap-2 mb-5">
               {[1, 2, 3, 4, 5].map(n => (
                 <button

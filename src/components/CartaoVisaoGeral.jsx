@@ -1,4 +1,5 @@
 import React from 'react';
+import { Circle } from 'lucide-react';
 
 export default function CartaoVisaoGeral({ total = 0, procedimentoTop = '—', carregando = false }) {
   const ocupacao = total > 0 ? Math.min(100, Math.round((total / 20) * 100)) : 0;
@@ -6,9 +7,7 @@ export default function CartaoVisaoGeral({ total = 0, procedimentoTop = '—', c
   return (
     <div className="bg-[#536D5D] rounded-xl p-5 relative overflow-hidden">
       <div className="absolute -bottom-4 -right-4 opacity-10 pointer-events-none select-none">
-        <svg width="100" height="100" viewBox="0 0 100 100" fill="white">
-          <path d="M50 5 C20 5, 5 30, 5 50 C5 70, 20 90, 50 90 C50 90, 95 70, 95 30 C95 15, 75 5, 50 5 Z"/>
-        </svg>
+        <Circle size={100} strokeWidth={8} fill="white" aria-hidden="true" />
       </div>
 
       <h3 className="text-white font-semibold text-sm mb-1">Visão Geral</h3>

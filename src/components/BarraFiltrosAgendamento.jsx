@@ -1,10 +1,7 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 
-const iconeSeta = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <polyline points="6 9 12 15 18 9"/>
-  </svg>
-);
+const iconeSeta = <ChevronDown size={14} strokeWidth={2} aria-hidden="true" />;
 
 const selectCls = "w-full appearance-none px-3 py-2.5 pr-8 bg-[#f9f8f2] border border-[#e8e6d9] rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#2C3E2D]/40 cursor-pointer transition-colors";
 
@@ -16,7 +13,6 @@ export default function BarraFiltrosAgendamento({
 }) {
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl p-4 flex flex-wrap items-end gap-3">
-      {/* paciente */}
       <div className="flex-1 min-w-[200px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">
           Filtrar por Paciente
@@ -30,7 +26,6 @@ export default function BarraFiltrosAgendamento({
         />
       </div>
 
-      {/* período */}
       <div className="min-w-[150px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Período</label>
         <div className="relative">
@@ -44,7 +39,6 @@ export default function BarraFiltrosAgendamento({
         </div>
       </div>
 
-      {/* procedimento */}
       <div className="min-w-[140px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Procedimento</label>
         <div className="relative">
@@ -61,7 +55,6 @@ export default function BarraFiltrosAgendamento({
         </div>
       </div>
 
-      {/* status */}
       <div className="min-w-[140px]">
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Status</label>
         <div className="relative">

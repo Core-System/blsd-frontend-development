@@ -1,23 +1,15 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { formatarCpf } from '../utils/formatters';
+import { useAuth } from '../contexts/AuthContext';
+import { formatarCpf, formatarTelefone } from '../utils/formatters';
 import { removerMascara } from '../utils/masks';
 import { validarEmail, validarCpf } from '../utils/validators';
+import { Pencil, X } from 'lucide-react';
 
-const iconeEditar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-  </svg>
-);
-
-const iconeFechar = (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
+const iconeEditar = <Pencil size={14} strokeWidth={2} aria-hidden="true" />;
+const iconeFechar = <X size={16} strokeWidth={2.5} aria-hidden="true" />;
 
 function Campo({ label, children }) {
   return (
@@ -32,12 +24,14 @@ const inputCls = 'w-full rounded-lg border border-[#e8e6d9] bg-[#f5f4ec] px-4 py
 const inputDisabledCls = 'w-full rounded-lg border border-[#e8e6d9] bg-gray-100 px-4 py-2.5 text-sm text-gray-500 cursor-not-allowed select-none';
 
 export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, onSalvar, salvando }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState(() => ({
     nome: cliente?.nome || '',
     email: cliente?.email || '',
     cpf: formatarCpf(cliente?.cpf || ''),
     dataNasc: cliente?.dataNasc || '',
-    telefone: cliente?.telefone || '',
+    telefone: formatarTelefone(cliente?.telefone || ''),
     urlFoto: cliente?.urlFoto || '',
   }));
   
@@ -55,7 +49,11 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   if (!cliente) return null;
 
   function handleForm(campo, valor) {
-    const valorTratado = campo === 'cpf' ? formatarCpf(valor) : valor;
+    const valorTratado = campo === 'cpf'
+      ? formatarCpf(valor)
+      : campo === 'telefone'
+        ? formatarTelefone(valor)
+        : valor;
 
     setForm((atual) => ({ ...atual, [campo]: valorTratado }));
     setErros((atual) => ({ ...atual, [campo]: '' }));
@@ -65,7 +63,9 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     const novosErros = {};
     if (!form.nome.trim()) novosErros.nome = 'Nome obrigatório';
     if (!validarEmail(form.email)) novosErros.email = 'E-mail inválido';
-    if (!validarCpf(form.cpf)) novosErros.cpf = 'CPF inválido';
+    if (isFuncionario && form.cpf && !validarCpf(form.cpf)) {
+      novosErros.cpf = 'CPF inválido';
+    }
     
     if (!isFuncionario) {
       if (form.telefone && form.telefone.replace(/\D/g, '').length < 10) {
@@ -76,12 +76,8 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
   }
 
   function realizarLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('user_role');
-    localStorage.removeItem('nome_usuario');
-
-    window.location.href = '/login';
+    navigate('/login', { replace: true });
+    logout();
   }
 
   function handleSubmit() {
@@ -95,7 +91,9 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
     const payload = {
       ...cliente,
       ...form,    
-      cpf: form.cpf ? removerMascara(form.cpf) : cliente.cpf
+      cpf: form.cpf ? removerMascara(form.cpf) : null,
+      telefone: removerMascara(form.telefone),
+      urlFoto: arquivoFoto ? cliente.urlFoto || '' : form.urlFoto,
     };
 
     const emailFoiAlterado = form.email.trim() !== cliente.email?.trim();
@@ -204,18 +202,20 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
               {erros.email && <p className="text-[10px] text-red-500 mt-1">{erros.email}</p>}
             </Campo>
 
-            <Campo label="CPF">
-              <input
-                type="text"
-                value={form.cpf}
-                onChange={(event) => handleForm('cpf', event.target.value)}
-                maxLength={14}
-                placeholder="000.000.000-00"
-                className={(isFuncionario ? inputDisabledCls : inputCls) + (erros.cpf ? ' border-red-400' : '')}
-                readOnly={isFuncionario}
-              />
-              {erros.cpf && <p className="text-[10px] text-red-500 mt-1">{erros.cpf}</p>}
-            </Campo>
+            {isFuncionario && (
+              <Campo label="CPF">
+                <input
+                  type="text"
+                  value={form.cpf}
+                  onChange={(event) => handleForm('cpf', event.target.value)}
+                  maxLength={14}
+                  placeholder="000.000.000-00"
+                  className={inputDisabledCls + (erros.cpf ? ' border-red-400' : '')}
+                  readOnly
+                />
+                {erros.cpf && <p className="text-[10px] text-red-500 mt-1">{erros.cpf}</p>}
+              </Campo>
+            )}
 
             {!isFuncionario && (
               <div className="grid gap-4 sm:grid-cols-2">

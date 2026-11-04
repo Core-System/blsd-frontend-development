@@ -9,12 +9,28 @@ const AVALIACOES_MOCK = [
   { id: 'mock-5', clienteNome: 'Beatriz Lima', nota: 5, servicos: ['Skinbooster'], descricao: 'Fui muito bem orientada e me senti segura durante todo o protocolo. O resultado ficou natural e lindo.' },
 ];
 
-function Estrelas() {
-  return <div className="flex gap-1 text-sm text-[#B8982A]" aria-label="Avaliação: 5 de 5 estrelas">★★★★★</div>;
+function Estrelas({ nota }) {
+  const notaValida = Math.min(5, Math.max(0, Number(nota) || 0));
+
+  return (
+    <div className="flex gap-1 text-sm" aria-label={`Avaliação: ${notaValida} de 5 estrelas`}>
+      {[1, 2, 3, 4, 5].map((estrela) => (
+        <span key={estrela} className={estrela <= notaValida ? 'text-[#B8982A]' : 'text-gray-200'}>
+          ★
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function iniciais(nome) {
   return (nome || '?').split(' ').slice(0, 2).map((parte) => parte[0]).join('').toUpperCase();
+}
+
+function urlFotoCompleta(urlFoto) {
+  if (!urlFoto) return null;
+  if (urlFoto.startsWith('http') || urlFoto.startsWith('blob:')) return urlFoto;
+  return `http://localhost:8080${urlFoto.startsWith('/') ? '' : '/'}${urlFoto}`;
 }
 
 export default function SecaoDepoimentos() {
@@ -66,11 +82,26 @@ export default function SecaoDepoimentos() {
             {depoimentos.map((depoimento) => (
               <article key={depoimento.id || depoimento.clienteNome} className="relative min-w-0 bg-white p-7 shadow-[0_12px_30px_rgba(35,45,38,0.05)]" style={{ flex: `0 0 calc((100% - ${(visible - 1) * 20}px) / ${visible})` }}>
                 <span className="absolute right-6 top-2 font-lora text-6xl leading-none text-[#d8c98e]/50">“</span>
-                <Estrelas />
+                <Estrelas nota={depoimento.nota} />
                 <p className="mt-5 min-h-[112px] text-sm leading-7 text-[#4d5c51]">{depoimento.descricao}</p>
                 <span className="mt-5 inline-block border border-[#d8c98e] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#8d7625]">{depoimento.servicos?.[0] || 'Experiência Blessed 7'}</span>
                 <div className="mt-7 flex items-center gap-3 border-t border-[#ece9df] pt-5">
-                  {depoimento.clienteUrlFoto ? <img src={depoimento.clienteUrlFoto} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e5dfc6] text-[10px] font-bold text-[#756329]">{iniciais(depoimento.clienteNome)}</div>}
+                  {urlFotoCompleta(depoimento.clienteUrlFoto) ? (
+                    <img
+                      src={urlFotoCompleta(depoimento.clienteUrlFoto)}
+                      alt=""
+                      className="h-9 w-9 rounded-full object-cover"
+                      onError={(event) => {
+                        event.currentTarget.style.display = 'none';
+                        event.currentTarget.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={`h-9 w-9 items-center justify-center rounded-full bg-[#e5dfc6] text-[10px] font-bold text-[#756329] ${urlFotoCompleta(depoimento.clienteUrlFoto) ? 'hidden' : 'flex'}`}
+                  >
+                    {iniciais(depoimento.clienteNome)}
+                  </div>
                   <span className="text-xs font-bold text-[#2C3E2D]">{depoimento.clienteNome}</span>
                 </div>
               </article>

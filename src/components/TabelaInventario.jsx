@@ -1,23 +1,11 @@
 import React, { useState } from 'react';
 import Paginacao from './Paginacao';
+import LoadingSpinner from './LoadingSpinner';
+import { Download, Filter, MoreHorizontal } from 'lucide-react';
 
-const iconeFiltrar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-  </svg>
-);
-const iconeExportar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="7 10 12 15 17 10"/>
-    <line x1="12" y1="15" x2="12" y2="3"/>
-  </svg>
-);
-const iconePonto = (
-  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
+const iconeFiltrar = <Filter size={14} strokeWidth={2} aria-hidden="true" />;
+const iconeExportar = <Download size={14} strokeWidth={2} aria-hidden="true" />;
+const iconePonto = <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />;
 
 function calcularStatus(quantidade) {
   if (quantidade <= 5) return 'CRÍTICO';
@@ -34,6 +22,7 @@ const statusCfg = {
 export default function TabelaInventario({
   produtos = [],
   carregando = false,
+  mostrarSpinner = false,
   onBaixa,
   onRepor,
   onEditar,
@@ -45,12 +34,10 @@ export default function TabelaInventario({
 }) {
   const [menuAberto, setMenuAberto] = useState(null);
 
-  // ── Modal Repor
   const [modalRepor, setModalRepor]   = useState(false);
   const [produtoAtivo, setProdutoAtivo] = useState(null);
   const [qtdRepor, setQtdRepor]       = useState('');
 
-  // ── Modal Editar
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosEditar, setDadosEditar] = useState({ nome: '', preco: '', quantidade: '' });
 
@@ -124,6 +111,7 @@ function abrirBaixa(produto) {
 
           {carregando && (
             <div className="space-y-3 py-6">
+              {mostrarSpinner && <LoadingSpinner size="small" label="Carregando estoque" showLabel />}
               {Array.from({ length: 4 }).map((_, idx) => (
                 <div key={idx} className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 items-center">
                   <div className="flex items-center gap-3 px-1">
@@ -198,7 +186,6 @@ function abrirBaixa(produto) {
         )}
       </div>
 
-      {/* ── Modal Repor ── */}
       {modalRepor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl">
@@ -225,7 +212,6 @@ function abrirBaixa(produto) {
         </div>
       )}
 
-      {/* ── Modal Baixa (Saída) ── */}
       {modalBaixa && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl">
@@ -260,7 +246,6 @@ function abrirBaixa(produto) {
         </div>
       )}
 
-{/* ── Modal Editar ── */}
       {modalEditar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl">

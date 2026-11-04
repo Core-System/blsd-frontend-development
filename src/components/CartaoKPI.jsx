@@ -1,16 +1,8 @@
 import React from 'react';
+import { Hourglass, TrendingUp } from 'lucide-react';
 
-const iconeTendencia = (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-    <polyline points="16 7 22 7 22 13"/>
-  </svg>
-);
-const iconeAmpulheta = (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" strokeLinecap="round"/>
-  </svg>
-);
+const iconeTendencia = <TrendingUp size={20} strokeWidth={2} aria-hidden="true" />;
+const iconeAmpulheta = <Hourglass size={20} strokeWidth={2} aria-hidden="true" />;
 
 const MAPA_ICONES = {
   tendencia: iconeTendencia,

@@ -1,9 +1,5 @@
 import { Link } from 'react-router-dom';
 
-/**
- * Breadcrumbs: navegação hierárquica para páginas institucionais
- * Ajuda o usuário a entender onde está e facilita retorno
- */
 export default function Breadcrumbs({ items = [] }) {
   if (items.length === 0) return null;
 

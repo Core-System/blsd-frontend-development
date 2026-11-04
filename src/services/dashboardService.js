@@ -1,68 +1,41 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:8080';
-
-function getAuthHeader() {
-  const token = localStorage.getItem('token');
-  return { Authorization: `Bearer ${token}` };
-}
+import api from './api';
 
 export async function getFaturamentoMensal() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/faturamento-mensal`, {
-    headers: getAuthHeader(),
-  });
-  return data; // BigDecimal → number
+  const { data } = await api.get('/dashboard/faturamento-mensal');
+  return data;
 }
 
 export async function getProcedimentosMensal() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/procedimentos-mensal`, {
-    headers: getAuthHeader(),
-  });
-  return data; // Long → number
+  const { data } = await api.get('/dashboard/procedimentos-mensal');
+  return data;
 }
 
 export async function getReceitaAnualTotal() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/receita-anual-total`, {
-    headers: getAuthHeader(),
-  });
-  return data; // BigDecimal → number
+  const { data } = await api.get('/dashboard/receita-anual-total');
+  return data;
 }
 
 export async function getTicketMedio() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/ticket-medio`, {
-    headers: getAuthHeader(),
-  });
-  return data; // BigDecimal → number
+  const { data } = await api.get('/dashboard/ticket-medio');
+  return data;
 }
 
 export async function getTendenciaFaturamento() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/tendencia-faturamento`, {
-    headers: getAuthHeader(),
-  });
-  // [{ ano, mes, total }]
+  const { data } = await api.get('/dashboard/tendencia-faturamento');
   return data;
 }
 
 export async function getReceitaPorAno() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/receita-por-ano`, {
-    headers: getAuthHeader(),
-  });
-  // [{ ano, total }]
+  const { data } = await api.get('/dashboard/receita-por-ano');
   return data;
 }
 
 export async function getRankingServicos() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/ranking-servicos`, {
-    headers: getAuthHeader(),
-  });
-  // [{ servico, quantidade }]
+  const { data } = await api.get('/dashboard/ranking-servicos');
   return data;
 }
 
 export async function getProximosAgendamentos() {
-  const { data } = await axios.get(`${BASE_URL}/dashboard/proximos-agendamentos`, {
-    headers: getAuthHeader(),
-  });
-  // [{ consultaId, dataHoraInicio, dataHoraFim, nomeCliente, urlFotoCliente, localConsulta, tipoPagamento }]
+  const { data } = await api.get('/dashboard/proximos-agendamentos');
   return data;
 }

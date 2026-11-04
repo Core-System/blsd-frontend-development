@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProximosAgendamentos } from '../services/dashboardService';
+import LoadingSpinner from './LoadingSpinner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
+import { ArrowRight, MoreHorizontal, Pencil } from 'lucide-react';
 
 const CORES_AVATAR = ['bg-amber-400','bg-blue-400','bg-rose-400','bg-teal-400','bg-purple-400','bg-orange-400'];
 
-const iconeSetaDireita = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-  </svg>
-);
-const iconePonto = (
-  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
+const iconeSetaDireita = <ArrowRight size={14} strokeWidth={2.5} aria-hidden="true" />;
+const iconePonto = <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />;
 
 function iniciais(nome) {
   return (nome || '?').split(' ').slice(0, 2).map((p) => (p[0] || '').toUpperCase()).join('') || '?';
@@ -40,6 +35,7 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
   const [agendamentos, setAgendamentos] = useState([]);
   const [carregando, setCarregando]     = useState(true);
   const [erro, setErro]                 = useState(false);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   useEffect(() => {
     getProximosAgendamentos()
@@ -74,8 +70,10 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         ))}
       </div>
 
-      {/* skeleton */}
-      {carregando && Array.from({ length: 3 }).map((_, i) => (
+      {carregando && (
+        <>
+          {carregandoVisivel && <LoadingSpinner size="small" label="Carregando próximos agendamentos" showLabel />}
+          {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0">
           <div className="px-2 space-y-1.5">
             <div className="h-3 w-24 bg-gray-100 animate-pulse rounded"/>
@@ -89,21 +87,19 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
           <div className="px-2 h-3 w-16 bg-gray-100 animate-pulse rounded"/>
           <div className="px-2 h-3 w-4 bg-gray-100 animate-pulse rounded"/>
         </div>
-      ))}
+          ))}
+        </>
+      )}
 
-      {/* erro */}
       {erro && !carregando && (
         <p className="text-center text-xs text-gray-400 py-8">Não foi possível carregar os agendamentos.</p>
       )}
 
-      {/* vazio */}
       {!carregando && !erro && agendamentos.length === 0 && (
         <p className="text-center text-xs text-gray-400 py-8">Nenhum agendamento próximo encontrado.</p>
       )}
 
-      {/* linhas */}
       {!carregando && !erro && agendamentos.map((a, i) => {
-        // Defesa total: garante que nenhum campo undefined causa crash
         const { data, hora } = formatarDataHora(a?.dataHoraInicio);
         const nomeCliente    = a?.nomeCliente || '—';
         const ini            = iniciais(nomeCliente);
@@ -153,9 +149,7 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
 
             <div className="px-2 flex gap-1">
               <button title="Editar" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" aria-label="Editar">
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
+                <Pencil size={14} strokeWidth={2} aria-hidden="true" />
               </button>
               <button title="Mais opções" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" aria-label="Mais opções">
                 {iconePonto}

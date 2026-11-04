@@ -33,7 +33,6 @@ export default function PaginaTrabalheConosco() {
     <ShellPublico>
       <div className="min-h-screen flex flex-col justify-between bg-[#f8f7f2] text-[#1d2f26]">
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-          {/* Breadcrumbs */}
           <Breadcrumbs
             items={[
               { label: 'Início', to: '/' },

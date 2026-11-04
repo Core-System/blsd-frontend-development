@@ -1,21 +1,8 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:8080/consulta';
-
-function getAuthHeader() {
-  const token = localStorage.getItem('token');
-  return { Authorization: `Bearer ${token}` };
-}
+import api from './api';
 
 function normalizarPagina(data, fallbackSize = 15) {
-  if (Array.isArray(data)) {
-    return {
-      content: data,
-      totalElements: data.length,
-      totalPages: Math.max(1, Math.ceil(data.length / fallbackSize)),
-      number: 0,
-      size: fallbackSize,
-    };
+  if (!data || !Array.isArray(data.content)) {
+    throw new Error('Resposta paginada inválida para agendamentos.');
   }
 
   return {
@@ -32,38 +19,38 @@ export async function listarConsultas({
   size = 15,
   status = '',
   busca = '',
+  procedimento = '',
+  inicio = '',
+  fim = '',
 } = {}) {
-  const params = {
-    page,
-    size,
-  };
+  const params = { page, size };
 
   if (status) params.status = status;
   if (busca) params.busca = busca;
+  if (procedimento) params.procedimento = procedimento;
+  if (inicio) params.inicio = inicio;
+  if (fim) params.fim = fim;
 
-  const { data } = await axios.get(BASE_URL, {
-    headers: getAuthHeader(),
-    params,
-  });
-
+  const { data } = await api.get('/consulta', { params });
   return normalizarPagina(data, size);
 }
 
 export async function listarTodasConsultas(clientes) {
   const resultados = await Promise.all(
-    clientes.map((c) =>
-      axios
-        .get(`${BASE_URL}/cliente/${c.id}`, { headers: getAuthHeader() })
-        .then((r) => r.data.map((consulta) => ({ ...consulta, cliente: c })))
+    clientes.map((cliente) =>
+      api
+        .get(`/consulta/cliente/${cliente.id}`)
+        .then(({ data }) =>
+          data.map((consulta) => ({ ...consulta, cliente }))
+        )
         .catch(() => [])
     )
   );
+
   return resultados.flat();
 }
 
 export async function listarConsultasPorCliente(clienteId) {
-  const { data } = await axios.get(`${BASE_URL}/cliente/${clienteId}`, {
-    headers: getAuthHeader(),
-  });
+  const { data } = await api.get(`/consulta/cliente/${clienteId}`);
   return data;
 }

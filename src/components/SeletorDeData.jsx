@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const iconeSetaEsquerda = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <polyline points="15 18 9 12 15 6"/>
-  </svg>
-);
-const iconeSetaDireita = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <polyline points="9 18 15 12 9 6"/>
-  </svg>
-);
+const iconeSetaEsquerda = <ChevronLeft size={14} strokeWidth={2.5} aria-hidden="true" />;
+const iconeSetaDireita = <ChevronRight size={14} strokeWidth={2.5} aria-hidden="true" />;
 
 const DIAS_DA_SEMANA = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 const NOMES_MESES = [

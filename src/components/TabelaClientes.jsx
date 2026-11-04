@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { deletarCliente } from '../services/clienteService';
 import Paginacao from './Paginacao';
+import LoadingSpinner from './LoadingSpinner';
+import { CircleUserRound, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 
-const iconeChevron = (dir) => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    {dir === 'left' ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
-  </svg>
-);
-const iconePonto = (
-  <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
+const iconeChevron = (dir) => dir === 'left'
+  ? <ChevronLeft size={14} strokeWidth={2.5} aria-hidden="true" />
+  : <ChevronRight size={14} strokeWidth={2.5} aria-hidden="true" />;
+const iconePonto = <MoreHorizontal size={15} strokeWidth={2} aria-hidden="true" />;
 
-/* ── Avatar neutro reutilizável ── */
 function AvatarNeutro({ tamanho = 9 }) {
   const px = tamanho * 4;
   return (
@@ -21,10 +17,7 @@ function AvatarNeutro({ tamanho = 9 }) {
       className={`w-${tamanho} h-${tamanho} rounded-full bg-[#e8e6d9] flex items-center justify-center flex-shrink-0`}
       style={{ width: px, height: px, minWidth: px }}
     >
-      <svg width={px * 0.55} height={px * 0.55} fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={1.8}>
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-      </svg>
+      <CircleUserRound size={px * 0.55} stroke="#9ca3af" strokeWidth={1.8} aria-hidden="true" />
     </div>
   );
 }
@@ -40,6 +33,7 @@ const colunas = ['Paciente', 'Contato', 'Cadastro', 'Status', 'Ações'];
 export default function TabelaClientes({
   clientes = [],
   carregando = false,
+  mostrarSpinner = false,
   onRemover,
   paginaAtual = 0,
   totalPaginas = 1,
@@ -62,7 +56,7 @@ export default function TabelaClientes({
       onRemover?.(id);
     } catch (e) {
       console.error('Erro ao remover cliente:', e);
-      alert('Não foi possível remover o cliente.');
+      toast.error('Não foi possível remover o cliente.');
     } finally {
       setRemovendoId(null);
       setMenuAberto(null);
@@ -71,15 +65,16 @@ export default function TabelaClientes({
 
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-      {/* cabeçalho */}
       <div className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-3 border-b border-[#f0eeea] bg-[#fafaf7]">
         {colunas.map((col) => (
           <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{col}</span>
         ))}
       </div>
 
-      {/* skeleton */}
-      {carregando && Array.from({ length: 4 }).map((_, i) => (
+      {carregando && (
+        <>
+          {mostrarSpinner && <LoadingSpinner size="small" label="Carregando clientes" showLabel />}
+          {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center gap-2">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse flex-shrink-0"/>
@@ -96,9 +91,10 @@ export default function TabelaClientes({
           <div className="h-5 w-12 bg-gray-100 animate-pulse rounded-full"/>
           <div className="h-3 w-4 bg-gray-100 animate-pulse rounded"/>
         </div>
-      ))}
+          ))}
+        </>
+      )}
 
-      {/* vazio */}
       {!carregando && clientes.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f4ec] text-lg">👤</div>
@@ -107,7 +103,6 @@ export default function TabelaClientes({
         </div>
       )}
 
-      {/* linhas */}
       {!carregando && visiveis.map((c, i) => {
         const estaRemovendo = removendo === c.id;
 
@@ -116,7 +111,6 @@ export default function TabelaClientes({
             key={c.id}
             className={`grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center transition-colors ${estaRemovendo ? 'opacity-40' : 'hover:bg-[#fafaf7]'}`}
           >
-            {/* paciente */}
             <div className="flex items-center gap-3">
               <AvatarNeutro tamanho={9} />
               <div>
@@ -125,22 +119,18 @@ export default function TabelaClientes({
               </div>
             </div>
 
-            {/* contato */}
             <div>
               <p className="text-xs text-gray-600 truncate">{c.email}</p>
               <p className="text-[11px] text-gray-400">{c.telefone || '—'}</p>
             </div>
 
-            {/* cadastro */}
             <p className="text-xs text-gray-500">{formatarData(c.dataCriacao)}</p>
 
-            {/* status */}
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500"/>
               <span className="text-xs font-semibold text-green-600">ATIVO</span>
             </div>
 
-            {/* ações */}
             <div className="relative">
               <button
                 disabled={estaRemovendo}

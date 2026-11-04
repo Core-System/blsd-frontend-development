@@ -1,6 +1,6 @@
 import { useState } from "react"
-import axios from "axios";
 import { criarAgendamento } from "../services/agendamentoService";
+import { toast } from "sonner";
 
 export function useAgendamento(){
     const [loading, setLoading] = useState(false);
@@ -14,13 +14,10 @@ export function useAgendamento(){
         try {
             await criarAgendamento(dados);
             setSucesso(dados);
-        } catch(e){
-            console.warn('API indisponível; usando confirmação local de demonstração.', e);
-            setSucesso({
-                ...dados,
-                status: 'ok',
-                modo: 'fallback',
-            });
+        } catch (e) {
+            const mensagem = e?.response?.data?.message || 'Não foi possível confirmar o agendamento. Tente novamente.';
+            toast.error(mensagem);
+            throw e;
         } finally {
             setLoading(false);
         }

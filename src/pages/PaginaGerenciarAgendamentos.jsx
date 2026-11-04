@@ -6,22 +6,26 @@ import CartaoVisaoGeral from '../components/CartaoVisaoGeral';
 import CartaoListaAgendamentos from '../components/CartaoListaAgendamentos';
 import CartaoKPI from '../components/CartaoKPI';
 import { listarConsultas } from '../services/gerencAgendamentoService';
+import { toast } from 'sonner';
+import useDelayedLoading from '../hooks/useDelayedLoading';
+import { CalendarDays } from 'lucide-react';
 
-const iconCalendar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="3" y="4" width="18" height="18" rx="2"/>
-    <path d="M16 2v4M8 2v4M3 10h18" strokeLinecap="round"/>
-  </svg>
-);
+const iconCalendar = <CalendarDays size={14} strokeWidth={2} aria-hidden="true" />;
 
 function getMesAno(date) {
   return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 }
 
+function formatarDataApi(date) {
+  const ano = date.getFullYear();
+  const mes = String(date.getMonth() + 1).padStart(2, '0');
+  const dia = String(date.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
 export default function PaginaGerenciarAgendamentos() {
   const [agendamentos, setAgendamentos] = useState([]);
   const [carregando, setCarregando]     = useState(true);
-  const [erro, setErro]                 = useState(null);
   const [paginaAtual, setPaginaAtual]   = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalElementos, setTotalElementos] = useState(0);
@@ -32,18 +36,48 @@ export default function PaginaGerenciarAgendamentos() {
   const [filtroProcedimento,setFiltroProcedimento]= useState('Todos');
   const [filtroStatus,      setFiltroStatus]      = useState('Ver todos');
   const [filtroDia, setFiltroDia] = useState({ dia: null, mes: null });
+  const carregandoVisivel = useDelayedLoading(carregando);
+
+  function atualizarAgendamento(atualizado) {
+    setAgendamentos((atuais) => atuais.map((agendamento) => (
+      agendamento.id === atualizado.id ? atualizado : agendamento
+    )));
+  }
 
   useEffect(() => {
     async function carregar() {
       try {
         setCarregando(true);
-        const statusParam = filtroStatus === 'Ver todos' ? '' : filtroStatus.toUpperCase();
+        const statusMap = { Confirmado: 'PENDENTE', Pendente: 'PENDENTE', Completo: 'CONCLUIDA', Cancelado: 'CANCELADA' };
+        const statusParam = filtroStatus === 'Ver todos' ? '' : (statusMap[filtroStatus] || filtroStatus.toUpperCase());
         const pagina = Math.max(0, paginaAtual);
+        const agora = new Date();
+        let inicio = '';
+        let fim = '';
+        if (filtroDia.dia !== null && filtroDia.mes !== null) {
+          const ano = Math.floor(filtroDia.mes / 100);
+          const mes = filtroDia.mes % 100;
+          const selecionado = new Date(ano, mes, filtroDia.dia);
+          inicio = formatarDataApi(selecionado);
+          fim = formatarDataApi(new Date(ano, mes, filtroDia.dia + 1));
+        } else if (filtroPeriodo === 'Hoje') {
+          inicio = formatarDataApi(agora);
+          fim = formatarDataApi(new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1));
+        } else if (filtroPeriodo === 'Este mês') {
+          inicio = formatarDataApi(new Date(agora.getFullYear(), agora.getMonth(), 1));
+          fim = formatarDataApi(new Date(agora.getFullYear(), agora.getMonth() + 1, 1));
+        } else if (filtroPeriodo === 'Esta semana') {
+          inicio = formatarDataApi(new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 7));
+          fim = formatarDataApi(new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 8));
+        }
         const resposta = await listarConsultas({
           page: pagina,
           size: tamanhoPagina,
           status: statusParam,
           busca: filtroPaciente,
+          procedimento: filtroProcedimento === 'Todos' ? '' : filtroProcedimento,
+          inicio,
+          fim,
         });
 
         const registros = Array.isArray(resposta?.content) ? resposta.content : [];
@@ -52,54 +86,16 @@ export default function PaginaGerenciarAgendamentos() {
         setTotalElementos(Number(resposta?.totalElements ?? registros.length));
       } catch (e) {
         console.error('Erro ao carregar agendamentos:', e);
-        setErro('Não foi possível carregar os agendamentos.');
+        toast.error('Não foi possível carregar os agendamentos.');
       } finally {
         setCarregando(false);
       }
     }
     carregar();
-  }, [paginaAtual, tamanhoPagina, filtroPaciente, filtroStatus]);
+  }, [paginaAtual, tamanhoPagina, filtroPaciente, filtroStatus, filtroProcedimento, filtroPeriodo, filtroDia]);
 
-  // ── Filtragem local ──
-  const filtrados = useMemo(() => {
-    const agora = new Date();
-    return agendamentos.filter((a) => {
-      const nome = a.cliente?.nome?.toLowerCase() || '';
-      if (filtroPaciente && !nome.includes(filtroPaciente.toLowerCase())) return false;
+  const filtrados = agendamentos;
 
-      if (filtroStatus !== 'Ver todos') {
-        const mapStatus = { Confirmado: 'PENDENTE', Pendente: 'PENDENTE', Completo: 'CONCLUIDA', Cancelado: 'CANCELADA' };
-        if ((a.status || 'PENDENTE') !== (mapStatus[filtroStatus] || filtroStatus.toUpperCase())) return false;
-      }
-
-      if (filtroProcedimento !== 'Todos') {
-        const servicos = (a.servicos || []).join(' ').toLowerCase();
-        if (!servicos.includes(filtroProcedimento.toLowerCase())) return false;
-      }
-
-      if (filtroPeriodo !== 'Todos os dias') {
-        const data = new Date(a.dataHoraInicio);
-        if (filtroPeriodo === 'Hoje') {
-          if (data.toDateString() !== agora.toDateString()) return false;
-        } else if (filtroPeriodo === 'Esta semana') {
-          const diffDias = (data - agora) / (1000 * 60 * 60 * 24);
-          if (diffDias < -7 || diffDias > 7) return false;
-        } else if (filtroPeriodo === 'Este mês') {
-          if (data.getMonth() !== agora.getMonth() || data.getFullYear() !== agora.getFullYear()) return false;
-        }
-      }
-      // filtro por dia do calendário
-      if (filtroDia.dia !== null && filtroDia.mes !== null) {
-        const d = new Date(a.dataHoraInicio);
-        const anoMes = d.getFullYear() * 100 + d.getMonth();
-        if (d.getDate() !== filtroDia.dia || anoMes !== filtroDia.mes) return false;
-      }
-
-      return true;
-    });
-  }, [agendamentos, filtroPaciente, filtroPeriodo, filtroProcedimento, filtroStatus, filtroDia]);
-
-  // ── KPIs derivados ──
   const procedimentoTop = useMemo(() => {
     const contagem = {};
     agendamentos.forEach((a) => {
@@ -119,7 +115,6 @@ export default function PaginaGerenciarAgendamentos() {
       <main className="ml-[152px] min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-7">
 
-          {/* Cabeçalho */}
           <div className="flex items-start justify-between mb-5">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
@@ -139,12 +134,6 @@ export default function PaginaGerenciarAgendamentos() {
             </div>
           </div>
 
-          {/* erro */}
-          {erro && (
-            <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">{erro}</div>
-          )}
-
-          {/* filtros */}
           <div className="mb-5">
             <BarraFiltrosAgendamento
               paciente={filtroPaciente}      onPaciente={setFiltroPaciente}
@@ -154,7 +143,6 @@ export default function PaginaGerenciarAgendamentos() {
             />
           </div>
 
-          {/* calendário + lista */}
           <div className="grid grid-cols-12 gap-4 mb-4">
             <div className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
               <CalendarioAgendamento
@@ -165,27 +153,28 @@ export default function PaginaGerenciarAgendamentos() {
                 total={filtrados.length}
                 procedimentoTop={procedimentoTop}
                 carregando={carregando}
+                mostrarSpinner={carregandoVisivel}
               />
             </div>
             <div className="col-span-12 lg:col-span-8 xl:col-span-9">
               <CartaoListaAgendamentos
                 agendamentos={filtrados}
-                carregando={carregando}
+                carregando={carregandoVisivel}
                 paginaAtual={paginaAtual}
                 totalPaginas={totalPaginas}
                 totalElementos={totalElementos}
                 tamanhoPagina={tamanhoPagina}
                 aoMudarPagina={setPaginaAtual}
+                aoAtualizarAgendamento={atualizarAgendamento}
               />
             </div>
           </div>
 
-          {/* KPIs */}
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 sm:col-span-6">
               <CartaoKPI
                 icone="tendencia"
-                valor={carregando ? '...' : `${agendamentos.length}`}
+                valor={carregandoVisivel ? '...' : `${agendamentos.length}`}
                 rotulo="Total de Agendamentos"
                 descricao="no histórico completo"
               />
@@ -193,7 +182,7 @@ export default function PaginaGerenciarAgendamentos() {
             <div className="col-span-12 sm:col-span-6">
               <CartaoKPI
                 icone="ampulheta"
-                valor={carregando ? '...' : `${filtrados.filter(a => (a.status || 'PENDENTE') === 'PENDENTE').length}`}
+                valor={carregandoVisivel ? '...' : `${filtrados.filter(a => (a.statusConsulta || 'PENDENTE') === 'PENDENTE').length}`}
                 unidade="pendentes"
                 rotulo="Agendamentos Pendentes"
               />

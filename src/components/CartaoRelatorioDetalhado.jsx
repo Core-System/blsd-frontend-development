@@ -1,10 +1,7 @@
 import React from 'react';
+import { ArrowRight } from 'lucide-react';
 
-const iconeSeta = (
-  <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+const iconeSeta = <ArrowRight size={22} strokeWidth={2} aria-hidden="true" />;
 
 export default function CartaoRelatorioDetalhado() {
   return (

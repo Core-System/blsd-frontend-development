@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { listarProdutos, criarProduto, atualizarProduto, deletarProduto } from '../services/produtoService';
 import { registrarMovimentacao, listarMovimentacoes } from '../services/movimentacaoService';
 
@@ -8,13 +9,10 @@ import CartaoKPIEstoque from '../components/CartaoKPIEstoque';
 import TabelaInventario from '../components/TabelaInventario';
 import CartaoUltimasMovimentacoes from '../components/CartaoUltimasMovimentacoes';
 import CartaoAlertaInteligente from '../components/CartaoAlertaInteligente';
+import useDelayedLoading from '../hooks/useDelayedLoading';
+import { Plus } from 'lucide-react';
 
-const iconePlus = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <line x1="12" y1="5" x2="12" y2="19"/>
-    <line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-);
+const iconePlus = <Plus size={14} strokeWidth={2.5} aria-hidden="true" />;
 
 export default function PaginaEstoque() {
   const [produtos, setProdutos] = useState([]);
@@ -27,6 +25,7 @@ export default function PaginaEstoque() {
   
   const [novoProduto, setNovoProduto] = useState({ nome: '', preco: '', quantidade: '' });
   const [movimentacoes, setMovimentacoes] = useState([]);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   async function carregarMovimentacoes() {
     try {
@@ -46,7 +45,7 @@ export default function PaginaEstoque() {
       setTotalElementos(Number(dados?.totalElements ?? (Array.isArray(dados?.content) ? dados.content.length : 0)));
     } catch (erro) {
       console.error("Erro ao buscar produtos:", erro);
-      alert("Falha ao carregar o estoque.");
+      toast.error("Não foi possível carregar o estoque.");
     } finally {
       setCarregando(false);
     }
@@ -68,7 +67,7 @@ export default function PaginaEstoque() {
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
-      alert("Erro ao repor estoque.");
+      toast.error("Não foi possível repor o estoque.");
     }
   }
 
@@ -83,7 +82,7 @@ async function handleBaixa(id, quantidade) {
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
-      alert("Erro ao registrar baixa. Verifique se há saldo suficiente.");
+      toast.error("Não foi possível registrar a baixa. Verifique se há saldo suficiente.");
     }
   }
 
@@ -93,21 +92,19 @@ async function handleEditar(id, dados) {
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
-      alert("Erro ao editar produto.");
+      toast.error("Não foi possível editar o produto.");
     }
   }
 
   async function handleSalvarProduto(e) {
     e.preventDefault();
     try {
-      // 1- Cria o produto com estoque ZERO para evitar duplicidade na soma
       const produtoSalvo = await criarProduto({
         nome: novoProduto.nome,
         preco: parseFloat(novoProduto.preco),
         quantidade: 0 
       });
       
-      // 2- Dispara a movimentação de entrada inicial para registrar no historico
       if (produtoSalvo && produtoSalvo.id) {
         await registrarMovimentacao({
           produtoId: produtoSalvo.id,
@@ -120,16 +117,15 @@ async function handleEditar(id, dados) {
       setModalAberto(false);
       setNovoProduto({ nome: '', preco: '', quantidade: '' });
       
-      // 3- Atualiza as duas listas na tela ao mesmo tempo
       carregarEstoque();
       carregarMovimentacoes();
     } catch (erro) {
       console.error("Erro ao salvar:", erro);
-      alert(erro.response?.data?.message || "Erro ao cadastrar produto. Verifique se o nome já existe.");
+      toast.error(erro.response?.data?.message || "Não foi possível cadastrar o produto. Verifique se o nome já existe.");
     }
   }
 
-  const totalItens = produtos.length;
+  const totalItens = totalElementos;
   const statusCritico = produtos.filter(p => p.quantidade <= 5).length;
   const baixoEstoque = produtos.filter(p => p.quantidade > 5 && p.quantidade <= 12).length;
 
@@ -140,7 +136,6 @@ async function handleEditar(id, dados) {
       <main className="ml-[152px] mt-14 min-h-[calc(100vh-56px)] overflow-y-auto bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-7">
 
-          {/* Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
@@ -165,18 +160,17 @@ async function handleEditar(id, dados) {
             </div>
           </div>
 
-          {/* ── KPIs */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-            <CartaoKPIEstoque tipo="total" rotulo="Total de Itens" valor={carregando ? "..." : String(totalItens).padStart(2, '0')} />
-            <CartaoKPIEstoque tipo="critico" rotulo="Status Crítico" valor={carregando ? "..." : String(statusCritico).padStart(2, '0')} destaque={statusCritico > 0} />
-            <CartaoKPIEstoque tipo="baixo" rotulo="Baixo Estoque" valor={carregando ? "..." : String(baixoEstoque).padStart(2, '0')} />
+            <CartaoKPIEstoque tipo="total" rotulo="Total de Itens" valor={carregandoVisivel ? "..." : String(totalItens).padStart(2, '0')} />
+            <CartaoKPIEstoque tipo="critico" rotulo="Status Crítico" valor={carregandoVisivel ? "..." : String(statusCritico).padStart(2, '0')} destaque={statusCritico > 0} />
+            <CartaoKPIEstoque tipo="baixo" rotulo="Baixo Estoque" valor={carregandoVisivel ? "..." : String(baixoEstoque).padStart(2, '0')} />
           </div>
 
-          {/* ── Tabela de inventário*/}
           <div className="mb-4">
             <TabelaInventario
               produtos={produtos}
               carregando={carregando}
+              mostrarSpinner={carregandoVisivel}
               onBaixa={handleBaixa}
               onRepor={handleRepor}
               onEditar={handleEditar}
@@ -188,7 +182,6 @@ async function handleEditar(id, dados) {
             />
           </div>
 
-          {/* ── Rodapé: Movimentações */}
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12">
               <CartaoUltimasMovimentacoes movimentacoes={movimentacoes} />
@@ -198,7 +191,6 @@ async function handleEditar(id, dados) {
         </div>
       </main>
 
-      {/* ── MODAL DE ADICIONAR PRODUTO ── */}
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl">

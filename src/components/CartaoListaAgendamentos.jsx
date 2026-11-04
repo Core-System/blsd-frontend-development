@@ -1,25 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ModalDetalhesAgendamento from './ModalDetalhesAgendamento';
 import Paginacao from './Paginacao';
+import LoadingSpinner from './LoadingSpinner';
+import { AlertTriangle, CircleUserRound, MoreHorizontal, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { cancelarConsulta, concluirConsulta } from '../services/consultaService';
 
-const iconeOpcoes = (
-  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-  </svg>
-);
+const iconeOpcoes = <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />;
 
-/* ── Avatar neutro ── */
-/* ── Avatar neutro ── */
 function AvatarNeutro({ tamanho = 28 }) {
   return (
     <div
       className="rounded-full bg-[#e8e6d9] flex items-center justify-center flex-shrink-0"
       style={{ width: tamanho, height: tamanho, minWidth: tamanho }}
     >
-      <svg width={tamanho * 0.55} height={tamanho * 0.55} fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={1.8}>
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20v-1a8 8 0 0 1 16 0v1"/>
-      </svg>
+      <CircleUserRound size={tamanho * 0.55} stroke="#9ca3af" strokeWidth={1.8} aria-hidden="true" />
     </div>
   );
 }
@@ -40,6 +35,78 @@ const LABEL_STATUS = {
   CANCELADA: 'CANCELADO',
 };
 
+function ModalConfirmacaoAcao({ acao, agendamento, confirmando, onConfirmar, onCancelar }) {
+  if (!acao || !agendamento) return null;
+
+  const cancelar = acao === 'cancelar';
+  const titulo = cancelar ? 'Cancelar consulta' : 'Concluir consulta';
+  const descricao = cancelar
+    ? 'Tem certeza que deseja cancelar esta consulta? Essa ação não poderá ser desfeita.'
+    : 'Tem certeza que deseja marcar esta consulta como concluída?';
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      role="presentation"
+    >
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={() => {
+          if (!confirmando) onCancelar();
+        }}
+      />
+      <div
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-[#e8e6d9] bg-white p-6 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmacao-acao-titulo"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${cancelar ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-700'}`}>
+              <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 id="confirmacao-acao-titulo" className="text-base font-bold text-gray-900">{titulo}</h2>
+              <p className="text-[11px] text-gray-400">Agendamento #{agendamento.id}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onCancelar}
+            className="rounded-full p-1 text-gray-400 transition-colors hover:bg-[#f5f4ec] hover:text-gray-700"
+            aria-label="Fechar confirmação"
+          >
+            <X size={17} strokeWidth={2} aria-hidden="true" />
+          </button>
+        </div>
+
+        <p className="mt-5 text-sm leading-6 text-gray-600">{descricao}</p>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancelar}
+            disabled={confirmando}
+            className="flex-1 rounded-lg border border-[#e8e6d9] px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-[#f5f4ec] disabled:opacity-60"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirmar}
+            disabled={confirmando}
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-bold text-white transition-colors disabled:opacity-60 ${cancelar ? 'bg-red-500 hover:bg-red-600' : 'bg-[#2C3E2D] hover:bg-[#243325]'}`}
+          >
+            {confirmando ? 'Aguarde...' : 'Confirmar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function formatarDataHora(iso) {
   if (!iso) return { data: '—', hora: '—' };
   const d = new Date(iso);
@@ -51,21 +118,74 @@ function formatarDataHora(iso) {
 export default function CartaoListaAgendamentos({
   agendamentos = [],
   carregando = false,
+  mostrarSpinner = false,
   filtros = {},
   paginaAtual = 0,
   totalPaginas = 1,
   totalElementos = 0,
   tamanhoPagina = 15,
   aoMudarPagina,
+  aoAtualizarAgendamento,
 }) {
   const [menuAberto, setMenuAberto] = useState(null);
   const [agendamentoDetalhes, setAgendamentoDetalhes] = useState(null);
+  const [acaoSolicitada, setAcaoSolicitada] = useState(null);
+  const [acaoEmAndamento, setAcaoEmAndamento] = useState(null);
+
+  useEffect(() => {
+    if (!acaoSolicitada) return undefined;
+
+    function fecharComEscape(event) {
+      if (event.key === 'Escape' && !acaoEmAndamento) setAcaoSolicitada(null);
+    }
+
+    document.addEventListener('keydown', fecharComEscape);
+    return () => document.removeEventListener('keydown', fecharComEscape);
+  }, [acaoSolicitada, acaoEmAndamento]);
+
+  useEffect(() => {
+    if (menuAberto === null) return undefined;
+
+    function fecharAoClicarFora(event) {
+      if (!event.target.closest('[data-menu-agendamento]')) {
+        setMenuAberto(null);
+      }
+    }
+
+    document.addEventListener('mousedown', fecharAoClicarFora);
+    return () => document.removeEventListener('mousedown', fecharAoClicarFora);
+  }, [menuAberto]);
+
+  function solicitarAcao(agendamento, acao) {
+    setMenuAberto(null);
+    setAcaoSolicitada({ agendamento, acao });
+  }
+
+  async function executarAcao() {
+    const { agendamento, acao } = acaoSolicitada;
+    setAcaoEmAndamento(`${acao}-${agendamento.id}`);
+    try {
+      const atualizado = acao === 'concluir'
+        ? await concluirConsulta(agendamento.id)
+        : await cancelarConsulta(agendamento.id);
+      aoAtualizarAgendamento?.(atualizado);
+      setAcaoSolicitada(null);
+      toast.success(acao === 'concluir' ? 'Consulta concluída.' : 'Consulta cancelada.');
+    } catch (error) {
+      const mensagem = acao === 'cancelar'
+        ? 'Não foi possível cancelar a consulta.'
+        : error?.response?.data?.message || 'Não foi possível concluir a consulta.';
+      toast.error(mensagem);
+    } finally {
+      setAcaoEmAndamento(null);
+    }
+  }
 
   const filtrados = agendamentos.filter((a) => {
     const nome = a.cliente?.nome?.toLowerCase() || '';
     const buscaNome = filtros.paciente ? nome.includes(filtros.paciente.toLowerCase()) : true;
 
-    const status = a.status || 'PENDENTE';
+    const status = a.statusConsulta || 'PENDENTE';
     const buscaStatus = filtros.status && filtros.status !== 'Ver todos'
       ? status === filtros.status.toUpperCase()
       : true;
@@ -80,7 +200,6 @@ export default function CartaoListaAgendamentos({
 
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-      {/* header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#f0ede0]">
         <div>
           <h2 className="text-base font-bold text-gray-800">Lista de</h2>
@@ -101,8 +220,14 @@ export default function CartaoListaAgendamentos({
           </thead>
           <tbody className="divide-y divide-[#f5f3e8]">
 
-            {/* skeleton */}
-            {carregando && Array.from({ length: 4 }).map((_, i) => (
+            {carregando && (
+              <>
+                <tr>
+                  <td colSpan={5}>
+                    {mostrarSpinner && <LoadingSpinner size="small" label="Carregando agendamentos" showLabel />}
+                  </td>
+                </tr>
+                {Array.from({ length: 4 }).map((_, i) => (
               <tr key={i}>
                 <td className="px-6 py-4">
                   <div className="space-y-1.5">
@@ -120,9 +245,10 @@ export default function CartaoListaAgendamentos({
                 <td className="px-6 py-4"><div className="h-6 w-24 bg-gray-100 animate-pulse rounded-md"/></td>
                 <td className="px-6 py-4"><div className="h-3 w-4 bg-gray-100 animate-pulse rounded"/></td>
               </tr>
-            ))}
+                ))}
+              </>
+            )}
 
-            {/* vazio */}
             {!carregando && filtrados.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-6 py-12 text-center">
@@ -135,22 +261,19 @@ export default function CartaoListaAgendamentos({
               </tr>
             )}
 
-            {/* linhas */}
-            {!carregando && filtrados.map((a, i) => {
+            {!carregando && filtrados.map((a) => {
               const { data, hora } = formatarDataHora(a.dataHoraInicio);
               const nomeCliente = a.cliente?.nome || '—';
-              const status = a.status || 'PENDENTE';
+              const status = a.statusConsulta || 'PENDENTE';
               const procedimento = a.servicos?.[0]?.toUpperCase() || '—';
 
               return (
                 <tr key={a.id} className="hover:bg-[#fdfcf7] transition-colors group">
-                  {/* Data & Hora */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <p className="text-xs font-semibold text-gray-800">{data}</p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{hora}</p>
                   </td>
 
-                  {/* Cliente */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2.5">
                       <AvatarNeutro tamanho={28} />
@@ -158,14 +281,12 @@ export default function CartaoListaAgendamentos({
                     </div>
                   </td>
 
-                  {/* Procedimento */}
                   <td className="px-6 py-4">
                     <span className="px-2.5 py-1 rounded-md text-[10px] font-semibold whitespace-nowrap bg-[#eef4ee] text-[#2C3E2D] border border-[#c8dbc8]">
                       {procedimento}
                     </span>
                   </td>
 
-                  {/* Status */}
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold whitespace-nowrap ${ESTILOS_STATUS[status] || ESTILOS_STATUS.PENDENTE}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${PONTO_STATUS[status] || PONTO_STATUS.PENDENTE}`}/>
@@ -173,9 +294,8 @@ export default function CartaoListaAgendamentos({
                     </span>
                   </td>
 
-                  {/* Ações */}
                   <td className="px-6 py-4">
-                    <div className="relative">
+                    <div className="relative" data-menu-agendamento>
                       <button
                         onClick={() => setMenuAberto(menuAberto === a.id ? null : a.id)}
                         className="p-1.5 rounded-md hover:bg-[#f0ede0] text-gray-400 hover:text-gray-700 transition-all"
@@ -185,8 +305,32 @@ export default function CartaoListaAgendamentos({
                       {menuAberto === a.id && (
                         <div className="absolute right-0 top-7 bg-white border border-[#e8e6d9] rounded-lg shadow-lg z-10 py-1 min-w-[130px]">
                           <button onClick={() => { setAgendamentoDetalhes(a); setMenuAberto(null); }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Ver detalhes</button>
-                          <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-[#f5f4ec]">Remarcar</button>
-                          <button className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50">Cancelar</button>
+                          {status === 'PENDENTE' && (
+                            <>
+                              <button
+                                onClick={() => solicitarAcao(a, 'concluir')}
+                                disabled={acaoEmAndamento !== null}
+                                className="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 disabled:opacity-50"
+                              >
+                                {acaoEmAndamento === `concluir-${a.id}` ? 'Concluindo...' : 'Concluir'}
+                              </button>
+                              <button
+                                onClick={() => solicitarAcao(a, 'cancelar')}
+                                disabled={acaoEmAndamento !== null}
+                                className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 disabled:opacity-50"
+                              >
+                                {acaoEmAndamento === `cancelar-${a.id}` ? 'Cancelando...' : 'Cancelar'}
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            disabled
+                            title="Remarcação ainda não disponível"
+                            className="w-full cursor-not-allowed px-3 py-1.5 text-left text-xs text-gray-400"
+                          >
+                            Remarcar
+                          </button>
                         </div>
                       )}
                     </div>
@@ -198,7 +342,6 @@ export default function CartaoListaAgendamentos({
         </table>
       </div>
 
-      {/* rodapé */}
       {!carregando && filtrados.length > 0 && (
         <Paginacao
           paginaAtual={Number(paginaAtual) + 1}
@@ -222,6 +365,14 @@ export default function CartaoListaAgendamentos({
           onFechar={() => setAgendamentoDetalhes(null)}
         />
       )}
+
+      <ModalConfirmacaoAcao
+        acao={acaoSolicitada?.acao}
+        agendamento={acaoSolicitada?.agendamento}
+        confirmando={acaoEmAndamento !== null}
+        onConfirmar={executarAcao}
+        onCancelar={() => setAcaoSolicitada(null)}
+      />
     </div>
   );
 }

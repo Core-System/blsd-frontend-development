@@ -1,17 +1,11 @@
-import axios from 'axios';
-const BASE_URL = 'http://localhost:8080/movimentacao';
-
-const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    return { headers: { Authorization: `Bearer ${token}` } };
-};
+import api from './api';
 
 export async function listarMovimentacoes() {
-    const resposta = await axios.get(BASE_URL, getAuthHeaders());
-    return resposta.data;
+  const { data } = await api.get('/movimentacao');
+  return data;
 }
 
 export async function registrarMovimentacao(dados) {
-    const resposta = await axios.post(BASE_URL, dados, getAuthHeaders());
-    return resposta.data;
+  const { data } = await api.post('/movimentacao', dados);
+  return data;
 }

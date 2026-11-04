@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import BarraDeNavegacaoLateral from '../components/BarraDeNavegacaoLateral';
 import GraficoTendenciaFaturamento from '../components/GraficoTendenciaFaturamento';
@@ -11,40 +12,19 @@ import {
   getReceitaAnualTotal,
   getTicketMedio,
 } from '../services/dashboardService';
+import useDelayedLoading from '../hooks/useDelayedLoading';
+import { Bell, Download, Search, Settings } from 'lucide-react';
 
-/* ── ícones ── */
-const iconeExportar = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="7 10 12 15 17 10"/>
-    <line x1="12" y1="15" x2="12" y2="3"/>
-  </svg>
-);
-const iconeBusca = (
-  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-  </svg>
-);
-const iconeNotificacao = (
-  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-  </svg>
-);
-const iconeConfig = (
-  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-    <circle cx="12" cy="12" r="3"/>
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-  </svg>
-);
+const iconeExportar = <Download size={14} strokeWidth={2} aria-hidden="true" />;
+const iconeBusca = <Search size={15} strokeWidth={2} aria-hidden="true" />;
+const iconeNotificacao = <Bell size={18} strokeWidth={1.8} aria-hidden="true" />;
+const iconeConfig = <Settings size={18} strokeWidth={1.8} aria-hidden="true" />;
 
-/* ── formata moeda BR ── */
 function formatarReais(valor) {
   if (valor == null) return '—';
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-/* ── KPI card ── */
 function KPI({ rotulo, valor, badge, meta, carregando }) {
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl px-5 py-4 flex flex-col gap-1 min-w-0">
@@ -65,7 +45,6 @@ function KPI({ rotulo, valor, badge, meta, carregando }) {
   );
 }
 
-/* ── Header ── */
 function HeaderDashboard({ nome }) {
   return (
     <>
@@ -73,7 +52,6 @@ function HeaderDashboard({ nome }) {
   );
 }
 
-/* ══════════════════════════════════════════ */
 export default function PaginaDashboard() {
   const { usuario } = useAuth();
   const nomeCompleto = usuario?.nome || 'Usuário';
@@ -86,9 +64,9 @@ export default function PaginaDashboard() {
     ticketMedio: null,
   });
   const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
   const [procedimentos, setProcedimentos] = useState([]);
+  const carregandoVisivel = useDelayedLoading(carregando);
 
   function exportarRelatorio() {
     const faturamentoMensal = Number(kpis.faturamentoMensal) || 0;
@@ -181,13 +159,17 @@ export default function PaginaDashboard() {
     async function carregarKPIs() {
       try {
         setCarregando(true);
-        // allSettled garante que uma falha isolada não derruba os outros KPIs
         const [faturamento, procedimentos, receita, ticket] = await Promise.allSettled([
           getFaturamentoMensal(),
           getProcedimentosMensal(),
           getReceitaAnualTotal(),
           getTicketMedio(),
         ]);
+        const houveFalha = [faturamento, procedimentos, receita, ticket]
+          .some((resultado) => resultado.status === 'rejected');
+        if (houveFalha) {
+          toast.error('Não foi possível carregar todos os indicadores do dashboard.');
+        }
         setKpis({
           faturamentoMensal:  faturamento.status  === 'fulfilled' ? faturamento.value  : null,
           procedimentosMensal:procedimentos.status === 'fulfilled' ? procedimentos.value: null,
@@ -196,7 +178,7 @@ export default function PaginaDashboard() {
         });
       } catch (e) {
         console.error('Erro ao carregar KPIs do dashboard:', e);
-        setErro('Não foi possível carregar os dados.');
+        toast.error('Não foi possível carregar os dados do dashboard.');
       } finally {
         setCarregando(false);
       }
@@ -212,7 +194,6 @@ export default function PaginaDashboard() {
       <main className="ml-[152px] pt-6 min-h-screen bg-[#f5f4ec]">
         <div className="max-w-[1300px] mx-auto px-6 py-6">
 
-          {/* ── Cabeçalho */}
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-3xl font-black text-gray-900 leading-tight">
@@ -229,38 +210,29 @@ export default function PaginaDashboard() {
             </button>
           </div>
 
-          {/* ── erro global ── */}
-          {erro && (
-            <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
-              {erro}
-            </div>
-          )}
-
-          {/* ── KPIs ── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
             <KPI
               rotulo="Faturamento Mensal"
               valor={formatarReais(kpis.faturamentoMensal)}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
             <KPI
               rotulo="Procedimentos Mensais"
               valor={kpis.procedimentosMensal ?? '—'}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
             <KPI
               rotulo="Receita Anual"
               valor={formatarReais(kpis.receitaAnual)}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
             <KPI
               rotulo="Ticket Médio / Procedimento"
               valor={formatarReais(kpis.ticketMedio)}
-              carregando={carregando}
+              carregando={carregandoVisivel}
             />
           </div>
 
-          {/* ── Gráficos ── */}
           <div className="grid grid-cols-12 gap-4 mb-4 items-stretch">
             <div className="col-span-12 lg:col-span-8 flex flex-col">
               <GraficoTendenciaFaturamento />
@@ -270,7 +242,6 @@ export default function PaginaDashboard() {
             </div>
           </div>
 
-          {/* ── Próximos Agendamentos ── */}
           <TabelaProximosAgendamentos onDadosCarregados={setAgendamentos} />
 
         </div>

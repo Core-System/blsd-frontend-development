@@ -3,6 +3,36 @@ import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
+function limparSessao() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('nome_usuario');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('usuario');
+}
+
+function criarUsuario(token, nome, urlFoto) {
+    const decodedToken = jwtDecode(token);
+
+    if (
+        !decodedToken.role ||
+        !decodedToken.sub ||
+        !decodedToken.id ||
+        (decodedToken.exp && decodedToken.exp * 1000 <= Date.now())
+    ) {
+        throw new Error('Token de autenticação inválido.');
+    }
+
+    return {
+        nome: nome || '',
+        email: decodedToken.sub,
+        id: decodedToken.id,
+        urlFoto,
+        acesso: {
+            nome: decodedToken.role
+        }
+    };
+}
+
 export function AuthProvider({ children }) {
     const [usuario, setUsuario] = useState(() => {
         const tokenSalvo = localStorage.getItem('token');
@@ -11,55 +41,45 @@ export function AuthProvider({ children }) {
         if (!tokenSalvo) return null;
 
         try {
-            const decodedToken = jwtDecode(tokenSalvo);
-            return {
-                nome: nomeSalvo,
-                email: decodedToken.sub,
-                id: decodedToken.id,
-                acesso: {
-                    nome: decodedToken.role
-                }
-            };
-        } catch (error) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('nome_usuario');
-            localStorage.removeItem('user_role');
-            localStorage.removeItem('usuario');
+            const usuarioSalvo = JSON.parse(localStorage.getItem('usuario') || 'null');
+            const usuarioAtual = criarUsuario(
+                tokenSalvo,
+                nomeSalvo || usuarioSalvo?.nome,
+                usuarioSalvo?.urlFoto,
+            );
+
+            localStorage.setItem('user_role', usuarioAtual.acesso.nome);
+            localStorage.setItem('usuario', JSON.stringify(usuarioAtual));
+            return usuarioAtual;
+        } catch {
+            limparSessao();
             return null;
         }
     });
 
     function salvarUsuario(dados) {
-        localStorage.setItem('token', dados.token);
-        localStorage.setItem('nome_usuario', dados.nome);
-
         try {
-            const decodedToken = jwtDecode(dados.token);
-            
-            const usuarioObj = {
-                nome: dados.nome,
-                email: decodedToken.sub,
-                id: decodedToken.id,
-                urlFoto: dados.urlFoto,
-                acesso: {
-                    nome: decodedToken.role
-                }
-            };
+            if (!dados?.token) {
+                throw new Error('Resposta de autenticação sem token.');
+            }
 
-            localStorage.setItem('user_role', decodedToken.role);
+            const usuarioObj = criarUsuario(dados.token, dados.nome, dados.urlFoto);
+
+            localStorage.setItem('token', dados.token);
+            localStorage.setItem('nome_usuario', usuarioObj.nome);
+            localStorage.setItem('user_role', usuarioObj.acesso.nome);
             localStorage.setItem('usuario', JSON.stringify(usuarioObj));
-
             setUsuario(usuarioObj);
+            return usuarioObj;
         } catch (error) {
-            console.error("Erro ao decodificar o token no login:", error);
+            limparSessao();
+            setUsuario(null);
+            throw error;
         }
     }
 
     function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('nome_usuario');
-        localStorage.removeItem('user_role');
-        localStorage.removeItem('usuario');
+        limparSessao();
         setUsuario(null);
     }
 

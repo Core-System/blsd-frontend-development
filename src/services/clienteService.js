@@ -1,14 +1,8 @@
 import api from "./api";
 
 function normalizarPagina(data, fallbackSize = 10) {
-  if (Array.isArray(data)) {
-    return {
-      content: data,
-      totalElements: data.length,
-      totalPages: Math.max(1, Math.ceil(data.length / fallbackSize)),
-      number: 0,
-      size: fallbackSize,
-    };
+  if (!data || !Array.isArray(data.content)) {
+    throw new Error('Resposta paginada inválida para clientes.');
   }
 
   return {
@@ -53,7 +47,7 @@ export async function atualizarCliente(id, dados) {
 
 export async function listarCliente(id) {
   const { data } = await api.get(`/cliente/${id}`);
-  return data; // [{ id, nome, email, telefone, urlFoto, dataCriacao, dataNasc, acesso, senha }]
+  return data;
 }
 
 export async function atualizarFotoCliente(id, arquivoFoto) {

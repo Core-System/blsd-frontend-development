@@ -12,9 +12,8 @@ const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov'
 export default function GraficoTendenciaFaturamento() {
   const canvasRef = useRef(null);
   const chartRef  = useRef(null);
-  const [dados, setDados] = useState(null); // null=carregando | {rotulos,valores} | 'vazio' | 'erro'
+  const [dados, setDados] = useState(null);
 
-  // 1. Fetch
   useEffect(() => {
     let mounted = true;
     getTendenciaFaturamento()
@@ -40,7 +39,6 @@ export default function GraficoTendenciaFaturamento() {
     };
   }, []);
 
-  // 2. Cria chart após canvas montar
   useEffect(() => {
     if (!dados || typeof dados !== 'object' || !canvasRef.current) return;
     chartRef.current?.destroy();

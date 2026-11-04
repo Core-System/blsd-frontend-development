@@ -1,15 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import ShellPublico from './ShellPublico';
+import { Check } from 'lucide-react';
 
 const NOMES_MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
-/**
- * TelaConfirmacaoAgendamento: Página de sucesso pós-agendamento
- * Exibe todos os detalhes do agendamento confirmado e oferece próximos passos
- */
 export default function TelaConfirmacaoAgendamento({ agendamento, onNovoAgendamento }) {
   const navigate = useNavigate();
 
@@ -32,14 +29,11 @@ export default function TelaConfirmacaoAgendamento({ agendamento, onNovoAgendame
   return (
     <ShellPublico>
       <div className="bg-gradient-to-b from-[#f8f7f2] to-[#f5f4ec]">
-      {/* Header visual */}
       <div className="bg-[#576b5d] px-6 py-8 text-white">
         <div className="mx-auto max-w-2xl text-center">
           <div className="flex justify-center mb-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#d4b055]/20">
-              <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Check size={32} strokeWidth={2} aria-hidden="true" />
             </div>
           </div>
           <h1 className="text-4xl font-bold" style={{ fontFamily: 'Georgia, serif' }}>
@@ -49,17 +43,14 @@ export default function TelaConfirmacaoAgendamento({ agendamento, onNovoAgendame
         </div>
       </div>
 
-      {/* Conteúdo principal */}
       <main className="flex-1 px-6 py-8">
         <div className="mx-auto max-w-2xl">
-          {/* Card de recibo */}
           <div className="mb-6 rounded-[2rem] border border-[#e8e6d9] bg-white p-8 shadow-[0_18px_42px_rgba(30,39,32,0.08)]">
             <div className="mb-6 border-b border-[#e8e6d9] pb-6">
               <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#d4b055]">Comprovante de Agendamento</p>
               <h2 className="mt-2 text-2xl font-semibold text-[#2C3E2D]">Detalhes da Sua Reserva</h2>
             </div>
 
-            {/* Detalhes */}
             <div className="space-y-4">
               <div className="rounded-[1.5rem] border border-[#edf1ee] bg-[#f8faf8] p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Procedimento</p>
@@ -102,7 +93,6 @@ export default function TelaConfirmacaoAgendamento({ agendamento, onNovoAgendame
             </div>
           </div>
 
-          {/* Ações */}
           <div className="space-y-3">
             <button
               onClick={handleVerAgendamentos}

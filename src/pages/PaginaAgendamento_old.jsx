@@ -368,11 +368,9 @@ export default function PaginaAgendamento() {
           </div>
         </div>
       </div>
-      {/* ── MODAL DE DICAS PRE-PROCEDIMENTO ── */}
       {modalDicasAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
           <div className="bg-[#f8f7f2] w-full max-w-md rounded-2xl p-8 shadow-2xl relative transform transition-all">
-            {/* Botão Fechar */}
             <button
               onClick={() => setModalDicasAberto(false)}
               className="absolute top-5 right-5 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer"
@@ -412,7 +410,6 @@ export default function PaginaAgendamento() {
         </div>
       )}
 
-      {/* ── FAIXA 4: rodapé ── */}
       <RodapeAgendamento />
     </div>
   );
