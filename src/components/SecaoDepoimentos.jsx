@@ -30,7 +30,7 @@ function iniciais(nome) {
 function urlFotoCompleta(urlFoto) {
   if (!urlFoto) return null;
   if (urlFoto.startsWith('http') || urlFoto.startsWith('blob:')) return urlFoto;
-  return `http://localhost:8080${urlFoto.startsWith('/') ? '' : '/'}${urlFoto}`;
+  return `${urlFoto.startsWith('/') ? '' : '/'}${urlFoto}`;
 }
 
 export default function SecaoDepoimentos() {

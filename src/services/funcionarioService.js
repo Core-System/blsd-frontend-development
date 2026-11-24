@@ -10,6 +10,11 @@ export async function buscarFuncionarioPorId(id) {
   return data;
 }
 
+export async function buscarMeuPerfilFuncionario() {
+  const { data } = await api.get('/funcionario/me');
+  return data;
+}
+
 export async function cadastrarFuncionario({ nome, email, senha, cpf, urlFoto }) {
   const { data } = await api.post('/funcionario', {
     nome,
@@ -34,6 +39,18 @@ export async function atualizarFuncionario(id, { nome, email, senha, cpf, urlFot
   return data;
 }
 
+export async function atualizarMeuPerfilFuncionario({ nome, email, senha, cpf, urlFoto }) {
+  const { data } = await api.put('/funcionario/me', {
+    nome,
+    email,
+    senha,
+    cpf: cpf || null,
+    urlFoto: urlFoto || '',
+    acesso: { id: 2 },
+  });
+  return data;
+}
+
 export async function deletarFuncionario(id) {
   await api.delete(`/funcionario/${id}`);
 }
@@ -43,6 +60,18 @@ export async function atualizarFotoFuncionario(id, arquivoFoto) {
   formData.append('file', arquivoFoto);
 
   const { data } = await api.patch(`/funcionario/${id}/foto`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}
+
+export async function atualizarMinhaFotoFuncionario(arquivoFoto) {
+  const formData = new FormData();
+  formData.append('file', arquivoFoto);
+
+  const { data } = await api.patch('/funcionario/me/foto', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

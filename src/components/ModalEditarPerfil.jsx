@@ -174,7 +174,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
                   src={
                     form.urlFoto.startsWith('blob:') || form.urlFoto.startsWith('http')
                       ? form.urlFoto
-                      : `http://localhost:8080${form.urlFoto.startsWith('/') ? '' : '/'}${form.urlFoto}`
+                      : `${form.urlFoto.startsWith('/') ? '' : '/'}${form.urlFoto}`
                   }
                   alt="Foto de perfil"
                   className="h-full w-full object-cover"
