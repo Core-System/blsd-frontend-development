@@ -4,7 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import BalaoAgendamentos from './BalaoAgendamentos';
 import ModalEditarPerfil from './ModalEditarPerfil';
 import { atualizarCliente, atualizarFotoCliente, listarCliente } from '../services/clienteService';
-import { atualizarFotoFuncionario, atualizarFuncionario, buscarFuncionarioPorId } from '../services/funcionarioService';
+import {
+  atualizarMinhaFotoFuncionario,
+  atualizarMeuPerfilFuncionario,
+  buscarMeuPerfilFuncionario,
+} from '../services/funcionarioService';
 import { toast } from 'sonner';
 import { Check, Info, UserRound } from 'lucide-react';
 
@@ -73,7 +77,7 @@ export default function BarraDeNavegacaoSuperior() {
     try {
       let data;
       if (temPermissao(['GESTOR', 'FUNCIONARIO'])) {
-        data = await buscarFuncionarioPorId(usuario.id);
+        data = await buscarMeuPerfilFuncionario();
       } else {
         data = await listarCliente(usuario.id);
       }
@@ -98,14 +102,14 @@ export default function BarraDeNavegacaoSuperior() {
       const ehFuncionario = temPermissao(['GESTOR', 'FUNCIONARIO']);
 
       if (ehFuncionario) {
-        await atualizarFuncionario(id, payload);
+        await atualizarMeuPerfilFuncionario(payload);
       } else {
         await atualizarCliente(id, payload);
       }
 
       if (arquivoFoto) {
         if (ehFuncionario) {
-          await atualizarFotoFuncionario(id, arquivoFoto);
+          await atualizarMinhaFotoFuncionario(arquivoFoto);
         } else {
           await atualizarFotoCliente(id, arquivoFoto);
         }
@@ -118,7 +122,7 @@ export default function BarraDeNavegacaoSuperior() {
       }
 
       const usuarioAtualizado = ehFuncionario
-        ? await buscarFuncionarioPorId(id)
+        ? await buscarMeuPerfilFuncionario()
         : await listarCliente(id);
 
       salvarUsuario({
@@ -195,7 +199,7 @@ export default function BarraDeNavegacaoSuperior() {
                     src={
                       cliente.urlFoto.startsWith('http')
                         ? cliente.urlFoto
-                        : `http://localhost:8080${cliente.urlFoto.startsWith('/') ? '' : '/'}${cliente.urlFoto}`
+                        : `${cliente.urlFoto.startsWith('/') ? '' : '/'}${cliente.urlFoto}`
                     }
                     alt="Perfil"
                     className="h-full w-full object-cover"
