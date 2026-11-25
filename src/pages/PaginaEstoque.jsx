@@ -133,15 +133,15 @@ async function handleEditar(id, dados) {
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
       <BarraDeNavegacaoLateral />
 
-      <main className="ml-[152px] mt-14 min-h-[calc(100vh-56px)] overflow-y-auto bg-[#f5f4ec]">
-        <div className="max-w-[1300px] mx-auto px-6 py-7">
+      <main className="min-h-screen bg-[#f5f4ec] pb-28 lg:ml-[152px] lg:mt-14 lg:min-h-[calc(100vh-56px)] lg:overflow-y-auto lg:pb-0">
+        <div className="mx-auto max-w-[1300px] px-4 py-7 sm:px-6">
 
-          <div className="flex items-start justify-between mb-6">
+          <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
                 Gestão <span className="mx-1.5 text-gray-300">›</span> <span className="text-[#2C3E2D]">Estoque</span>
               </p>
-              <h1 className="text-3xl font-black text-gray-900 leading-tight">
+              <h1 className="text-2xl font-black leading-tight text-gray-900 sm:text-3xl">
                 Controle de Estoque
               </h1>
               <p className="text-sm text-gray-500 mt-1.5 max-w-sm">
@@ -149,10 +149,10 @@ async function handleEditar(id, dados) {
               </p>
             </div>
 
-            <div className="mt-1">
+            <div className="mt-1 w-full sm:w-auto">
               <button 
                 onClick={() => setModalAberto(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#B8982A] hover:bg-[#a07f22] text-white text-sm font-bold rounded-lg transition-colors shadow-sm cursor-pointer"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#B8982A] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#a07f22] sm:w-auto"
               >
                 {iconePlus}
                 Adicionar Produto
@@ -193,7 +193,7 @@ async function handleEditar(id, dados) {
 
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl">
+          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-[#2C3E2D]" style={{ fontFamily: 'Georgia, serif' }}>Novo Produto</h3>
               <button onClick={() => setModalAberto(false)} className="text-gray-400 hover:text-gray-800 cursor-pointer">
@@ -211,7 +211,7 @@ async function handleEditar(id, dados) {
                   onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Preço (R$)</label>
                   <input 

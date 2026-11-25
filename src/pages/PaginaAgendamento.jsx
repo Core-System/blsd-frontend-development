@@ -307,10 +307,10 @@ export default function PaginaAgendamento() {
         <div className="mx-auto max-w-6xl px-6 pb-20">
           {passoAtual === 1 && (
             <div>
-              <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div>
                   <p className="mb-2 text-xs font-bold uppercase tracking-[0.24em] text-[#d4b055]">Passo 01</p>
-                  <h2 className="text-3xl font-bold text-[#2C3E2D]" style={{ fontFamily: 'Georgia, serif' }}>
+                  <h2 className="text-2xl font-bold text-[#2C3E2D] sm:text-3xl" style={{ fontFamily: 'Georgia, serif' }}>
                     Selecione o Procedimento
                   </h2>
                 </div>
@@ -400,7 +400,7 @@ export default function PaginaAgendamento() {
           {passoAtual === 2 && (
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.24em] text-[#d4b055]">Passo 02</p>
-              <h2 className="mb-8 text-3xl font-bold text-[#2C3E2D]" style={{ fontFamily: 'Georgia, serif' }}>
+              <h2 className="mb-8 text-2xl font-bold text-[#2C3E2D] sm:text-3xl" style={{ fontFamily: 'Georgia, serif' }}>
                 Escolha o dia, horário e local
               </h2>
 
@@ -433,7 +433,7 @@ export default function PaginaAgendamento() {
           {passoAtual === 3 && (
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.24em] text-[#d4b055]">Passo 03</p>
-              <h2 className="mb-8 text-3xl font-bold text-[#2C3E2D]" style={{ fontFamily: 'Georgia, serif' }}>
+              <h2 className="mb-8 text-2xl font-bold text-[#2C3E2D] sm:text-3xl" style={{ fontFamily: 'Georgia, serif' }}>
                 Confirme seu agendamento
               </h2>
 

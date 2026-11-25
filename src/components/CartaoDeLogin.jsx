@@ -51,7 +51,7 @@ export default function CartaoDeLogin() {
   }
 
   return (
-    <div className="bg-white/70 backdrop-blur-md rounded-2xl shadow-xl px-10 py-10 w-full max-w-md mx-auto">
+    <div className="mx-auto w-full max-w-md rounded-2xl bg-white/70 px-5 py-8 shadow-xl backdrop-blur-md sm:px-10 sm:py-10">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-[#1B3A4B] mb-2">Bem-vindo!</h1>
         <p className="text-sm text-gray-500">

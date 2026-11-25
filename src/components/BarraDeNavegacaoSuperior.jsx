@@ -10,7 +10,7 @@ import {
   buscarMeuPerfilFuncionario,
 } from '../services/funcionarioService';
 import { toast } from 'sonner';
-import { Check, Info, UserRound } from 'lucide-react';
+import { Check, Info, Menu, UserRound, X } from 'lucide-react';
 
 const links = ['Início', 'Procedimentos', 'Sobre nós', 'Contato'];
 
@@ -23,6 +23,7 @@ export default function BarraDeNavegacaoSuperior() {
 
   const [mensagemLogin, setMensagemLogin] = useState(null);
   const [mensagemDashboard, setMensagemDashboard] = useState(null);
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
 
   const [cliente, setCliente] = useState([]);
   const [, setCarregando] = useState(true);
@@ -145,11 +146,11 @@ export default function BarraDeNavegacaoSuperior() {
   }
 
   return (
-    <nav className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[#e8e6d9] bg-[#f8f7f2]/85 px-6 py-3 backdrop-blur-xl shadow-[0_8px_24px_rgba(25,35,29,0.05)]">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
+    <nav className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[#e8e6d9] bg-[#f8f7f2]/85 px-4 py-3 shadow-[0_8px_24px_rgba(25,35,29,0.05)] backdrop-blur-xl sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6">
         <button
           onClick={() => navigate('/')}
-          className="cursor-pointer bg-transparent text-xl font-black tracking-tight text-[#1f2e27] transition hover:text-[#2D4336]"
+          className="shrink-0 cursor-pointer bg-transparent text-xl font-black tracking-tight text-[#1f2e27] transition hover:text-[#2D4336]"
         >
           Blessed 7
         </button>
@@ -183,6 +184,19 @@ export default function BarraDeNavegacaoSuperior() {
             Dashboard
           </button>)}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setMenuMobileAberto((aberto) => !aberto)}
+          aria-label={menuMobileAberto ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={menuMobileAberto}
+          aria-controls="menu-navegacao-mobile"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#2D4336] hover:bg-[#edf3ef] md:hidden"
+        >
+          {menuMobileAberto
+            ? <X size={20} strokeWidth={2} aria-hidden="true" />
+            : <Menu size={20} strokeWidth={2} aria-hidden="true" />}
+        </button>
 
         <div className="flex items-center gap-3">
           {usuario ? (
@@ -224,6 +238,52 @@ export default function BarraDeNavegacaoSuperior() {
             </button>
           )}
         </div>
+      </div>
+
+      <div
+        id="menu-navegacao-mobile"
+        className={`${menuMobileAberto ? 'mt-3 flex flex-col gap-1 border-t border-[#e8e6d9] pt-3' : 'hidden'} md:hidden`}
+      >
+        {links.map((link) => (
+          <button
+            key={link}
+            type="button"
+            onClick={() => {
+              setMenuMobileAberto(false);
+              if (link === 'Início') rolarParaSecao('inicio');
+              if (link === 'Procedimentos') rolarParaSecao('procedimentos');
+              if (link === 'Sobre nós') rolarParaSecao('sobre-nos');
+              if (link === 'Contato') rolarParaSecao('footer');
+            }}
+            className="rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-[#4b5d4f] hover:bg-[#edf3ef]"
+          >
+            {link}
+          </button>
+        ))}
+        {temPermissao(['CLIENTE']) && (
+          <button
+            type="button"
+            onClick={() => {
+              setMenuMobileAberto(false);
+              aoClicarAgendar();
+            }}
+            className="rounded-lg px-3 py-2.5 text-left text-sm font-bold text-[#2D4336] hover:bg-[#edf3ef]"
+          >
+            Agende
+          </button>
+        )}
+        {temPermissao(['GESTOR', 'FUNCIONARIO']) && (
+          <button
+            type="button"
+            onClick={() => {
+              setMenuMobileAberto(false);
+              aoClicarDashboard();
+            }}
+            className="rounded-lg px-3 py-2.5 text-left text-sm font-bold text-[#2D4336] hover:bg-[#edf3ef]"
+          >
+            Dashboard
+          </button>
+        )}
       </div>
       {mensagemLogin && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2C3E2D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium animate-fade-in">

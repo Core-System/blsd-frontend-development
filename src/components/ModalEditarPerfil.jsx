@@ -146,7 +146,7 @@ export default function ModalEditarPerfil({ cliente, isFuncionario, onFechar, on
         if (event.target === event.currentTarget) onFechar();
       }}
     >
-      <div className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95">
+      <div className="relative max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl animate-in fade-in zoom-in-95 sm:p-6">
         <button
           type="button"
           onClick={onFechar}

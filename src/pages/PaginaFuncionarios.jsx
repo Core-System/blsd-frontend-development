@@ -99,8 +99,8 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl border border-[#e8e6d9] shadow-2xl w-full max-w-md mx-4 p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4 backdrop-blur-sm animate-fade-in">
+      <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-[#e8e6d9] bg-white p-5 shadow-2xl sm:p-6">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[#f0f5f0] flex items-center justify-center text-[#2C3E2D]">
@@ -171,8 +171,8 @@ function ModalEdicao({ funcionario, onFechar, onSalvar, salvando }) {
 }
 function ModalConfirmacao({ nome, onConfirmar, onCancelar, removendo }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl border border-[#e8e6d9] shadow-2xl w-full max-w-sm mx-4 p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4 backdrop-blur-sm">
+      <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl border border-[#e8e6d9] bg-white p-5 shadow-2xl sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center text-red-500">
             <AlertCircle size={16} strokeWidth={2} aria-hidden="true" />
@@ -348,27 +348,27 @@ export default function PaginaFuncionarios() {
         />
       )}
 
-      <main className="ml-[152px] min-h-screen bg-[#f5f4ec]">
-        <div className="max-w-[1200px] mx-auto px-6 py-7">
+      <main className="min-h-screen bg-[#f5f4ec] pb-28 lg:ml-[152px] lg:pb-0">
+        <div className="mx-auto max-w-[1200px] px-4 py-7 sm:px-6">
 
-          <div className="flex items-start justify-between mb-6">
+          <div className="mb-6 flex items-start justify-between">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
                 Gestão <span className="mx-1.5 text-gray-300">›</span>
                 <span className="text-[#2C3E2D]">Funcionários</span>
               </p>
-              <h1 className="text-3xl font-black text-gray-900 leading-tight">Gestão de Funcionários</h1>
+              <h1 className="text-2xl font-black leading-tight text-gray-900 sm:text-3xl">Gestão de Funcionários</h1>
               <p className="text-sm text-gray-400 mt-1">Cadastre e gerencie a equipe da clínica.</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <KPI rotulo="Total de Funcionários" valor={totalFuncionarios} sub="Equipe completa" carregando={carregandoVisivel} />
             <KPI rotulo="Nível de Acesso Padrão" valor="FUNC" sub="Perfil funcionário" carregando={carregandoVisivel} />
             <KPI rotulo="Cadastros" valor={totalFuncionarios} sub="Registros ativos" destaque carregando={carregandoVisivel} />
           </div>
 
-          <div className="bg-white border border-[#e8e6d9] rounded-xl p-6 mb-5">
+          <div className="mb-5 rounded-xl border border-[#e8e6d9] bg-white p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-lg bg-[#f0f5f0] flex items-center justify-center text-[#2C3E2D]">
                 <UserRound size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -379,7 +379,7 @@ export default function PaginaFuncionarios() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Campo label="Nome completo">
                 <input
                   value={form.nome}
@@ -447,8 +447,9 @@ export default function PaginaFuncionarios() {
             </div>
           </div>
 
-          <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-            <div className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] px-6 py-3 border-b border-[#f0eeea] bg-[#fafaf7]">
+          <div className="overflow-x-auto rounded-xl border border-[#e8e6d9] bg-white">
+            <div className="min-w-[760px]">
+            <div className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] border-b border-[#f0eeea] bg-[#fafaf7] px-6 py-3">
               {colunas.map((col) => (
                 <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{col}</span>
               ))}
@@ -475,7 +476,7 @@ export default function PaginaFuncionarios() {
               return (
                 <div
                   key={f.id}
-                  className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 hover:bg-[#fafaf7] transition-colors items-center"
+                  className="grid grid-cols-[2fr_2.2fr_1.6fr_1.4fr_1.2fr_0.4fr] items-center border-b border-[#f5f4f0] px-6 py-4 transition-colors last:border-0 hover:bg-[#fafaf7]"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center gap-3">
@@ -565,6 +566,7 @@ export default function PaginaFuncionarios() {
                   </button>
                 </div>
               )}
+            </div>
             </div>
           </div>
 

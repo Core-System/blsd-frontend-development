@@ -112,17 +112,17 @@ export default function PaginaGerenciarAgendamentos() {
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
       <BarraDeNavegacaoLateral />
 
-      <main className="ml-[152px] min-h-screen bg-[#f5f4ec]">
-        <div className="max-w-[1300px] mx-auto px-6 py-7">
+      <main className="min-h-screen bg-[#f5f4ec] pb-28 lg:ml-[152px] lg:pb-0">
+        <div className="mx-auto max-w-[1300px] px-4 py-7 sm:px-6">
 
-          <div className="flex items-start justify-between mb-5">
+          <div className="mb-5 flex items-start justify-between gap-3">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
                 Gestão
                 <span className="mx-1.5 text-gray-300">›</span>
                 <span className="text-[#2C3E2D]">Agendamentos</span>
               </p>
-              <h1 className="text-3xl font-black text-gray-900 leading-tight">
+              <h1 className="text-2xl font-black leading-tight text-gray-900 sm:text-3xl">
                 Gerenciar<br />Agendamentos
               </h1>
             </div>

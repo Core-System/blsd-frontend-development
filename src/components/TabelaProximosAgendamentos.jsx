@@ -54,7 +54,7 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
 
   return (
     <div className="bg-white border border-[#e8e6d9] rounded-xl p-5">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <h2 className="text-base font-bold text-gray-900">Próximos Agendamentos</h2>
         <button
           onClick={() => navigate('/agendamentos')}
@@ -64,7 +64,9 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-[1.4fr_1.6fr_1.2fr_0.5fr] gap-2 pb-2 border-b border-[#f0eeea] mb-1">
+      <div className="overflow-x-auto">
+      <div className="min-w-[680px]">
+      <div className="mb-1 grid grid-cols-[1.4fr_1.6fr_1.2fr_0.5fr] gap-2 border-b border-[#f0eeea] pb-2">
         {['Data e Hora', 'Cliente', 'Local', 'Status', 'Ação'].map((col) => (
           <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">{col}</span>
         ))}
@@ -74,7 +76,7 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         <>
           {carregandoVisivel && <LoadingSpinner size="small" label="Carregando próximos agendamentos" showLabel />}
           {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0">
+        <div key={i} className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] items-center gap-2 border-b border-[#f5f4f0] py-3.5 last:border-0">
           <div className="px-2 space-y-1.5">
             <div className="h-3 w-24 bg-gray-100 animate-pulse rounded"/>
             <div className="h-2.5 w-16 bg-gray-100 animate-pulse rounded"/>
@@ -113,7 +115,7 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
         return (
           <div
             key={a?.consultaId ?? i}
-            className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] gap-2 items-center py-3.5 border-b border-[#f5f4f0] last:border-0 hover:bg-[#fafaf7] rounded-lg px-1 transition-colors"
+            className="grid grid-cols-[1.4fr_1.6fr_1.2fr_1fr_0.6fr] items-center gap-2 rounded-lg border-b border-[#f5f4f0] px-1 py-3.5 transition-colors last:border-0 hover:bg-[#fafaf7]"
           >
             <div className="px-2">
               <p className="text-xs font-semibold text-gray-800">{data}</p>
@@ -158,6 +160,8 @@ export default function TabelaProximosAgendamentos({ onDadosCarregados }) {
           </div>
         );
       })}
+      </div>
+      </div>
     </div>
   );
 }

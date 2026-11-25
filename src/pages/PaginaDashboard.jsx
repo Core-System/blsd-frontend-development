@@ -191,12 +191,12 @@ export default function PaginaDashboard() {
       <BarraDeNavegacaoLateral />
       <HeaderDashboard nome={nomeCompleto} />
 
-      <main className="ml-[152px] pt-6 min-h-screen bg-[#f5f4ec]">
-        <div className="max-w-[1300px] mx-auto px-6 py-6">
+      <main className="min-h-screen bg-[#f5f4ec] pb-28 pt-6 lg:ml-[152px] lg:pb-0">
+        <div className="mx-auto max-w-[1300px] px-4 py-6 sm:px-6">
 
-          <div className="flex items-start justify-between mb-6">
+          <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row">
             <div>
-              <h1 className="text-3xl font-black text-gray-900 leading-tight">
+              <h1 className="text-2xl font-black leading-tight text-gray-900 sm:text-3xl">
                 Bem-vindo, {primeiroNome}
               </h1>
               <p className="text-sm text-gray-400 mt-1">Aqui está o resumo da performance clínica de hoje.</p>
@@ -204,13 +204,13 @@ export default function PaginaDashboard() {
             <button
               type="button"
               onClick={exportarRelatorio}
-              className="flex items-center gap-2 px-4 py-2 mt-1 bg-white border border-[#e8e6d9] text-sm font-semibold text-gray-700 rounded-lg hover:border-[#2C3E2D] transition-colors"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg border border-[#e8e6d9] bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-[#2C3E2D] sm:w-auto"
             >
               {iconeExportar} Exportar Relatório
             </button>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <KPI
               rotulo="Faturamento Mensal"
               valor={formatarReais(kpis.faturamentoMensal)}

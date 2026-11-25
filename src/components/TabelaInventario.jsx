@@ -102,8 +102,9 @@ function abrirBaixa(produto) {
           </div>
         </div>
 
-        <div className="w-full">
-          <div className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 pb-2 border-b border-[#e8e6d9] mb-1">
+        <div className="overflow-x-auto">
+          <div className="min-w-[500px]">
+          <div className="mb-1 grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 border-b border-[#e8e6d9] pb-2">
             {['PRODUTO', 'QUANTIDADE', 'STATUS', 'AÇÕES'].map(col => (
               <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">{col}</span>
             ))}
@@ -113,7 +114,7 @@ function abrirBaixa(produto) {
             <div className="space-y-3 py-6">
               {mostrarSpinner && <LoadingSpinner size="small" label="Carregando estoque" showLabel />}
               {Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 items-center">
+                <div key={idx} className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] items-center gap-2">
                   <div className="flex items-center gap-3 px-1">
                     <div className="h-8 w-8 rounded-lg bg-gray-100 animate-pulse" />
                     <div className="h-3 w-28 rounded bg-gray-100 animate-pulse" />
@@ -139,7 +140,7 @@ function abrirBaixa(produto) {
             return (
               <div
                 key={p.id}
-                className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] gap-2 items-center py-3.5 border-b border-[#f0eeea] last:border-0 hover:bg-[#fafaf7] transition-colors rounded-lg px-1"
+                className="grid grid-cols-[2fr_0.8fr_0.8fr_0.4fr] items-center gap-2 rounded-lg border-b border-[#f0eeea] px-1 py-3.5 transition-colors last:border-0 hover:bg-[#fafaf7]"
               >
                 <div className="flex items-center gap-3 px-1">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-gray-100">📦</div>
@@ -172,6 +173,7 @@ function abrirBaixa(produto) {
               </div>
             );
           })}
+          </div>
         </div>
 
         {!carregando && produtos.length > 0 && (
@@ -187,8 +189,8 @@ function abrirBaixa(produto) {
       </div>
 
       {modalRepor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+          <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-[#2C3E2D]">Repor Estoque</h3>
               <button onClick={() => setModalRepor(false)} className="text-gray-400 hover:text-gray-800 cursor-pointer">✕</button>
@@ -213,8 +215,8 @@ function abrirBaixa(produto) {
       )}
 
       {modalBaixa && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+          <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-red-600">Dar Baixa no Estoque</h3>
               <button onClick={() => setModalBaixa(false)} className="text-gray-400 hover:text-gray-800 cursor-pointer">✕</button>
@@ -247,8 +249,8 @@ function abrirBaixa(produto) {
       )}
 
       {modalEditar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+          <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-[#2C3E2D]">Editar Produto</h3>
               <button onClick={() => setModalEditar(false)} className="text-gray-400 hover:text-gray-800 cursor-pointer">✕</button>
@@ -264,7 +266,7 @@ function abrirBaixa(produto) {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Preço (R$)</label>
                   <input

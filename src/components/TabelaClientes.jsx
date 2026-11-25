@@ -64,8 +64,8 @@ export default function TabelaClientes({
   }
 
   return (
-    <div className="bg-white border border-[#e8e6d9] rounded-xl overflow-hidden">
-      <div className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-3 border-b border-[#f0eeea] bg-[#fafaf7]">
+    <div className="overflow-x-auto rounded-xl border border-[#e8e6d9] bg-white">
+      <div className="grid min-w-[720px] grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] border-b border-[#f0eeea] bg-[#fafaf7] px-6 py-3">
         {colunas.map((col) => (
           <span key={col} className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{col}</span>
         ))}
@@ -75,7 +75,7 @@ export default function TabelaClientes({
         <>
           {mostrarSpinner && <LoadingSpinner size="small" label="Carregando clientes" showLabel />}
           {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center gap-2">
+        <div key={i} className="grid min-w-[720px] grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] items-center gap-2 border-b border-[#f5f4f0] px-6 py-4 last:border-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse flex-shrink-0"/>
             <div className="space-y-1.5">
@@ -109,7 +109,7 @@ export default function TabelaClientes({
         return (
           <div
             key={c.id}
-            className={`grid grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] px-6 py-4 border-b border-[#f5f4f0] last:border-0 items-center transition-colors ${estaRemovendo ? 'opacity-40' : 'hover:bg-[#fafaf7]'}`}
+            className={`grid min-w-[720px] grid-cols-[2fr_2fr_1.4fr_0.9fr_0.4fr] items-center border-b border-[#f5f4f0] px-6 py-4 transition-colors last:border-0 ${estaRemovendo ? 'opacity-40' : 'hover:bg-[#fafaf7]'}`}
           >
             <div className="flex items-center gap-3">
               <AvatarNeutro tamanho={9} />

@@ -88,7 +88,7 @@ export default function CartaoDeCadastro() {
     "text-xs font-semibold text-gray-600 uppercase tracking-wider";
 
   return (
-    <div className="bg-white/75 backdrop-blur-md rounded-2xl shadow-xl px-10 py-8 w-full max-w-lg mx-auto">
+    <div className="mx-auto w-full max-w-lg rounded-2xl bg-white/75 px-5 py-7 shadow-xl backdrop-blur-md sm:px-10 sm:py-8">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-[#1B3A4B] mb-1">Crie sua conta</h1>
         <p className="text-sm text-gray-500">
@@ -108,7 +108,7 @@ export default function CartaoDeCadastro() {
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <div className="flex flex-col gap-1 flex-1">
             <label className={estiloLabel}>Telefone</label>
             <input

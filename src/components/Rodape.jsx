@@ -9,8 +9,8 @@ const linksDaRodape = [
 
 export default function Rodape() {
   return (
-    <footer id="footer" className="bg-[#2D4A3E] text-white py-6 px-10">
-      <div className="flex items-center justify-between w-full">
+    <footer id="footer" className="bg-[#2D4A3E] px-4 py-6 text-white sm:px-6 lg:px-10">
+      <div className="flex w-full flex-col items-center gap-5 md:flex-row md:justify-between">
         <div className="flex flex-col items-start gap-1">
           <span className="text-base font-bold tracking-tight">Blessed7</span>
 
@@ -26,7 +26,7 @@ export default function Rodape() {
             </span>
           </a>
         </div>
-        <div className="flex items-center gap-8">
+        <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:gap-x-8">
           {linksDaRodape.map((link) => (
             <Link
               key={link.label}
@@ -36,8 +36,8 @@ export default function Rodape() {
               {link.label}
             </Link>
           ))}
-        </div>
-        <div className="text-xs text-gray-400 text-right">
+        </nav>
+        <div className="max-w-full break-words text-center text-xs text-gray-400 md:text-right">
           © 2026 Blessed7. O Santuário da estética.
         </div>
       </div>

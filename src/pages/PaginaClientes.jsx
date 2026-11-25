@@ -59,18 +59,18 @@ export default function PaginaClientes() {
     <div className="min-h-screen bg-[#f5f4ec] font-sans">
       <BarraDeNavegacaoLateral />
 
-      <main className="ml-[152px] min-h-screen bg-[#f5f4ec]">
-        <div className="max-w-[1300px] mx-auto px-6 py-7">
+      <main className="min-h-screen bg-[#f5f4ec] pb-28 lg:ml-[152px] lg:pb-0">
+        <div className="mx-auto max-w-[1300px] px-4 py-7 sm:px-6">
 
-          <div className="flex items-start justify-between mb-6">
+          <div className="mb-6 flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-black text-gray-900 leading-tight">Gestão de Clientes</h1>
+              <h1 className="text-2xl font-black leading-tight text-gray-900 sm:text-3xl">Gestão de Clientes</h1>
               <p className="text-sm text-gray-400 mt-1">Central de registros e histórico de pacientes premium.</p>
             </div>
  
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <CartaoKPIClientes
               rotulo="Total de Clientes"
               valor={carregandoVisivel ? '—' : total.toLocaleString('pt-BR')}
@@ -92,8 +92,8 @@ export default function PaginaClientes() {
             />
           </div>
 
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center gap-2 bg-white border border-[#e8e6d9] rounded-lg px-3 py-2 flex-1 max-w-xs">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex w-full max-w-xs items-center gap-2 rounded-lg border border-[#e8e6d9] bg-white px-3 py-2 sm:flex-1">
               <span className="text-gray-400 flex-shrink-0">{iconeBusca}</span>
               <input
                 value={busca}
